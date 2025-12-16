@@ -6,9 +6,7 @@
     <meta name="theme-color" content="#6200ea">
     <title>Duty Tracker Pro</title>
 
-    <!-- Link to the separate manifest file -->
     <link rel="manifest" href="manifest.json">
-    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -38,8 +36,8 @@
         header { background: var(--primary); color: white; padding: 15px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3); z-index: 10; }
         .app-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .month-nav { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.15); padding: 8px 15px; border-radius: 12px; }
+        .nav-btn { background: none; border: none; color: white; font-weight: bold; font-size: 14px; padding: 5px 15px; cursor: pointer; }
         .week-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; margin-top: 15px; opacity: 0.9; font-weight: bold; }
-        .nav-btn { background: none; border: none; color: white; font-weight: bold; font-size: 14px; padding: 5px 15px; }
 
         /* CALENDAR */
         #calendar-grid { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(90px, 1fr); gap: 8px; padding-bottom: 80px; }
@@ -47,23 +45,19 @@
         .day-cell { 
             background: var(--surface); border-radius: 12px; padding: 6px; 
             position: relative; display: flex; flex-direction: column; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent; transition: 0.2s;
         }
         .day-cell.today { border: 2px solid var(--primary); }
         .day-num { font-size: 14px; font-weight: 700; color: #444; margin-bottom: 2px; }
 
-        /* --- FORCE COLORS (FIX) --- */
-        .day-cell.bg-Present { background-color: var(--c-present) !important; color: white !important; }
-        .day-cell.bg-Leave { background-color: var(--c-leave) !important; color: white !important; }
-        .day-cell.bg-Sick { background-color: var(--c-sick) !important; color: white !important; }
-        .day-cell.bg-Holiday { background-color: var(--c-holiday) !important; color: white !important; }
-        .day-cell.bg-Off { background-color: #eceff1 !important; color: #546e7a !important; }
+        /* --- FORCE COLORS --- */
+        .bg-Present { background-color: var(--c-present) !important; color: white !important; }
+        .bg-Leave { background-color: var(--c-leave) !important; color: white !important; }
+        .bg-Sick { background-color: var(--c-sick) !important; color: white !important; }
+        .bg-Holiday { background-color: var(--c-holiday) !important; color: white !important; }
+        .bg-Off { background-color: #eceff1 !important; color: #546e7a !important; }
 
-        /* Text color fix inside colored cells */
-        .day-cell.bg-Present .day-num, 
-        .day-cell.bg-Leave .day-num, 
-        .day-cell.bg-Sick .day-num, 
-        .day-cell.bg-Holiday .day-num { color: white !important; opacity: 0.95; }
+        .bg-Present .day-num, .bg-Leave .day-num, .bg-Sick .day-num, .bg-Holiday .day-num { color: white !important; opacity: 0.95; }
 
         /* BADGES */
         .info-badges { margin-top: auto; display: flex; flex-wrap: wrap; gap: 2px; }
@@ -91,13 +85,14 @@
         .input-box input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
         .save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
 
-        /* SCREENS */
+        /* SCREENS & UTILS */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; transition: 0.5s; }
         .hidden { display: none !important; }
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8f9fa; z-index: 200; transform: translateX(100%); transition: 0.3s; display: flex; flex-direction: column; }
         .full-page.open { transform: translateX(0); }
         #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 50px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 500; }
         #toast.show { opacity: 1; bottom: 50px; }
+        #install-btn { display: none; background: rgba(0,0,0,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; margin-left: auto; }
     </style>
 </head>
 <body>
@@ -106,15 +101,17 @@
     <div id="splash">
         <span class="material-icons" style="font-size:70px;">assignment_ind</span>
         <h1 style="margin-top:10px;">Duty Tracker</h1>
+        <div class="loader"></div>
     </div>
 
     <!-- AUTH -->
     <div id="auth-screen" class="hidden" style="flex:1; display:flex; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; text-align:center;">
+        <div style="background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
             <h2 style="color:var(--primary)">Welcome</h2>
-            <input type="text" id="auth-id" placeholder="Recovery ID" style="width:100%; padding:12px; margin:20px 0; border:1px solid #ddd; border-radius:8px;">
-            <button class="save-btn" onclick="app.login()">Restore</button>
-            <button style="margin-top:10px; background:none; border:none; color:var(--primary);" onclick="app.createId()">Create New ID</button>
+            <p style="color:#666; margin-bottom:20px;">Your data is saved online.</p>
+            <input type="text" id="auth-id" placeholder="Enter Recovery ID" style="width:100%; padding:15px; margin:10px 0; border:1px solid #ddd; border-radius:10px; text-align:center; font-size:16px;">
+            <button class="save-btn" onclick="app.login()" style="margin-top:10px;">Restore Data</button>
+            <button style="margin-top:20px; background:none; border:none; color:var(--primary); font-weight:bold;" onclick="app.createId()">I don't have an ID</button>
         </div>
     </div>
 
@@ -124,11 +121,12 @@
             <div class="app-bar">
                 <span class="material-icons" onclick="ui.togglePage('settings', true)">settings</span>
                 <span style="font-size:18px; font-weight:bold">Duty Tracker</span>
+                <button id="install-btn" onclick="pwa.install()">INSTALL</button>
                 <span class="material-icons" onclick="ui.togglePage('reports', true)">assessment</span>
             </div>
             <div class="month-nav">
                 <button class="nav-btn" onclick="cal.move(-1)">PREV</button>
-                <span id="month-txt" style="font-weight:bold">Loading...</span>
+                <span id="month-txt" style="font-weight:bold; font-size:16px;">Loading...</span>
                 <button class="nav-btn" onclick="cal.move(1)">NEXT</button>
             </div>
             <div class="week-days" id="week-header"></div>
@@ -139,7 +137,7 @@
     <!-- MODAL -->
     <div id="modal" class="modal" onclick="if(event.target===this) ui.closeModal()">
         <div class="sheet">
-            <h3 id="modal-date">Date</h3>
+            <h3 id="modal-date" style="text-align:center; margin-bottom:15px; color:var(--primary);">Date</h3>
             <div class="type-grid">
                 <button class="type-btn" data-t="Present" onclick="data.setType('Present', this)">Present</button>
                 <button class="type-btn" data-t="Leave" onclick="data.setType('Leave', this)">Leave</button>
@@ -148,41 +146,54 @@
                 <button class="type-btn" data-t="Off" onclick="data.setType('Off', this)">Off</button>
             </div>
             <div class="input-row">
-                <div class="input-box" style="flex:1"><label>Overtime</label><input type="number" id="inp-ot" placeholder="0"></div>
-                <div class="input-box" style="flex:1"><label>Late</label><input type="number" id="inp-late" placeholder="0"></div>
+                <div class="input-box" style="flex:1"><label>Overtime (Hrs)</label><input type="number" id="inp-ot" placeholder="0"></div>
+                <div class="input-box" style="flex:1"><label>Late (Mins)</label><input type="number" id="inp-late" placeholder="0"></div>
             </div>
             <button class="save-btn" onclick="data.save()">SAVE ENTRY</button>
-            <button style="width:100%; margin-top:10px; padding:12px; background:#ffebee; color:red; border:none; border-radius:12px;" onclick="data.clear()">CLEAR</button>
+            <button style="width:100%; margin-top:10px; padding:12px; background:#ffebee; color:red; border:none; border-radius:12px; font-weight:bold;" onclick="data.clear()">CLEAR ENTRY</button>
         </div>
     </div>
 
     <!-- SETTINGS -->
     <div id="settings" class="full-page">
-        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px;"><span class="material-icons" onclick="ui.togglePage('settings', false)">arrow_back</span><h3>Settings</h3></div>
+        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+            <span class="material-icons" onclick="ui.togglePage('settings', false)">arrow_back</span><h3>Settings</h3>
+        </div>
         <div style="padding:20px">
-            <label>Recovery ID</label>
-            <input type="text" id="uid-disp" readonly style="width:100%; padding:10px; background:#eee; border:none; border-radius:5px; margin-bottom:20px;">
-            <label>Week Start</label>
-            <select id="set-week" onchange="settings.save()" style="width:100%; padding:10px; margin-bottom:20px;"><option value="0">Sunday</option><option value="1">Monday</option></select>
-            <label>Weekly Off</label>
-            <select id="set-off" onchange="settings.save()" style="width:100%; padding:10px;"><option value="0">Sunday</option><option value="6">Saturday</option><option value="5">Friday</option></select>
+            <label><b>Your Recovery ID</b> (Save this!)</label>
+            <input type="text" id="uid-disp" readonly onclick="this.select()" style="width:100%; padding:15px; background:#eee; border:none; border-radius:8px; margin-bottom:20px; font-family:monospace; font-size:16px;">
+            
+            <label><b>Week Start Day</b></label>
+            <select id="set-week" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:8px;">
+                <option value="0">Sunday</option><option value="1">Monday</option>
+            </select>
+            
+            <label><b>Weekly Off Day</b></label>
+            <select id="set-off" onchange="settings.save()" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
+                <option value="0">Sunday</option><option value="6">Saturday</option><option value="5">Friday</option>
+            </select>
         </div>
     </div>
 
     <!-- REPORTS -->
     <div id="reports" class="full-page">
-        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px;"><span class="material-icons" onclick="ui.togglePage('reports', false)">arrow_back</span><h3>Reports</h3></div>
+        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+            <span class="material-icons" onclick="ui.togglePage('reports', false)">arrow_back</span><h3>Reports</h3>
+        </div>
         <div style="padding:20px">
-            <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="date" id="r-start" style="flex:1; padding:10px;"><input type="date" id="r-end" style="flex:1; padding:10px;"></div>
-            <button class="save-btn" onclick="reports.gen()">CALCULATE</button>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1"><label>From</label><input type="date" id="r-start" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></div>
+                <div style="flex:1"><label>To</label><input type="date" id="r-end" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></div>
+            </div>
+            <button class="save-btn" onclick="reports.gen()">CALCULATE REPORT</button>
             <div id="r-out" style="margin-top:20px;"></div>
         </div>
     </div>
 
-    <div id="toast">Saved!</div>
+    <div id="toast">Saved Successfully!</div>
 
     <script>
-        // --- YOUR FIREBASE CONFIG ---
+        // --- FIREBASE CONFIG (Updated) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDf1C_8igKRvV6E3bA2L-zjWabhPb6k25U",
             authDomain: "duty-tracker-5bc76.firebaseapp.com",
@@ -192,64 +203,101 @@
             messagingSenderId: "695532299998",
             appId: "1:695532299998:web:f3b02fba3bb087f093c44f"
         };
-        firebase.initializeApp(firebaseConfig);
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch(e) { console.error("Firebase Init Failed", e); }
+        
         const db = firebase.database();
 
+        // --- STATE ---
         const s = { uid: null, date: new Date(), data: {}, conf: { ws: 0, wo: 0 } };
         let sel = { d: null, t: null };
 
+        // --- STARTUP ---
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').classList.add('hidden');
                     const id = localStorage.getItem('dt_id');
-                    if(id) app.start(id); else document.getElementById('auth-screen').classList.remove('hidden');
+                    if(id && id !== "null") app.start(id); 
+                    else document.getElementById('auth-screen').classList.remove('hidden');
                 }, 500);
             }, 1500);
         };
 
         const app = {
-            createId: () => { const id='u_'+Date.now().toString(36); localStorage.setItem('dt_id',id); app.start(id); },
-            login: () => { const id=document.getElementById('auth-id').value.trim(); if(id){ localStorage.setItem('dt_id',id); app.start(id); } },
+            createId: () => { 
+                const id='u_'+Date.now().toString(36); 
+                localStorage.setItem('dt_id',id); 
+                app.start(id); 
+            },
+            login: () => { 
+                const id=document.getElementById('auth-id').value.trim(); 
+                if(id){ localStorage.setItem('dt_id',id); app.start(id); } 
+                else alert("Please enter a valid ID");
+            },
             start: (id) => {
                 s.uid = id;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('uid-disp').value = id;
+                
+                // Realtime Listener
                 db.ref('u/'+id).on('value', snap => {
                     const v = snap.val();
-                    if(v) { s.data = v.att || {}; if(v.conf) s.conf = v.conf; }
+                    if(v) { 
+                        s.data = v.att || {}; 
+                        if(v.conf) s.conf = v.conf; 
+                    }
+                    // Update UI settings
                     document.getElementById('set-week').value = s.conf.ws;
                     document.getElementById('set-off').value = s.conf.wo;
-                    cal.render();
+                    cal.render(); // Re-render calendar
                 });
             }
         };
 
         const cal = {
+            // Helper to get consistent YYYY-MM-DD
+            getIso: (y, m, d) => {
+                return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            },
             render: () => {
                 const y=s.date.getFullYear(), m=s.date.getMonth();
                 document.getElementById('month-txt').innerText = new Date(y, m).toLocaleString('default', { month: 'long', year: 'numeric' });
+                
+                // Week Header
                 const days = s.conf.ws===1 ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 document.getElementById('week-header').innerHTML = days.map(d=>`<div>${d}</div>`).join('');
                 
                 const grid = document.getElementById('calendar-grid'); grid.innerHTML='';
                 const fDay = new Date(y,m,1).getDay(), lDate = new Date(y,m+1,0).getDate();
-                let pad = fDay - s.conf.ws; if(pad<0) pad+=7;
                 
+                // Padding
+                let pad = fDay - s.conf.ws; 
+                if(pad<0) pad+=7;
                 for(let i=0; i<pad; i++) grid.innerHTML += `<div></div>`;
                 
+                const todayIso = new Date().toISOString().split('T')[0];
+
                 for(let i=1; i<=lDate; i++) {
-                    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                    const iso = cal.getIso(y, m, i);
                     const dObj = new Date(y,m,i);
                     const ent = s.data[iso];
                     
-                    const el = document.createElement('div'); el.className = 'day-cell';
-                    if(iso === new Date().toISOString().split('T')[0]) el.classList.add('today');
+                    const el = document.createElement('div'); 
+                    el.className = 'day-cell';
                     
-                    if(ent) el.classList.add('bg-'+ent.t);
-                    else if(dObj.getDay()===parseInt(s.conf.wo)) el.classList.add('bg-Off');
+                    if(iso === todayIso) el.classList.add('today');
+                    
+                    // Logic for Background Color
+                    if(ent && ent.t) {
+                        el.classList.add('bg-'+ent.t); // Force add class
+                    } else if(dObj.getDay()===parseInt(s.conf.wo)) {
+                        el.classList.add('bg-Off');
+                    }
                     
                     let h = `<span class="day-num">${i}</span>`;
                     if(ent) {
@@ -258,7 +306,8 @@
                         if(ent.lt>0) h+=`<span class="badge b-late">L:${ent.lt}</span>`;
                         h += `</div>`;
                     }
-                    el.innerHTML = h; el.onclick=()=>ui.open(iso,ent);
+                    el.innerHTML = h; 
+                    el.onclick=()=>ui.open(iso,ent);
                     grid.appendChild(el);
                 }
             },
@@ -266,65 +315,142 @@
         };
 
         const data = {
-            setType: (t,b) => { sel.t=t; document.querySelectorAll('.type-btn').forEach(btn=>btn.classList.remove('active')); b.classList.add('active'); },
+            setType: (t,b) => { 
+                sel.t=t; 
+                document.querySelectorAll('.type-btn').forEach(btn=>btn.classList.remove('active')); 
+                b.classList.add('active'); 
+            },
             save: () => {
-                if(!sel.t) return alert("Please select a status (Present, Leave, etc.)");
-                const p = { t: sel.t, ot: parseFloat(document.getElementById('inp-ot').value)||0, lt: parseInt(document.getElementById('inp-late').value)||0 };
-                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(()=>{ ui.toast("Saved!"); cal.render(); });
+                if(!sel.t) return alert("Select Status Type first!");
+                const p = { 
+                    t: sel.t, 
+                    ot: parseFloat(document.getElementById('inp-ot').value)||0, 
+                    lt: parseInt(document.getElementById('inp-late').value)||0 
+                };
+                
+                // Optimistic Update (Immediate UI change)
+                s.data[sel.d] = p;
+                cal.render();
+
+                // Send to Firebase
+                db.ref(`u/${s.uid}/att/${sel.d}`).set(p)
+                  .then(() => ui.toast("Saved!"))
+                  .catch(e => {
+                      alert("Error saving: " + e.message);
+                      console.error(e);
+                  });
+                  
                 ui.closeModal();
             },
-            clear: () => { db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(()=>{ ui.toast("Cleared"); cal.render(); }); ui.closeModal(); }
+            clear: () => {
+                delete s.data[sel.d];
+                cal.render();
+                db.ref(`u/${s.uid}/att/${sel.d}`).remove();
+                ui.closeModal();
+            }
         };
 
         const settings = {
             save: () => {
                 s.conf.ws = parseInt(document.getElementById('set-week').value);
                 s.conf.wo = parseInt(document.getElementById('set-off').value);
-                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>ui.toast("Updated"));
+                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>ui.toast("Settings Updated"));
+                cal.render();
             }
         };
 
         const reports = {
             gen: () => {
                 const sD=document.getElementById('r-start').value, eD=document.getElementById('r-end').value;
-                if(!sD || !eD) return alert("Select Dates");
-                let tot=0, pres=0, leave=0, ot=0;
+                if(!sD || !eD) return alert("Select Dates First");
+                
+                let tot=0, pres=0, leave=0, hol=0, ot=0;
                 const start=new Date(sD), end=new Date(eD);
+                
                 for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
-                    const iso = d.toISOString().split('T')[0]; tot++;
+                    const iso = d.toISOString().split('T')[0]; 
+                    tot++;
                     const e = s.data[iso];
                     if(e) {
                         if(e.t==='Present') pres++;
                         if(['Leave','Sick'].includes(e.t)) leave++;
+                        if(e.t==='Holiday') hol++;
                         ot += (e.ot||0);
                     }
                 }
-                const row = (l,v,c) => `<div style="display:flex; justify-content:space-between; padding:10px; background:white; margin-bottom:5px; border-left:4px solid ${c}; border-radius:4px;"><span>${l}</span><b>${v}</b></div>`;
-                document.getElementById('r-out').innerHTML = row('Total',tot,'#333')+row('Present',pres,'#4caf50')+row('Leave',leave,'#f44336')+row('Overtime (Hrs)',ot,'#ff9800');
+                
+                const row = (l,v,c) => `<div style="display:flex; justify-content:space-between; padding:12px; background:white; margin-bottom:8px; border-left:5px solid ${c}; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"><span>${l}</span><b>${v}</b></div>`;
+                
+                document.getElementById('r-out').innerHTML = 
+                    row('Total Days',tot,'#333') +
+                    row('Present',pres,'#4caf50') +
+                    row('Leave/Sick',leave,'#f44336') +
+                    row('Holiday',hol,'#9c27b0') +
+                    row('Overtime (Hrs)',ot,'#ff9800');
             }
         };
 
         const ui = {
             open: (d,e) => {
                 sel.d=d; sel.t=null;
-                document.getElementById('modal-date').innerText=d;
+                document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('modal').classList.add('show');
+                
+                // Reset UI
                 document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
-                document.getElementById('inp-ot').value=''; document.getElementById('inp-late').value='';
+                document.getElementById('inp-ot').value=''; 
+                document.getElementById('inp-late').value='';
+                
                 if(e) {
                     sel.t=e.t;
                     const btn=document.querySelector(`.type-btn[data-t="${e.t}"]`);
                     if(btn) btn.classList.add('active');
-                    document.getElementById('inp-ot').value=e.ot||'';
-                    document.getElementById('inp-late').value=e.lt||'';
+                    document.getElementById('inp-ot').value = e.ot||'';
+                    document.getElementById('inp-late').value = e.lt||'';
                 }
             },
             closeModal: () => document.getElementById('modal').classList.remove('show'),
-            togglePage: (id,o) => { const el=document.getElementById(id); o?el.classList.add('open'):el.classList.remove('open'); },
-            toast: (m) => { const t=document.getElementById('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+            togglePage: (id,o) => { 
+                const el=document.getElementById(id); 
+                o?el.classList.add('open'):el.classList.remove('open');
+                
+                if(id==='reports' && o) {
+                    // Set default this month
+                    const n=new Date(), y=n.getFullYear(), m=String(n.getMonth()+1).padStart(2,'0');
+                    document.getElementById('r-start').value=`${y}-${m}-01`;
+                    document.getElementById('r-end').value=new Date().toISOString().split('T')[0];
+                }
+            },
+            toast: (m) => { 
+                const t=document.getElementById('toast'); 
+                t.innerText=m; t.classList.add('show'); 
+                setTimeout(()=>t.classList.remove('show'),2000); 
+            }
         };
-
-        if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+        
+        // PWA Install
+        let deferredPrompt;
+        const pwaBtn = document.getElementById('install-btn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaBtn.style.display = 'block';
+        });
+        const pwa = {
+            install: () => {
+                if(deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((c) => {
+                        if(c.outcome==='accepted') pwaBtn.style.display='none';
+                        deferredPrompt = null;
+                    });
+                }
+            }
+        };
+        
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(()=>console.log("SW Ready"));
+        }
     </script>
 </body>
 </html>
