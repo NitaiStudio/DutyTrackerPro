@@ -1,4 +1,4 @@
-const CACHE_NAME = 'duty-tracker-v2'; // Changed to v2 to force update
+const CACHE_NAME = 'duty-tracker-v3'; 
 const ASSETS = [
     './',
     './index.html',
@@ -28,4 +28,5 @@ self.addEventListener('activate', (e) => {
             })
         ))
     );
+    self.clients.claim();
 });

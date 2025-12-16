@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEViAOowvj3IAAAAG0lEQVR4Ae3BAQ0AAADCoPdPbQ43oAAAAABuDBXAAAG2P3IAAAAAAElFTkSuQmCC",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAA1BMVEViAOowvj3IAAAAIklEQVR4Ae3BAQ0AAADCoPdPbQ8HoAAAAAAAAAAAAAAAfgwGwAAB1416OAAAAABJRU5ErkJggg==",
       "sizes": "512x512",
       "type": "image/png"
     }
