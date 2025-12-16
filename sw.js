@@ -1,4 +1,4 @@
-const CACHE_NAME = 'duty-tracker-v3'; 
+const CACHE_NAME = 'duty-tracker-v5';
 const ASSETS = [
     './',
     './index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
     'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
     'https://fonts.googleapis.com/icon?family=Material+Icons',
     'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
-    'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js'
+    'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js',
+    'https://cdn-icons-png.flaticon.com/512/2965/2965215.png'
 ];
 
 self.addEventListener('install', (e) => {

@@ -6,7 +6,9 @@
     <meta name="theme-color" content="#6200ea">
     <title>Duty Tracker Pro</title>
 
+    <!-- Link to the separate manifest file -->
     <link rel="manifest" href="manifest.json">
+    
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -15,14 +17,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
-        /* --- MATERIAL THEME 3 --- */
+        /* --- CSS STYLES --- */
         :root {
             --primary: #6200ea;
             --bg: #f8f9fa;
             --surface: #ffffff;
             --text: #202124;
-            
-            /* Status Colors */
+            /* Colors */
             --c-present: #4caf50; 
             --c-leave: #f44336;   
             --c-sick: #ff9800;    
@@ -33,19 +34,12 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* SPLASH SCREEN */
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; transition: opacity 0.5s; }
-        .loader { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin-top: 20px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         /* HEADER */
         header { background: var(--primary); color: white; padding: 15px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3); z-index: 10; }
         .app-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .app-title { font-size: 20px; font-weight: 700; }
-        
         .month-nav { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.15); padding: 8px 15px; border-radius: 12px; }
-        .nav-btn { background: none; border: none; color: white; font-weight: bold; font-size: 14px; padding: 5px 10px; cursor: pointer; }
         .week-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; margin-top: 15px; opacity: 0.9; font-weight: bold; }
+        .nav-btn { background: none; border: none; color: white; font-weight: bold; font-size: 14px; padding: 5px 15px; }
 
         /* CALENDAR */
         #calendar-grid { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(90px, 1fr); gap: 8px; padding-bottom: 80px; }
@@ -53,20 +47,23 @@
         .day-cell { 
             background: var(--surface); border-radius: 12px; padding: 6px; 
             position: relative; display: flex; flex-direction: column; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.1s; border: 1px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent;
         }
-        .day-cell:active { transform: scale(0.96); }
-        .day-cell.today { border: 2px solid var(--primary); background: #f0ebfa; }
+        .day-cell.today { border: 2px solid var(--primary); }
         .day-num { font-size: 14px; font-weight: 700; color: #444; margin-bottom: 2px; }
 
-        /* FULL COLOR BACKGROUNDS */
-        .bg-Present { background: var(--c-present) !important; color: white !important; }
-        .bg-Leave { background: var(--c-leave) !important; color: white !important; }
-        .bg-Sick { background: var(--c-sick) !important; color: white !important; }
-        .bg-Holiday { background: var(--c-holiday) !important; color: white !important; }
-        .bg-Off { background: #eceff1; color: #546e7a; }
+        /* --- FORCE COLORS (FIX) --- */
+        .day-cell.bg-Present { background-color: var(--c-present) !important; color: white !important; }
+        .day-cell.bg-Leave { background-color: var(--c-leave) !important; color: white !important; }
+        .day-cell.bg-Sick { background-color: var(--c-sick) !important; color: white !important; }
+        .day-cell.bg-Holiday { background-color: var(--c-holiday) !important; color: white !important; }
+        .day-cell.bg-Off { background-color: #eceff1 !important; color: #546e7a !important; }
 
-        .day-cell.bg-Present .day-num, .day-cell.bg-Leave .day-num, .day-cell.bg-Sick .day-num, .day-cell.bg-Holiday .day-num { color: white; opacity: 0.95; }
+        /* Text color fix inside colored cells */
+        .day-cell.bg-Present .day-num, 
+        .day-cell.bg-Leave .day-num, 
+        .day-cell.bg-Sick .day-num, 
+        .day-cell.bg-Holiday .day-num { color: white !important; opacity: 0.95; }
 
         /* BADGES */
         .info-badges { margin-top: auto; display: flex; flex-wrap: wrap; gap: 2px; }
@@ -74,12 +71,12 @@
         .b-ot { background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); }
         .b-late { background: #fff; color: #d32f2f; }
 
-        /* MODAL & OTHERS */
+        /* MODAL */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: flex-end; }
         .modal.show { display: flex; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        
         .sheet { background: white; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; padding-bottom: 40px; }
+        
         .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; margin-top: 15px; }
         .type-btn { padding: 12px; border: 1px solid #eee; border-radius: 10px; background: white; font-weight: 600; font-size: 13px; color: #555; }
         .type-btn.active { color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -92,44 +89,41 @@
 
         .input-row { display: flex; gap: 15px; margin-bottom: 20px; }
         .input-box input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
-        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; margin-bottom: 10px; cursor: pointer; }
-        .save-btn { background: var(--primary); color: white; }
-        
+        .save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
+
+        /* SCREENS */
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; transition: 0.5s; }
+        .hidden { display: none !important; }
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8f9fa; z-index: 200; transform: translateX(100%); transition: 0.3s; display: flex; flex-direction: column; }
         .full-page.open { transform: translateX(0); }
-        .fp-header { background: white; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 12px 24px; border-radius: 50px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 500; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 50px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 500; }
         #toast.show { opacity: 1; bottom: 50px; }
-        .hidden { display: none !important; }
-
-        /* Install Button (Shows if PWA not installed) */
-        #install-btn { display: none; background: rgba(0,0,0,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; margin-left: auto; }
     </style>
 </head>
 <body>
 
+    <!-- SPLASH -->
     <div id="splash">
         <span class="material-icons" style="font-size:70px;">assignment_ind</span>
-        <h1 style="margin-top:10px; font-size:24px;">Duty Tracker</h1>
-        <div class="loader"></div>
+        <h1 style="margin-top:10px;">Duty Tracker</h1>
     </div>
 
-    <div id="auth-screen" class="hidden">
-        <div style="background:white; padding:30px; border-radius:20px; text-align:center; width:90%; max-width:350px; margin:auto; margin-top: 30%;">
+    <!-- AUTH -->
+    <div id="auth-screen" class="hidden" style="flex:1; display:flex; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; text-align:center;">
             <h2 style="color:var(--primary)">Welcome</h2>
-            <input type="text" id="auth-id" placeholder="Recovery ID" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:10px; margin:20px 0; text-align:center;">
-            <button class="action-btn save-btn" onclick="app.login()">RESTORE</button>
-            <button style="background:none; border:none; color:var(--primary); margin-top:10px;" onclick="app.createId()">Create New ID</button>
+            <input type="text" id="auth-id" placeholder="Recovery ID" style="width:100%; padding:12px; margin:20px 0; border:1px solid #ddd; border-radius:8px;">
+            <button class="save-btn" onclick="app.login()">Restore</button>
+            <button style="margin-top:10px; background:none; border:none; color:var(--primary);" onclick="app.createId()">Create New ID</button>
         </div>
     </div>
 
+    <!-- MAIN APP -->
     <div id="main-app" class="hidden">
         <header>
             <div class="app-bar">
                 <span class="material-icons" onclick="ui.togglePage('settings', true)">settings</span>
-                <span class="app-title">Duty Tracker</span>
-                <button id="install-btn" onclick="pwa.install()">INSTALL APP</button>
+                <span style="font-size:18px; font-weight:bold">Duty Tracker</span>
                 <span class="material-icons" onclick="ui.togglePage('reports', true)">assessment</span>
             </div>
             <div class="month-nav">
@@ -142,6 +136,7 @@
         <div id="calendar-grid"></div>
     </div>
 
+    <!-- MODAL -->
     <div id="modal" class="modal" onclick="if(event.target===this) ui.closeModal()">
         <div class="sheet">
             <h3 id="modal-date">Date</h3>
@@ -153,38 +148,33 @@
                 <button class="type-btn" data-t="Off" onclick="data.setType('Off', this)">Off</button>
             </div>
             <div class="input-row">
-                <div class="input-box" style="flex:1"><label>Overtime (Hrs)</label><input type="number" id="inp-ot" placeholder="0"></div>
-                <div class="input-box" style="flex:1"><label>Late (Min)</label><input type="number" id="inp-late" placeholder="0"></div>
+                <div class="input-box" style="flex:1"><label>Overtime</label><input type="number" id="inp-ot" placeholder="0"></div>
+                <div class="input-box" style="flex:1"><label>Late</label><input type="number" id="inp-late" placeholder="0"></div>
             </div>
-            <button class="action-btn save-btn" onclick="data.save()">SAVE ENTRY</button>
-            <button class="action-btn" style="background:#ffebee; color:red" onclick="data.clear()">CLEAR</button>
+            <button class="save-btn" onclick="data.save()">SAVE ENTRY</button>
+            <button style="width:100%; margin-top:10px; padding:12px; background:#ffebee; color:red; border:none; border-radius:12px;" onclick="data.clear()">CLEAR</button>
         </div>
     </div>
 
+    <!-- SETTINGS -->
     <div id="settings" class="full-page">
-        <div class="fp-header"><span class="material-icons" onclick="ui.togglePage('settings', false)">arrow_back</span><h3>Settings</h3></div>
+        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px;"><span class="material-icons" onclick="ui.togglePage('settings', false)">arrow_back</span><h3>Settings</h3></div>
         <div style="padding:20px">
-            <label>Your Recovery ID</label>
+            <label>Recovery ID</label>
             <input type="text" id="uid-disp" readonly style="width:100%; padding:10px; background:#eee; border:none; border-radius:5px; margin-bottom:20px;">
             <label>Week Start</label>
-            <select id="set-week" onchange="settings.save()" style="width:100%; padding:10px; margin-bottom:20px;">
-                <option value="0">Sunday</option><option value="1">Monday</option>
-            </select>
+            <select id="set-week" onchange="settings.save()" style="width:100%; padding:10px; margin-bottom:20px;"><option value="0">Sunday</option><option value="1">Monday</option></select>
             <label>Weekly Off</label>
-            <select id="set-off" onchange="settings.save()" style="width:100%; padding:10px;">
-                <option value="0">Sunday</option><option value="6">Saturday</option><option value="5">Friday</option>
-            </select>
+            <select id="set-off" onchange="settings.save()" style="width:100%; padding:10px;"><option value="0">Sunday</option><option value="6">Saturday</option><option value="5">Friday</option></select>
         </div>
     </div>
 
+    <!-- REPORTS -->
     <div id="reports" class="full-page">
-        <div class="fp-header"><span class="material-icons" onclick="ui.togglePage('reports', false)">arrow_back</span><h3>Reports</h3></div>
+        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px;"><span class="material-icons" onclick="ui.togglePage('reports', false)">arrow_back</span><h3>Reports</h3></div>
         <div style="padding:20px">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <input type="date" id="r-start" style="flex:1; padding:10px;">
-                <input type="date" id="r-end" style="flex:1; padding:10px;">
-            </div>
-            <button class="action-btn save-btn" onclick="reports.gen()">CALCULATE</button>
+            <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="date" id="r-start" style="flex:1; padding:10px;"><input type="date" id="r-end" style="flex:1; padding:10px;"></div>
+            <button class="save-btn" onclick="reports.gen()">CALCULATE</button>
             <div id="r-out" style="margin-top:20px;"></div>
         </div>
     </div>
@@ -192,7 +182,7 @@
     <div id="toast">Saved!</div>
 
     <script>
-        // --- 1. YOUR UPDATED FIREBASE CONFIG ---
+        // --- YOUR FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDf1C_8igKRvV6E3bA2L-zjWabhPb6k25U",
             authDomain: "duty-tracker-5bc76.firebaseapp.com",
@@ -205,19 +195,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- STATE ---
         const s = { uid: null, date: new Date(), data: {}, conf: { ws: 0, wo: 0 } };
         let sel = { d: null, t: null };
 
-        // --- INIT ---
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').classList.add('hidden');
                     const id = localStorage.getItem('dt_id');
-                    if(id) app.start(id);
-                    else document.getElementById('auth-screen').classList.remove('hidden');
+                    if(id) app.start(id); else document.getElementById('auth-screen').classList.remove('hidden');
                 }, 500);
             }, 1500);
         };
@@ -243,8 +230,7 @@
         const cal = {
             render: () => {
                 const y=s.date.getFullYear(), m=s.date.getMonth();
-                const mN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-                document.getElementById('month-txt').innerText = `${mN[m]} ${y}`;
+                document.getElementById('month-txt').innerText = new Date(y, m).toLocaleString('default', { month: 'long', year: 'numeric' });
                 const days = s.conf.ws===1 ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 document.getElementById('week-header').innerHTML = days.map(d=>`<div>${d}</div>`).join('');
                 
@@ -282,12 +268,12 @@
         const data = {
             setType: (t,b) => { sel.t=t; document.querySelectorAll('.type-btn').forEach(btn=>btn.classList.remove('active')); b.classList.add('active'); },
             save: () => {
-                if(!sel.t) return alert("Select type");
+                if(!sel.t) return alert("Please select a status (Present, Leave, etc.)");
                 const p = { t: sel.t, ot: parseFloat(document.getElementById('inp-ot').value)||0, lt: parseInt(document.getElementById('inp-late').value)||0 };
-                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(()=>ui.toast("Saved!"));
+                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(()=>{ ui.toast("Saved!"); cal.render(); });
                 ui.closeModal();
             },
-            clear: () => { db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(()=>ui.toast("Cleared")); ui.closeModal(); }
+            clear: () => { db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(()=>{ ui.toast("Cleared"); cal.render(); }); ui.closeModal(); }
         };
 
         const settings = {
@@ -302,7 +288,7 @@
             gen: () => {
                 const sD=document.getElementById('r-start').value, eD=document.getElementById('r-end').value;
                 if(!sD || !eD) return alert("Select Dates");
-                let tot=0, pres=0, leave=0, hol=0, ot=0;
+                let tot=0, pres=0, leave=0, ot=0;
                 const start=new Date(sD), end=new Date(eD);
                 for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
                     const iso = d.toISOString().split('T')[0]; tot++;
@@ -310,12 +296,11 @@
                     if(e) {
                         if(e.t==='Present') pres++;
                         if(['Leave','Sick'].includes(e.t)) leave++;
-                        if(e.t==='Holiday') hol++;
                         ot += (e.ot||0);
                     }
                 }
                 const row = (l,v,c) => `<div style="display:flex; justify-content:space-between; padding:10px; background:white; margin-bottom:5px; border-left:4px solid ${c}; border-radius:4px;"><span>${l}</span><b>${v}</b></div>`;
-                document.getElementById('r-out').innerHTML = row('Total',tot,'#333')+row('Present',pres,'#4caf50')+row('Leave/Sick',leave,'#f44336')+row('Overtime (Hrs)',ot,'#ff9800');
+                document.getElementById('r-out').innerHTML = row('Total',tot,'#333')+row('Present',pres,'#4caf50')+row('Leave',leave,'#f44336')+row('Overtime (Hrs)',ot,'#ff9800');
             }
         };
 
@@ -335,36 +320,10 @@
                 }
             },
             closeModal: () => document.getElementById('modal').classList.remove('show'),
-            togglePage: (id,o) => {
-                const el=document.getElementById(id); o?el.classList.add('open'):el.classList.remove('open');
-                if(id==='reports' && o) {
-                    const n=new Date(), y=n.getFullYear(), m=String(n.getMonth()+1).padStart(2,'0');
-                    document.getElementById('r-start').value=`${y}-${m}-01`;
-                    document.getElementById('r-end').value=n.toISOString().split('T')[0];
-                }
-            },
+            togglePage: (id,o) => { const el=document.getElementById(id); o?el.classList.add('open'):el.classList.remove('open'); },
             toast: (m) => { const t=document.getElementById('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
         };
 
-        // --- PWA LOGIC ---
-        let deferredPrompt;
-        const pwaBtn = document.getElementById('install-btn');
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            pwaBtn.style.display = 'block';
-        });
-        const pwa = {
-            install: () => {
-                if(deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((c) => {
-                        if(c.outcome==='accepted') pwaBtn.style.display='none';
-                        deferredPrompt = null;
-                    });
-                }
-            }
-        };
         if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
     </script>
 </body>
