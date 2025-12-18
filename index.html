@@ -82,7 +82,7 @@
         .type-btn[data-t="Off"].active { background: var(--c-off); color: white; }
 
         .input-row { display: flex; gap: 15px; margin-bottom: 20px; }
-        .input-box input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        .input-box input, .input-box select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;}
         .save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
 
         /* SCREENS & UTILS */
@@ -104,14 +104,15 @@
         <div class="loader"></div>
     </div>
 
-    <!-- AUTH -->
+    <!-- AUTH (Modified for Mobile Number) -->
     <div id="auth-screen" class="hidden" style="flex:1; display:flex; justify-content:center; align-items:center; padding:20px;">
         <div style="background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
             <h2 style="color:var(--primary)">Welcome</h2>
-            <p style="color:#666; margin-bottom:20px;">Your data is saved online.</p>
-            <input type="text" id="auth-id" placeholder="Enter Recovery ID" style="width:100%; padding:15px; margin:10px 0; border:1px solid #ddd; border-radius:10px; text-align:center; font-size:16px;">
-            <button class="save-btn" onclick="app.login()" style="margin-top:10px;">Restore Data</button>
-            <button style="margin-top:20px; background:none; border:none; color:var(--primary); font-weight:bold;" onclick="app.createId()">I don't have an ID</button>
+            <p style="color:#666; margin-bottom:20px;">Enter Mobile Number to Login/Register</p>
+            <div class="input-box">
+                <input type="number" id="auth-phone" placeholder="Ex: 01712345678" style="text-align:center;">
+            </div>
+            <button class="save-btn" onclick="app.login()" style="margin-top:20px;">Login / Start</button>
         </div>
     </div>
 
@@ -154,17 +155,38 @@
         </div>
     </div>
 
-    <!-- SETTINGS -->
+    <!-- SETTINGS (Updated with Salary & Currency) -->
     <div id="settings" class="full-page">
         <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
             <span class="material-icons" onclick="ui.togglePage('settings', false)">arrow_back</span><h3>Settings</h3>
         </div>
         <div style="padding:20px">
-            <label><b>Your Recovery ID</b> (Save this!)</label>
-            <input type="text" id="uid-disp" readonly onclick="this.select()" style="width:100%; padding:15px; background:#eee; border:none; border-radius:8px; margin-bottom:20px; font-family:monospace; font-size:16px;">
+            <label><b>My Number (ID)</b></label>
+            <input type="text" id="uid-disp" readonly style="width:100%; padding:15px; background:#eee; border:none; border-radius:8px; margin-bottom:20px; font-family:monospace; font-size:16px;">
             
+            <label><b>Currency Symbol</b></label>
+            <select id="set-currency" class="input-box" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
+                <option value="৳">৳ (BDT - Taka)</option>
+                <option value="₹">₹ (INR - Rupee)</option>
+                <option value="$">$ (USD - Dollar)</option>
+                <option value="€">€ (EUR - Euro)</option>
+                <option value="£">£ (GBP - Pound)</option>
+                <option value="¥">¥ (JPY - Yen)</option>
+                <option value="د.إ">د.إ (AED - Dirham)</option>
+                <option value="SAR">SAR (Riyal)</option>
+                <option value="RM">RM (MYR - Ringgit)</option>
+            </select>
+
+            <label><b>Daily Salary Amount</b></label>
+            <input type="number" id="set-salary" placeholder="Example: 500" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
+
+            <label><b>Overtime Rate (Per Hour)</b></label>
+            <input type="number" id="set-ot-rate" placeholder="Example: 50" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:8px;">
+
+            <hr style="border:0; border-top:1px solid #eee; margin:10px 0 20px 0;">
+
             <label><b>Week Start Day</b></label>
-            <select id="set-week" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:8px;">
+            <select id="set-week" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
                 <option value="0">Sunday</option><option value="1">Monday</option>
             </select>
             
@@ -175,7 +197,7 @@
         </div>
     </div>
 
-    <!-- REPORTS -->
+    <!-- REPORTS (Updated with Salary Calculation) -->
     <div id="reports" class="full-page">
         <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
             <span class="material-icons" onclick="ui.togglePage('reports', false)">arrow_back</span><h3>Reports</h3>
@@ -185,7 +207,7 @@
                 <div style="flex:1"><label>From</label><input type="date" id="r-start" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></div>
                 <div style="flex:1"><label>To</label><input type="date" id="r-end" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></div>
             </div>
-            <button class="save-btn" onclick="reports.gen()">CALCULATE REPORT</button>
+            <button class="save-btn" onclick="reports.gen()">CALCULATE SALARY</button>
             <div id="r-out" style="margin-top:20px;"></div>
         </div>
     </div>
@@ -193,7 +215,7 @@
     <div id="toast">Saved Successfully!</div>
 
     <script>
-        // --- FIREBASE CONFIG (Updated) ---
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDf1C_8igKRvV6E3bA2L-zjWabhPb6k25U",
             authDomain: "duty-tracker-5bc76.firebaseapp.com",
@@ -204,14 +226,16 @@
             appId: "1:695532299998:web:f3b02fba3bb087f093c44f"
         };
         
-        try {
-            firebase.initializeApp(firebaseConfig);
-        } catch(e) { console.error("Firebase Init Failed", e); }
-        
+        try { firebase.initializeApp(firebaseConfig); } catch(e) { console.error("Firebase Init Failed", e); }
         const db = firebase.database();
 
         // --- STATE ---
-        const s = { uid: null, date: new Date(), data: {}, conf: { ws: 0, wo: 0 } };
+        const s = { 
+            uid: null, 
+            date: new Date(), 
+            data: {}, 
+            conf: { ws: 0, wo: 0, cur: '৳', sal: 0, otr: 0 } // Added Currency, Salary, OT Rate
+        };
         let sel = { d: null, t: null };
 
         // --- STARTUP ---
@@ -228,15 +252,14 @@
         };
 
         const app = {
-            createId: () => { 
-                const id='u_'+Date.now().toString(36); 
-                localStorage.setItem('dt_id',id); 
-                app.start(id); 
-            },
             login: () => { 
-                const id=document.getElementById('auth-id').value.trim(); 
-                if(id){ localStorage.setItem('dt_id',id); app.start(id); } 
-                else alert("Please enter a valid ID");
+                const phone = document.getElementById('auth-phone').value.trim(); 
+                if(phone.length >= 6){ // Basic validation
+                    const cleanId = phone.replace(/\D/g,''); // Remove non-digits
+                    localStorage.setItem('dt_id', cleanId); 
+                    app.start(cleanId); 
+                } 
+                else alert("Enter valid mobile number");
             },
             start: (id) => {
                 s.uid = id;
@@ -249,35 +272,33 @@
                     const v = snap.val();
                     if(v) { 
                         s.data = v.att || {}; 
-                        if(v.conf) s.conf = v.conf; 
+                        if(v.conf) s.conf = { ...s.conf, ...v.conf }; // Merge defaults
                     }
-                    // Update UI settings
+                    // Update Settings UI
                     document.getElementById('set-week').value = s.conf.ws;
                     document.getElementById('set-off').value = s.conf.wo;
-                    cal.render(); // Re-render calendar
+                    document.getElementById('set-currency').value = s.conf.cur || '৳';
+                    document.getElementById('set-salary').value = s.conf.sal || '';
+                    document.getElementById('set-ot-rate').value = s.conf.otr || '';
+                    
+                    cal.render();
                 });
             }
         };
 
         const cal = {
-            // Helper to get consistent YYYY-MM-DD
-            getIso: (y, m, d) => {
-                return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-            },
+            getIso: (y, m, d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
             render: () => {
                 const y=s.date.getFullYear(), m=s.date.getMonth();
                 document.getElementById('month-txt').innerText = new Date(y, m).toLocaleString('default', { month: 'long', year: 'numeric' });
                 
-                // Week Header
                 const days = s.conf.ws===1 ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 document.getElementById('week-header').innerHTML = days.map(d=>`<div>${d}</div>`).join('');
                 
                 const grid = document.getElementById('calendar-grid'); grid.innerHTML='';
                 const fDay = new Date(y,m,1).getDay(), lDate = new Date(y,m+1,0).getDate();
                 
-                // Padding
-                let pad = fDay - s.conf.ws; 
-                if(pad<0) pad+=7;
+                let pad = fDay - s.conf.ws; if(pad<0) pad+=7;
                 for(let i=0; i<pad; i++) grid.innerHTML += `<div></div>`;
                 
                 const todayIso = new Date().toISOString().split('T')[0];
@@ -287,17 +308,11 @@
                     const dObj = new Date(y,m,i);
                     const ent = s.data[iso];
                     
-                    const el = document.createElement('div'); 
-                    el.className = 'day-cell';
-                    
+                    const el = document.createElement('div'); el.className = 'day-cell';
                     if(iso === todayIso) el.classList.add('today');
                     
-                    // Logic for Background Color
-                    if(ent && ent.t) {
-                        el.classList.add('bg-'+ent.t); // Force add class
-                    } else if(dObj.getDay()===parseInt(s.conf.wo)) {
-                        el.classList.add('bg-Off');
-                    }
+                    if(ent && ent.t) el.classList.add('bg-'+ent.t);
+                    else if(dObj.getDay()===parseInt(s.conf.wo)) el.classList.add('bg-Off');
                     
                     let h = `<span class="day-num">${i}</span>`;
                     if(ent) {
@@ -306,8 +321,7 @@
                         if(ent.lt>0) h+=`<span class="badge b-late">L:${ent.lt}</span>`;
                         h += `</div>`;
                     }
-                    el.innerHTML = h; 
-                    el.onclick=()=>ui.open(iso,ent);
+                    el.innerHTML = h; el.onclick=()=>ui.open(iso,ent);
                     grid.appendChild(el);
                 }
             },
@@ -327,24 +341,12 @@
                     ot: parseFloat(document.getElementById('inp-ot').value)||0, 
                     lt: parseInt(document.getElementById('inp-late').value)||0 
                 };
-                
-                // Optimistic Update (Immediate UI change)
-                s.data[sel.d] = p;
-                cal.render();
-
-                // Send to Firebase
-                db.ref(`u/${s.uid}/att/${sel.d}`).set(p)
-                  .then(() => ui.toast("Saved!"))
-                  .catch(e => {
-                      alert("Error saving: " + e.message);
-                      console.error(e);
-                  });
-                  
+                s.data[sel.d] = p; cal.render();
+                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => ui.toast("Saved!"));
                 ui.closeModal();
             },
             clear: () => {
-                delete s.data[sel.d];
-                cal.render();
+                delete s.data[sel.d]; cal.render();
                 db.ref(`u/${s.uid}/att/${sel.d}`).remove();
                 ui.closeModal();
             }
@@ -354,6 +356,10 @@
             save: () => {
                 s.conf.ws = parseInt(document.getElementById('set-week').value);
                 s.conf.wo = parseInt(document.getElementById('set-off').value);
+                s.conf.cur = document.getElementById('set-currency').value;
+                s.conf.sal = parseFloat(document.getElementById('set-salary').value) || 0;
+                s.conf.otr = parseFloat(document.getElementById('set-ot-rate').value) || 0;
+                
                 db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>ui.toast("Settings Updated"));
                 cal.render();
             }
@@ -364,7 +370,7 @@
                 const sD=document.getElementById('r-start').value, eD=document.getElementById('r-end').value;
                 if(!sD || !eD) return alert("Select Dates First");
                 
-                let tot=0, pres=0, leave=0, hol=0, ot=0;
+                let tot=0, pres=0, leave=0, hol=0, sick=0, otHrs=0;
                 const start=new Date(sD), end=new Date(eD);
                 
                 for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
@@ -373,20 +379,36 @@
                     const e = s.data[iso];
                     if(e) {
                         if(e.t==='Present') pres++;
-                        if(['Leave','Sick'].includes(e.t)) leave++;
                         if(e.t==='Holiday') hol++;
-                        ot += (e.ot||0);
+                        if(e.t==='Sick') sick++;
+                        if(e.t==='Leave') leave++;
+                        otHrs += (e.ot||0);
                     }
                 }
+
+                // Salary Calculation Logic
+                // Assume: Present, Holiday, Sick = Paid Days. Leave/Off = Unpaid (Customize if needed)
+                const paidDays = pres + hol + sick;
+                const dailySal = s.conf.sal || 0;
+                const otRate = s.conf.otr || 0;
+
+                const baseSalary = paidDays * dailySal;
+                const otEarnings = otHrs * otRate;
+                const totalEarn = baseSalary + otEarnings;
+                const cur = s.conf.cur || '৳';
                 
                 const row = (l,v,c) => `<div style="display:flex; justify-content:space-between; padding:12px; background:white; margin-bottom:8px; border-left:5px solid ${c}; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"><span>${l}</span><b>${v}</b></div>`;
                 
                 document.getElementById('r-out').innerHTML = 
-                    row('Total Days',tot,'#333') +
-                    row('Present',pres,'#4caf50') +
-                    row('Leave/Sick',leave,'#f44336') +
-                    row('Holiday',hol,'#9c27b0') +
-                    row('Overtime (Hrs)',ot,'#ff9800');
+                    row('Total Duty Days', tot, '#333') +
+                    row(`Paid Days (${pres}P + ${hol}H + ${sick}S)`, paidDays, '#4caf50') +
+                    row('Total OT Hours', otHrs + ' Hrs', '#ff9800') +
+                    `<hr style="margin:15px 0; border-top:1px dashed #ccc;">` +
+                    row('Base Salary', `${cur} ${baseSalary}`, '#2196f3') +
+                    row('OT Earnings', `${cur} ${otEarnings}`, '#ff9800') +
+                    `<div style="background:var(--primary); color:white; padding:15px; border-radius:10px; text-align:center; font-size:18px; font-weight:bold; margin-top:10px;">
+                        GRAND TOTAL: ${cur} ${totalEarn}
+                    </div>`;
             }
         };
 
@@ -395,8 +417,6 @@
                 sel.d=d; sel.t=null;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('modal').classList.add('show');
-                
-                // Reset UI
                 document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
                 document.getElementById('inp-ot').value=''; 
                 document.getElementById('inp-late').value='';
@@ -413,9 +433,7 @@
             togglePage: (id,o) => { 
                 const el=document.getElementById(id); 
                 o?el.classList.add('open'):el.classList.remove('open');
-                
                 if(id==='reports' && o) {
-                    // Set default this month
                     const n=new Date(), y=n.getFullYear(), m=String(n.getMonth()+1).padStart(2,'0');
                     document.getElementById('r-start').value=`${y}-${m}-01`;
                     document.getElementById('r-end').value=new Date().toISOString().split('T')[0];
@@ -432,9 +450,7 @@
         let deferredPrompt;
         const pwaBtn = document.getElementById('install-btn');
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            pwaBtn.style.display = 'block';
+            e.preventDefault(); deferredPrompt = e; pwaBtn.style.display = 'block';
         });
         const pwa = {
             install: () => {
@@ -448,9 +464,7 @@
             }
         };
         
-        if('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then(()=>console.log("SW Ready"));
-        }
+        if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
     </script>
 </body>
 </html>
