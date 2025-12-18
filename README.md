@@ -14,7 +14,7 @@
   <br><br>
 
   <!-- LOGO & TITLE -->
-  <img src="https://cdn-icons-png.flaticon.com/512/2965/2965215.png" alt="Duty Tracker Logo" width="100" />
+  <img src="https://i.ibb.co/k2QG26wB/20251218-184702.png" alt="Duty Tracker Logo" width="100" />
   
   <br>
 
