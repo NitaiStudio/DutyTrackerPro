@@ -5,21 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Duty Tracker Pro</title>
     
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <!-- Razorpay SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    
-    <!-- PayPal SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id=AfOzNhmiQjamiR4usKOUs_hullqnPZaXSTks076L48mXJJaMAn3Rblux_KJsP6_D20xX3s37hnns4p2R&currency=USD&disable-funding=credit,card"></script>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -38,40 +31,40 @@
         
         body { 
             background-color: var(--dark-bg);
-            background-image: radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.15) 0%, transparent 20%),
-                              radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.15) 0%, transparent 20%);
+            background-image: radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.1) 0%, transparent 50%);
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- 1. SPLASH SCREEN (PERFECT CENTER FIX) --- */
+        /* --- 1. SPLASH SCREEN (FLEX CENTER FIXED) --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             z-index: 999999; 
             display: flex; flex-direction: column; 
-            align-items: center; justify-content: center;
+            align-items: center; justify-content: center; /* True Center */
             transition: opacity 0.8s ease-out;
         }
+        .splash-content { display: flex; flex-direction: column; align-items: center; }
         .splash-logo-icon {
-            font-size: 80px; 
+            font-size: 90px; 
             background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 20px; animation: pulse 2s infinite;
-            filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6));
-            display: block;
+            filter: drop-shadow(0 0 20px rgba(108, 99, 255, 0.5));
         }
-        .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; display: block; }
-        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; animation: fadeInUp 1s ease-out 0.5s backwards; }
+        .splash-title { font-size: 30px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
+        .loader { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
+        
+        .splash-footer { position: absolute; bottom: 40px; text-align: center; width: 100%; }
+        .dev-text { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .made-in img { width: 22px; border-radius: 2px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* --- 2. AUTH SCREEN (SOLID & CENTERED) --- */
+        /* --- 2. AUTH SCREEN --- */
         #auth-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; inset: 0; width: 100%; height: 100%;
             background-color: var(--dark-bg); z-index: 5000; 
             display: flex; flex-direction: column;
             align-items: center; justify-content: center; padding: 20px;
@@ -81,10 +74,10 @@
             border-radius: 20px; text-align: center;
             border: 1px solid var(--border); box-shadow: 0 0 40px rgba(108, 99, 255, 0.2);
         }
-        .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; }
+        .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline: none; }
         .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
 
-        /* --- MAIN UI (HIDDEN INITIALLY) --- */
+        /* --- MAIN UI (HIDDEN) --- */
         #main-app { display: none; }
 
         nav {
@@ -94,50 +87,23 @@
             border-bottom: 1px solid var(--border);
         }
         .logo { font-size: 20px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        #pwa-install-btn {
-            background: var(--gradient); border: none; color: white;
-            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;
-            display: none; animation: pulse 2s infinite;
-        }
+        #pwa-install-btn { background: var(--gradient); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: none; animation: pulse 2s infinite; }
 
         /* --- PAYMENT SCREEN --- */
         #payment-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; inset: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); backdrop-filter: blur(20px);
             z-index: 99999; display: none; flex-direction: column; 
             align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
         }
-        .lock-card {
-            background: #111; padding: 20px; border-radius: 20px;
-            border: 1px solid var(--accent); box-shadow: 0 0 50px rgba(255, 0, 85, 0.3);
-            max-width: 380px; width: 100%; margin-top: 50px; position: relative;
-        }
-        #pay-close-btn {
-            position: absolute; top: 10px; right: 10px;
-            background: rgba(255,255,255,0.1); border: none; color: white;
-            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
-            display: none; align-items: center; justify-content: center; z-index: 20;
-        }
-        .plan-box {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-            border-radius: 12px; padding: 15px; margin-bottom: 15px;
-        }
-        .plan-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
-        }
-        .plan-title { font-weight: bold; color: white; font-size: 16px; }
-        .plan-price { color: var(--secondary); font-weight: 800; }
-        
-        .pay-btn-rzp {
-            width: 100%; padding: 12px; background: #3399cc; color: white; 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
-            margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .lock-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); box-shadow: 0 0 50px rgba(255, 0, 85, 0.3); max-width: 380px; width: 100%; margin-top: 50px; position: relative; }
+        #pay-close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 20; }
+        .plan-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .pay-btn-rzp { width: 100%; padding: 12px; background: #3399cc; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
 
-        /* APP HEADER & CALENDAR */
+        /* CALENDAR */
         .app-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-cell { height: 85px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; position: relative; border: 1px solid transparent; transition: 0.2s; }
@@ -147,25 +113,24 @@
         .bg-Holiday { background: #9c27b0 !important; color: white; }
         .bg-Off { background: #607d8b !important; color: white; }
 
-        /* PROFILE & SETTINGS */
-        .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
+        /* FULL PAGE */
+        .full-page { position: fixed; inset: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
         .fp-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.8); }
-        .fp-body { padding: 20px; padding-bottom: 50px; }
-        .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
-        .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .fp-body { padding: 20px; padding-bottom: 100px; }
+        .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
+        .sub-badge { background: var(--accent); color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
         /* DONATE SECTION */
-        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
+        .donate-section { background: rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--secondary); text-align: center; display: none; box-shadow: 0 0 15px rgba(0, 240, 255, 0.1); }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
-        .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-
-        .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
-        .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-
+        .donate-badges img { height: 40px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        
+        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 10px; color: #ccc; border-radius: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
-        
+
         #legal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 15px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
@@ -194,7 +159,7 @@
             <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Enter Mobile Number for Sync & Trial</p>
             
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:90px;">
+                <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:90px; outline:none;">
                     <option value="+91">🇮🇳 +91</option>
                     <option value="+880">🇧🇩 +880</option>
                     <option value="+1">🇺🇸 +1</option>
@@ -214,19 +179,14 @@
     <div id="payment-screen">
         <div class="lock-card">
             <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
-            
             <i class="fas fa-crown" style="font-size:40px; color:var(--accent); margin-bottom:15px; display:block; text-align:center;"></i>
             <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
-            <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Secure your data & enjoy ad-free experience.</p>
-            
-            <!-- Monthly -->
+            <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Secure your data & enjoy ad-free experience.</p>
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5 / $0.10</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
                 <div id="paypal-btn-monthly" class="paypal-container">Loading PayPal...</div>
             </div>
-
-            <!-- Yearly -->
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Yearly (365 Days)</span><span class="plan-price">₹40 / $0.50</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
@@ -402,7 +362,6 @@
                     
                     const isIndia = (s.country === '+91');
                     if (isIndia) {
-                        // INDIA: Subscription & Payment
                         if (!v.subExp) {
                             const trialEnd = Date.now() + (30 * 24 * 60 * 60 * 1000);
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
@@ -412,7 +371,6 @@
                         document.getElementById('donate-box').style.display = 'none';
                         app.checkSub();
                     } else {
-                        // INTERNATIONAL: Free + Donate
                         document.getElementById('main-app').style.display = 'block';
                         document.getElementById('sub-badge').innerText = "FREE USER";
                         document.getElementById('sub-badge').style.background = "#4caf50";
@@ -447,19 +405,24 @@
                 document.getElementById('payment-screen').style.display = 'flex';
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
-                setTimeout(() => pay.initPayPal(), 100); 
+                
+                // Force PayPal Render with Timeout
+                document.getElementById('paypal-btn-monthly').innerHTML = "Loading...";
+                document.getElementById('paypal-btn-yearly').innerHTML = "Loading...";
+                setTimeout(() => pay.initPayPal(), 1000); 
             },
             razorpay: (amt, plan) => {
                 const options = {
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR",
                     "name": "Duty Tracker Pro", "description": plan,
-                    "handler": function (response) { pay.success(plan); },
+                    "handler": function (response) { pay.success(plan, response.razorpay_payment_id); },
                     "prefill": { "contact": s.uid }, "theme": { "color": "#6C63FF" }
                 };
                 const rzp1 = new Razorpay(options); rzp1.open();
             },
             initPayPal: () => {
                 if(paypalRendered) return;
+                
                 document.getElementById('paypal-btn-monthly').innerHTML = "";
                 document.getElementById('paypal-btn-yearly').innerHTML = "";
 
@@ -482,10 +445,11 @@
 
         const legal = {
             show: (type) => {
-                const titleMap = { 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
+                const titleMap = { 'privacy': 'Privacy Policy', 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
                 const textMap = {
-                    'refund': 'Digital goods are non-refundable.',
-                    'terms': 'Use at your own risk. Verify calculations manually.'
+                    'privacy': 'We collect numbers for authentication only. Data is secure on Firebase.',
+                    'refund': 'Digital goods are non-refundable. Contact support for issues.',
+                    'terms': 'App provided as-is. Verify salary calculations manually.'
                 };
                 document.getElementById('legal-title').innerText = titleMap[type];
                 document.getElementById('legal-body').innerText = textMap[type];
@@ -550,7 +514,7 @@
                 if(!sel.t && !document.getElementById('inp-ot').value) return alert("Select Type");
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
                 
-                // INSTANT UPDATE
+                // INSTANT UI UPDATE
                 s.data[sel.d] = p;
                 cal.render(); 
                 
