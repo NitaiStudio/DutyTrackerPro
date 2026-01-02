@@ -35,13 +35,14 @@
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* SPLASH (PERFECT CENTER) */
+        /* --- SPLASH SCREEN (Z-INDEX FIXED) --- */
         #splash { 
             position: fixed; inset: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            z-index: 999999; display: flex; flex-direction: column; 
+            z-index: 9999999; /* Highest Priority */
+            display: flex; flex-direction: column; 
             justify-content: center; align-items: center; 
-            transition: opacity 0.8s ease-out;
+            transition: opacity 0.5s ease-out;
         }
         .splash-logo-icon { font-size: 90px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; }
         .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
@@ -57,8 +58,7 @@
         #auth-screen {
             position: fixed; inset: 0; width: 100%; height: 100%;
             background-color: #050505; z-index: 5000; 
-            display: none; /* Hidden by default */
-            flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+            display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
         .auth-box {
             background: var(--glass); padding: 40px 30px; max-width: 350px; width: 100%;
@@ -99,12 +99,12 @@
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
-        /* DONATE SECTION (Fixed) */
-        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; }
+        /* Donate Section (FIXED DISPLAY) */
+        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
         .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
 
-        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s;}
+        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s;}
 
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
@@ -117,7 +117,7 @@
 </head>
 <body>
 
-    <!-- SPLASH -->
+    <!-- 1. SPLASH SCREEN -->
     <div id="splash">
         <div class="splash-content">
             <span class="material-icons splash-logo-icon">assignment_ind</span>
@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <!-- AUTH -->
+    <!-- 2. AUTH SCREEN -->
     <div id="auth-screen">
         <div class="auth-box">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
@@ -152,7 +152,7 @@
         </div>
     </div>
 
-    <!-- PAYMENT -->
+    <!-- 3. PAYMENT SCREEN -->
     <div id="payment-screen">
         <div class="lock-card">
             <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
@@ -162,17 +162,17 @@
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5 / $0.10</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
-                <div id="paypal-btn-monthly" class="paypal-container">Loading...</div>
+                <div id="paypal-btn-monthly" class="paypal-container">Loading PayPal...</div>
             </div>
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Yearly (365 Days)</span><span class="plan-price">₹40 / $0.50</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
-                <div id="paypal-btn-yearly" class="paypal-container">Loading...</div>
+                <div id="paypal-btn-yearly" class="paypal-container">Loading PayPal...</div>
             </div>
         </div>
     </div>
 
-    <!-- APP -->
+    <!-- 4. MAIN APP -->
     <div id="main-app">
         <nav>
             <div class="logo">Duty Tracker</div>
@@ -209,7 +209,7 @@
         <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#f44336; margin-top:5px; font-weight:bold;">Cancel</button>
     </div>
 
-    <!-- SETTINGS -->
+    <!-- PROFILE & SETTINGS -->
     <div id="settings" class="full-page">
         <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Profile & Settings</h3></div>
         <div class="fp-body">
@@ -227,7 +227,7 @@
             <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
             <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
 
-            <div class="donate-section" id="donate-box" style="display:none;">
+            <div class="donate-section" id="donate-box">
                 <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
                 <div class="donate-badges">
                     <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge" alt="Buy Me A Coffee"></a>
@@ -333,9 +333,8 @@
                     
                     const isIndia = (s.country === '+91');
                     if (isIndia) {
-                        // INDIA: Subscription & Payment (3 DAYS FREE)
                         if (!v.subExp) {
-                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Days
+                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Days Trial
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                             s.sub = trialEnd;
                         } else { s.sub = v.subExp; }
@@ -343,7 +342,6 @@
                         document.getElementById('donate-box').style.display = 'none';
                         app.checkSub();
                     } else {
-                        // INTERNATIONAL: Free + Donate
                         document.getElementById('main-app').style.display = 'block';
                         document.getElementById('sub-badge').innerText = "FREE USER";
                         document.getElementById('sub-badge').style.background = "#4caf50";
@@ -353,7 +351,6 @@
                         cal.render();
                     }
                     
-                    // FIXED: Load settings AND set in state
                     if(v.conf) {
                         s.conf = { ...s.conf, ...v.conf };
                         document.getElementById('set-cur').value = s.conf.cur || '৳';
@@ -380,10 +377,8 @@
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
                 
-                // Force PayPal Render with Timeout
-                document.getElementById('paypal-btn-monthly').innerHTML = "Loading...";
-                document.getElementById('paypal-btn-yearly').innerHTML = "Loading...";
-                setTimeout(() => pay.initPayPal(), 1000); 
+                // FORCE RENDER PAYPAL
+                setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
                 const options = {
@@ -402,8 +397,21 @@
 
                 if (typeof paypal !== 'undefined') {
                     const style = { layout: 'horizontal', color: 'gold', height: 40, label: 'pay', tagline: false };
-                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id)) }).render('#paypal-btn-monthly');
-                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id)) }).render('#paypal-btn-yearly');
+
+                    // Monthly
+                    paypal.Buttons({
+                        style: style,
+                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }),
+                        onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id))
+                    }).render('#paypal-btn-monthly');
+
+                    // Yearly
+                    paypal.Buttons({
+                        style: style,
+                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }),
+                        onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id))
+                    }).render('#paypal-btn-yearly');
+
                     paypalRendered = true;
                 }
             },
@@ -440,7 +448,7 @@
                     const expDate = new Date(s.sub);
                     const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
                     document.getElementById('prof-exp').innerText = `Valid till: ${expDate.toDateString()}`;
-                    if(daysLeft > 3) { // 3 Days Logic
+                    if(daysLeft > 3) {
                         document.getElementById('prof-status').innerText = "PREMIUM";
                         document.getElementById('prof-status').style.background = "#4caf50";
                     } else {
@@ -488,7 +496,8 @@
                 if(!sel.t && !document.getElementById('inp-ot').value) return alert("Select Type");
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
                 
-                s.data[sel.d] = p; // INSTANT UPDATE
+                // INSTANT UI UPDATE
+                s.data[sel.d] = p;
                 cal.render(); 
                 
                 db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => {
@@ -501,9 +510,9 @@
             save: () => {
                 s.conf.cur = document.getElementById('set-cur').value;
                 s.conf.sal = parseFloat(document.getElementById('set-sal').value) || 0;
-                s.conf.otr = parseFloat(document.getElementById('set-ot-rate') ? document.getElementById('set-ot-rate').value : document.getElementById('set-otr').value) || 0;
+                s.conf.otr = parseFloat(document.getElementById('set-otr').value) || 0;
                 
-                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Saved"));
+                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Settings Saved"));
             }
         };
 
