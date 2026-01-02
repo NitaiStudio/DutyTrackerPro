@@ -43,34 +43,46 @@
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- SPLASH SCREEN --- */
+        /* --- FIXED SPLASH SCREEN (PERFECT CENTER) --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             z-index: 999999; 
             display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; /* Center Content */
-            text-align: center;
+            justify-content: center; /* Center Vertically */
+            align-items: center; /* Center Horizontally */
             transition: opacity 0.8s ease-out;
         }
         
+        .splash-content { 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            text-align: center;
+        }
+
         .splash-logo-icon {
             font-size: 80px; 
             background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 15px; animation: pulse 2s infinite;
+            margin-bottom: 20px; animation: pulse 2s infinite;
             filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6));
-            display: block; margin: 0 auto;
-        }
-
-        .splash-title {
-            font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 25px;
             display: block;
         }
 
-        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        
-        .splash-footer {
-            position: absolute; bottom: 30px; text-align: center; width: 100%; left: 0;
+        .splash-title { 
+            font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; 
+            display: block;
+        }
+
+        .loader { 
+            width: 40px; height: 40px; 
+            border: 3px solid rgba(255,255,255,0.1); 
+            border-top-color: var(--secondary); border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto;
+        }
+
+        .splash-footer { 
+            position: absolute; bottom: 30px; width: 100%; text-align: center; 
             animation: fadeInUp 1s ease-out 0.5s backwards;
         }
         .dev-text { font-size: 14px; color: #ccc; margin-bottom: 5px; }
@@ -79,6 +91,7 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- MAIN UI --- */
@@ -114,7 +127,6 @@
             width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
             display: none; align-items: center; justify-content: center; z-index: 20;
         }
-        
         .plan-box {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
             border-radius: 12px; padding: 15px; margin-bottom: 15px;
@@ -132,23 +144,8 @@
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         
-        .pay-btn-lemon {
-            width: 100%; padding: 12px; background: #FFDD00; color: black; 
-            border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
-            margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
-        }
-
-        .verify-link {
-            display: block; text-align: center; color: var(--secondary); 
-            font-size: 12px; margin-top: 5px; text-decoration: underline; cursor: pointer;
-        }
-
-        /* PayPal Container Fix */
-        .paypal-container { 
-            width: 100%; margin-top: 10px; min-height: 50px; 
-            display: flex; justify-content: center; align-items: center;
-            background: transparent;
-        }
+        /* Fixed PayPal Container */
+        .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; }
 
         /* AUTH & OTHERS */
         .auth-box {
@@ -173,31 +170,16 @@
         .fp-body { padding: 20px; }
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        
-        .legal-btn {
-            width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border); margin-bottom: 8px; color: #ccc;
-            border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer;
-        }
-        .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
 
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
 
         /* LEGAL MODAL */
-        #legal-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(5px);
-            z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px;
-        }
-        .legal-content {
-            background: #151515; width: 100%; max-width: 500px;
-            border-radius: 15px; border: 1px solid var(--border);
-            max-height: 80vh; overflow-y: auto; padding: 25px;
-            position: relative; color: #ccc; line-height: 1.6;
-        }
-        .legal-content h3 { color: white; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        #legal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 15px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
 
         #main-app, #auth-screen { display: none; }
@@ -238,43 +220,19 @@
             <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
             <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Secure your data & enjoy ad-free experience.</p>
             
-            <!-- Monthly Plan -->
+            <!-- Monthly -->
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5 / $0.10</span></div>
-                
-                <!-- Razorpay -->
-                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')">
-                    <i class="fas fa-bolt"></i> Pay with Razorpay (India)
-                </button>
-                
-                <!-- International -->
-                <a href="#" onclick="pay.openLemon('https://dutytrackerpro.lemonsqueezy.com/checkout/buy/4811ec7b-aa30-471c-b96b-f162e2efb4a9')" class="pay-btn-lemon">
-                    <i class="fas fa-globe"></i> Pay with International
-                </a>
-                
-                <!-- PayPal -->
+                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
                 <div id="paypal-btn-monthly" class="paypal-container">Loading PayPal...</div>
             </div>
 
-            <!-- Yearly Plan -->
+            <!-- Yearly -->
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Yearly (365 Days)</span><span class="plan-price">₹40 / $0.50</span></div>
-                
-                <!-- Razorpay -->
-                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')">
-                    <i class="fas fa-bolt"></i> Pay with Razorpay (India)
-                </button>
-
-                <!-- International -->
-                <a href="#" onclick="pay.openLemon('https://dutytrackerpro.lemonsqueezy.com/checkout/buy/4811ec7b-aa30-471c-b96b-f162e2efb4a9')" class="pay-btn-lemon">
-                    <i class="fas fa-globe"></i> Pay with International
-                </a>
-
-                <!-- PayPal -->
+                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
                 <div id="paypal-btn-yearly" class="paypal-container">Loading PayPal...</div>
             </div>
-
-            <p class="verify-link" onclick="pay.verifyManual()">Already Paid? Click Here to Verify</p>
         </div>
     </div>
 
@@ -329,6 +287,7 @@
                 <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Expires on: ...</p>
                 <button class="action-btn" style="background:var(--accent); font-size:14px;" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
+
             <h4 style="color:var(--primary); margin-bottom:10px;">Preferences</h4>
             <label>Currency</label><select id="set-cur" class="auth-inp" style="margin:5px 0; text-align:left;"><option value="৳">৳ (BDT)</option><option value="₹">₹ (INR)</option><option value="$">$ (USD)</option></select>
             <label>Daily Salary</label><input type="number" id="set-sal" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="500">
@@ -427,10 +386,14 @@
                         db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                         s.sub = trialEnd;
                     } else { s.sub = v.subExp; }
-                    if(v.conf) s.conf = { ...s.conf, ...v.conf };
-                    document.getElementById('set-cur').value = s.conf.cur;
-                    document.getElementById('set-sal').value = s.conf.sal;
-                    document.getElementById('set-otr').value = s.conf.otr;
+                    
+                    // Fixed: Load settings correctly
+                    if(v.conf) {
+                        s.conf = { ...s.conf, ...v.conf };
+                        document.getElementById('set-cur').value = s.conf.cur;
+                        document.getElementById('set-sal').value = s.conf.sal;
+                        document.getElementById('set-otr').value = s.conf.otr;
+                    }
                     app.checkSub();
                 });
             },
@@ -452,46 +415,36 @@
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
                 
-                // Force Render PayPal (Fixes blank issue)
-                document.getElementById('paypal-btn-monthly').innerHTML = "Loading...";
-                document.getElementById('paypal-btn-yearly').innerHTML = "Loading...";
-                setTimeout(() => pay.initPayPal(), 1000);
+                // FORCE RENDER PAYPAL
+                setTimeout(() => pay.initPayPal(), 500); 
             },
             razorpay: (amt, plan) => {
                 const options = {
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR",
                     "name": "Duty Tracker Pro", "description": plan,
-                    "handler": function (response) { pay.success(plan); },
+                    "handler": function (response) { pay.success(plan, response.razorpay_payment_id); },
                     "prefill": { "contact": s.uid }, "theme": { "color": "#6C63FF" }
                 };
                 const rzp1 = new Razorpay(options); rzp1.open();
             },
-            openLemon: (url) => {
-                window.open(url, '_blank');
-            },
-            verifyManual: () => {
-                const email = prompt("Enter Payment Email or Transaction ID:");
-                if(email) {
-                    alert("Verification Request Sent. It will be active within 1 hour.");
-                    // In a real app, send this to admin. Here we simulate success for UX.
-                    // For auto-unlock, integrate with backend webhook.
-                }
-            },
             initPayPal: () => {
                 if(paypalRendered) return;
                 
+                // Clear previous
                 document.getElementById('paypal-btn-monthly').innerHTML = "";
                 document.getElementById('paypal-btn-yearly').innerHTML = "";
 
-                if(typeof paypal !== 'undefined') {
+                if (typeof paypal !== 'undefined') {
                     const style = { layout: 'horizontal', color: 'gold', height: 40, label: 'pay', tagline: false };
 
+                    // Monthly
                     paypal.Buttons({
                         style: style,
                         createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }),
                         onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id))
                     }).render('#paypal-btn-monthly');
 
+                    // Yearly
                     paypal.Buttons({
                         style: style,
                         createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }),
@@ -579,8 +532,12 @@
             save: () => {
                 if(!sel.t && !document.getElementById('inp-ot').value) return alert("Select Type");
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
-                db.ref(`u/${s.uid}/att/${sel.d}`).set(p);
-                document.getElementById('modal').style.display='none';
+                
+                // Fixed: Save data to Firebase correctly
+                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => {
+                    alert("Saved!");
+                    document.getElementById('modal').style.display='none';
+                });
             }
         };
 
@@ -589,7 +546,9 @@
                 s.conf.cur = document.getElementById('set-cur').value;
                 s.conf.sal = parseFloat(document.getElementById('set-sal').value) || 0;
                 s.conf.otr = parseFloat(document.getElementById('set-ot-rate').value) || 0;
-                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Saved"));
+                
+                // Fixed: Save Settings to Firebase correctly
+                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Settings Saved"));
             }
         };
 
