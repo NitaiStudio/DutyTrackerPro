@@ -3,364 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#6200ea">
+    <meta name="theme-color" content="#4A148C">
     <title>Duty Tracker Pro</title>
 
+    <!-- PWA Manifest Link -->
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-    <!-- Razorpay SDK for Subscription -->
+    <!-- Razorpay SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
-        /* --- CSS STYLES --- */
         :root {
-            --primary: #6200ea;
-            --primary-dark: #3700b3;
-            --bg: #f8f9fa;
-            --surface: #ffffff;
-            --text: #202124;
-            /* Colors */
-            --c-present: #4caf50; 
-            --c-leave: #f44336;   
-            --c-sick: #ff9800;    
-            --c-holiday: #9c27b0; 
-            --c-off: #607d8b;     
+            --primary: #6200EA;
+            --primary-dark: #4A148C;
+            --secondary: #03DAC6;
+            --bg: #F3F0F7;
+            --surface: #FFFFFF;
+            --error: #B00020;
+            --grad: linear-gradient(135deg, #6200EA, #9575CD);
+            --c-present: #43A047;
+            --c-leave: #E53935;
+            --c-sick: #FB8C00;
+            --c-holiday: #8E24AA;
+            --c-off: #546E7A;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #2D2D2D; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* --- NEW SPLASH SCREEN DESIGN --- */
-        #splash { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(135deg, #6200ea, #3700b3); /* Premium Gradient */
-            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: white; transition: opacity 0.6s ease-out; 
+        /* SPLASH SCREEN */
+        #splash {
+            position: fixed; inset: 0; background: var(--grad); z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
+            transition: all 0.7s cubic-bezier(0.9, 0, 0.1, 1);
         }
-        
-        .splash-content {
-            display: flex; flex-direction: column; align-items: center;
-            animation: fadeInUp 0.8s ease-out;
+        .splash-logo {
+            width: 100px; height: 100px; background: rgba(255,255,255,0.2);
+            border-radius: 30px; display: flex; align-items: center; justify-content: center;
+            animation: bounce 2s infinite; margin-bottom: 20px;
         }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .splash-icon { 
-            font-size: 80px !important; 
-            margin-bottom: 10px; 
-            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            animation: pulse 2s infinite; /* Heartbeat Animation */
+        /* HEADER */
+        header {
+            background: var(--grad); color: white; padding: 20px;
+            border-radius: 0 0 35px 35px; box-shadow: 0 10px 25px rgba(98, 0, 234, 0.2); z-index: 10;
         }
-
-        .splash-title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sub-status { font-size: 11px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-weight: 600; }
+        .month-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.15); padding: 10px; border-radius: 18px;
         }
-
-        .loader { 
-            width: 40px; height: 40px; 
-            border: 4px solid rgba(255,255,255,0.3); 
-            border-top-color: white; border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-        }
-
-        /* Footer Design */
-        .splash-footer {
-            position: absolute;
-            bottom: 40px;
-            text-align: center;
-            font-size: 14px;
-            opacity: 0.9;
-            animation: fadeInUp 1s ease-out 0.2s backwards;
-        }
-        
-        .dev-name {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .made-in {
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .flag-icon {
-            width: 20px;
-            height: auto;
-            border-radius: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Animations */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- APP STYLES --- */
-        header { background: var(--primary); color: white; padding: 15px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3); z-index: 10; }
-        .app-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .month-nav { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.15); padding: 8px 15px; border-radius: 12px; }
-        .nav-btn { background: none; border: none; color: white; font-weight: bold; font-size: 14px; padding: 5px 15px; cursor: pointer; }
-        .week-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; margin-top: 15px; opacity: 0.9; font-weight: bold; }
+        .nav-btn { background: white; border: none; width: 35px; height: 35px; border-radius: 12px; color: var(--primary); display: flex; align-items: center; justify-content: center; }
 
         /* CALENDAR */
-        #calendar-grid { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(90px, 1fr); gap: 8px; padding-bottom: 80px; }
-        
-        .day-cell { 
-            background: var(--surface); border-radius: 12px; padding: 6px; 
-            position: relative; display: flex; flex-direction: column; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid transparent; transition: 0.2s;
+        .week-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; font-weight: 700; margin-top: 15px; opacity: 0.8; }
+        #calendar-grid {
+            flex: 1; overflow-y: auto; padding: 15px;
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            grid-auto-rows: minmax(95px, auto); gap: 10px;
         }
-        .day-cell.today { border: 2px solid var(--primary); }
-        .day-num { font-size: 14px; font-weight: 700; color: #444; margin-bottom: 2px; }
+        .day-cell {
+            background: white; border-radius: 20px; padding: 8px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 2px solid transparent; transition: 0.3s;
+        }
+        .day-cell.today { border-color: var(--primary); background: #F3EFFF; }
+        .day-num { font-size: 15px; font-weight: 700; color: #444; }
 
-        /* --- FORCE COLORS --- */
-        .bg-Present { background-color: var(--c-present) !important; color: white !important; }
-        .bg-Leave { background-color: var(--c-leave) !important; color: white !important; }
-        .bg-Sick { background-color: var(--c-sick) !important; color: white !important; }
-        .bg-Holiday { background-color: var(--c-holiday) !important; color: white !important; }
-        .bg-Off { background-color: #eceff1 !important; color: #546e7a !important; }
+        .bg-Present { background: linear-gradient(to bottom right, #66BB6A, #43A047) !important; color: white !important; }
+        .bg-Leave { background: linear-gradient(to bottom right, #EF5350, #E53935) !important; color: white !important; }
+        .bg-Sick { background: linear-gradient(to bottom right, #FFA726, #FB8C00) !important; color: white !important; }
+        .bg-Holiday { background: linear-gradient(to bottom right, #AB47BC, #8E24AA) !important; color: white !important; }
+        .bg-Off { background: #ECEFF1 !important; color: #546E7A !important; }
+        .badge-ot { font-size: 9px; background: rgba(0,0,0,0.2); padding: 2px 5px; border-radius: 5px; font-weight: 600; text-align: center; }
 
-        .bg-Present .day-num, .bg-Leave .day-num, .bg-Sick .day-num, .bg-Holiday .day-num { color: white !important; opacity: 0.95; }
+        /* PROFILE PAGE */
+        .full-page {
+            position: fixed; inset: 0; background: var(--bg); z-index: 500;
+            transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+        }
+        .full-page.open { transform: translateX(0); }
+        .page-header { background: white; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .section-card {
+            background: white; margin: 15px; padding: 20px; border-radius: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+        }
+        .m-input { width: 100%; padding: 14px; border-radius: 15px; border: 1.5px solid #EEE; font-size: 15px; outline: none; margin-top: 5px; }
+        .btn-pay {
+            background: var(--grad); color: white; border: none; width: 100%; padding: 15px;
+            border-radius: 18px; font-weight: 700; font-size: 16px; margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(98, 0, 234, 0.3);
+        }
 
-        /* BADGES */
-        .info-badges { margin-top: auto; display: flex; flex-wrap: wrap; gap: 2px; }
-        .badge { font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: bold; }
-        .b-ot { background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); }
-        .b-late { background: #fff; color: #d32f2f; }
+        /* DONATION BOX */
+        .donate-box { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; align-items: center; }
+        .donate-box a { width: 100%; display: flex; justify-content: center; }
+        .donate-box img { width: 180px; height: auto; border-radius: 8px; }
 
         /* MODAL */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; display: none; justify-content: center; align-items: flex-end; }
-        .modal.show { display: flex; animation: slideUp 0.3s; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: none; align-items: flex-end; }
+        .modal.show { display: flex; }
+        .sheet { background: white; width: 100%; padding: 30px; border-radius: 40px 40px 0 0; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .sheet { background: white; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; padding-bottom: 40px; }
-        
-        .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; margin-top: 15px; }
-        .type-btn { padding: 12px; border: 1px solid #eee; border-radius: 10px; background: white; font-weight: 600; font-size: 13px; color: #555; }
-        .type-btn.active { color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        
-        .type-btn[data-t="Present"].active { background: var(--c-present); }
-        .type-btn[data-t="Leave"].active { background: var(--c-leave); }
-        .type-btn[data-t="Sick"].active { background: var(--c-sick); }
-        .type-btn[data-t="Holiday"].active { background: var(--c-holiday); }
-        .type-btn[data-t="Off"].active { background: var(--c-off); color: white; }
+        .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .t-btn { padding: 12px; border: 1.5px solid #F0F0F0; border-radius: 15px; background: #F9F9F9; font-size: 13px; font-weight: 600; }
+        .t-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .input-row { display: flex; gap: 15px; margin-bottom: 20px; }
-        .input-box input, .input-box select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;}
-        .save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
-
-        /* SCREENS & UTILS */
+        #lock-screen { position: fixed; inset: 0; background: white; z-index: 9000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .hidden { display: none !important; }
-        .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8f9fa; z-index: 200; transform: translateX(100%); transition: 0.3s; display: flex; flex-direction: column; }
-        .full-page.open { transform: translateX(0); }
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 50px; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 500; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 25px; border-radius: 50px; font-size: 14px; opacity: 0; transition: 0.3s; z-index: 10001; }
         #toast.show { opacity: 1; bottom: 50px; }
-        #install-btn { display: none; background: rgba(0,0,0,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; margin-left: auto; }
     </style>
 </head>
 <body>
 
-    <!-- UPDATED SPLASH SCREEN -->
+    <!-- SPLASH SCREEN -->
     <div id="splash">
-        <div class="splash-content">
-            <span class="material-icons splash-icon">assignment_ind</span>
-            <div class="splash-title">Duty Tracker Pro</div>
-            <div class="loader"></div>
-        </div>
-        
-        <div class="splash-footer">
-            <div class="dev-name">Developer By Nitai Studio</div>
-            <div class="made-in">
-                Made in India 
-                <img src="https://flagcdn.com/w40/in.png" alt="India Flag" class="flag-icon">
-            </div>
-        </div>
+        <div class="splash-logo"><span class="material-icons-round" style="font-size: 50px;">event_note</span></div>
+        <h1 style="font-size: 26px; font-weight: 700; letter-spacing: 1px;">Duty Tracker Pro</h1>
+        <p style="margin-top: 10px; opacity: 0.8; font-size: 14px;">Made in India • Nitai Studio</p>
     </div>
 
-    <!-- AUTH (Modified for Mobile Number) -->
-    <div id="auth-screen" class="hidden" style="flex:1; display:flex; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-            <h2 style="color:var(--primary)">Welcome</h2>
-            <p style="color:#666; margin-bottom:20px;">Enter Mobile Number to Login/Register</p>
-            <div class="input-box">
-                <input type="number" id="auth-phone" placeholder="Ex: 01712345678" style="text-align:center;">
-            </div>
-            <button class="save-btn" onclick="app.login()" style="margin-top:20px;">Login / Start</button>
+    <!-- LOCK SCREEN -->
+    <div id="lock-screen" class="hidden">
+        <span class="material-icons-round" style="font-size: 80px; color: var(--error);">lock_person</span>
+        <h2 style="margin: 20px 0 10px;">Trial Period Expired</h2>
+        <p style="color: #666; margin-bottom: 30px;">Your free trial has ended. Subscribe now to continue.</p>
+        <button class="btn-pay" style="max-width: 300px;" onclick="sub.pay()">Subscribe - ₹10 / Month</button>
+    </div>
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen" class="hidden" style="flex:1; display:flex; align-items:center; justify-content:center; padding:30px;">
+        <div style="width:100%; max-width:400px; text-align:center;">
+            <div class="splash-logo" style="margin: 0 auto 30px; background: var(--grad); color:white;"><span class="material-icons-round" style="font-size: 50px;">fingerprint</span></div>
+            <h2>Login Account</h2>
+            <input type="number" id="auth-phone" class="m-input" placeholder="Enter Mobile Number" style="text-align:center; margin-top:20px;">
+            <button class="btn-pay" onclick="app.login()">Get Started</button>
         </div>
     </div>
 
     <!-- MAIN APP -->
     <div id="main-app" class="hidden">
         <header>
-            <div class="app-bar">
-                <span class="material-icons" onclick="ui.togglePage('settings', true)">settings</span>
-                <span style="font-size:18px; font-weight:bold">Duty Tracker</span>
-                <button id="install-btn" onclick="pwa.install()">INSTALL</button>
-                <span class="material-icons" onclick="ui.togglePage('reports', true)">assessment</span>
+            <div class="header-top">
+                <span class="material-icons-round" onclick="ui.togglePage('profile', true)">account_circle</span>
+                <span id="trial-badge" class="sub-status">Checking Status...</span>
+                <span class="material-icons-round" onclick="ui.togglePage('reports', true)">insights</span>
             </div>
-            <div class="month-nav">
-                <button class="nav-btn" onclick="cal.move(-1)">PREV</button>
-                <span id="month-txt" style="font-weight:bold; font-size:16px;">Loading...</span>
-                <button class="nav-btn" onclick="cal.move(1)">NEXT</button>
+            <div class="month-bar">
+                <button class="nav-btn" onclick="cal.move(-1)"><span class="material-icons-round">chevron_left</span></button>
+                <h3 id="month-txt">Month 2026</h3>
+                <button class="nav-btn" onclick="cal.move(1)"><span class="material-icons-round">chevron_right</span></button>
             </div>
-            <div class="week-days" id="week-header"></div>
+            <div class="week-days"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
         </header>
         <div id="calendar-grid"></div>
     </div>
 
-    <!-- SUBSCRIPTION SCREEN (NEW) -->
-    <div id="subscription-screen" class="full-page" style="transform: translateX(0); background: linear-gradient(135deg, #f0f4ff, #e0e7ff); display: none; z-index: 150;">
-        <div style="padding:40px 20px; text-align:center; flex:1; display:flex; flex-direction:column; justify-content:center; overflow-y:auto;">
-            <span class="material-icons" style="font-size:80px; color:var(--primary); margin-bottom:15px;">vpn_key</span>
-            <h2 style="color:#333; margin-bottom:10px;">Subscription Required</h2>
-            <p style="color:#666; margin-bottom:30px;">Your 3-day free trial has expired or you need to renew your subscription.</p>
+    <!-- PROFILE PAGE -->
+    <div id="profile" class="full-page">
+        <div class="page-header">
+            <span class="material-icons-round" onclick="ui.togglePage('profile', false)">arrow_back</span>
+            <h2>Profile & Support</h2>
+        </div>
+        <div style="overflow-y:auto; flex:1;">
+            <div class="section-card">
+                <label style="font-size: 11px; font-weight: 700; color:var(--primary);">ACCOUNT ID</label>
+                <p id="uid-disp" style="font-weight: 700; font-size: 18px;">0000000000</p>
+            </div>
 
-            <div style="background:white; padding:20px; border-radius:15px; box-shadow:0 8px 15px rgba(0,0,0,0.1); margin-bottom:30px;">
-                <h3 style="color:var(--primary-dark); margin-bottom:10px;">1 Month Subscription</h3>
-                <p style="font-size:24px; font-weight:bold; color:var(--c-present); margin-bottom:15px;">
-                    <span id="sub-currency">৳</span> 10.00 <span style="font-size:14px; font-weight:normal; color:#666;">/ month</span>
-                </p>
-                <ul style="text-align:left; list-style:none; padding:0 15px; margin-bottom:20px; font-size:15px;">
-                    <li style="margin-bottom:8px;"><span class="material-icons" style="font-size:18px; vertical-align:middle; color:var(--c-present); margin-right:5px;">check_circle</span> Full Calendar Access</li>
-                    <li style="margin-bottom:8px;"><span class="material-icons" style="font-size:18px; vertical-align:middle; color:var(--c-present); margin-right:5px;">check_circle</span> Detailed Salary Reports</li>
-                    <li><span class="material-icons" style="font-size:18px; vertical-align:middle; color:var(--c-present); margin-right:5px;">check_circle</span> Data Backup on Cloud</li>
-                </ul>
-                <button class="save-btn" onclick="app.subscribe()">SUBSCRIBE NOW - <span id="sub-button-price">₹ 10</span></button>
+            <div class="section-card">
+                <h3 style="font-size: 14px; margin-bottom:10px;">Configuration</h3>
+                <label style="font-size:11px;">Currency</label>
+                <select id="set-currency" class="m-input" onchange="settings.save()"><option value="৳">৳ BDT</option><option value="₹">₹ INR</option><option value="$">$ USD</option></select>
+                <label style="font-size:11px; margin-top:10px; display:block;">Daily Salary</label>
+                <input type="number" id="set-salary" class="m-input" onchange="settings.save()">
+                <label style="font-size:11px; margin-top:10px; display:block;">OT Rate (Hour)</label>
+                <input type="number" id="set-ot-rate" class="m-input" onchange="settings.save()">
+            </div>
+
+            <div class="section-card">
+                <h3 style="font-size: 14px; text-align: center;">Support Developer</h3>
+                <div class="donate-box">
+                    <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge" alt="Buy Me a Coffee"></a>
+                    <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white&style=for-the-badge" alt="Ko-fi"></a>
+                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white&style=for-the-badge" alt="Patreon"></a>
+                </div>
+                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+                <p style="font-size:13px;">📧 <a href="mailto:nitai.grp00@gmail.com" style="color:var(--primary); text-decoration:none;">nitai.grp00@gmail.com</a></p>
+                <p style="font-size:13px; margin-top:5px;"><a href="https://nitaistudio.github.io/DutyTrackerPro/policies.html" style="color:var(--primary); text-decoration:none;">Privacy Policy</a></p>
             </div>
             
-            <button onclick="app.logout()" style="background:none; border:none; color:#999; margin-top:10px; cursor:pointer;">Logout</button>
-            <p style="font-size:12px; color:#aaa; margin-top:20px;">Payment Powered by Razorpay.</p>
+            <button onclick="localStorage.clear(); location.reload();" style="width:100%; color:red; border:none; background:none; padding:20px; font-weight:700;">LOGOUT</button>
         </div>
     </div>
 
+    <!-- REPORTS PAGE -->
+    <div id="reports" class="full-page">
+        <div class="page-header"><span class="material-icons-round" onclick="ui.togglePage('reports', false)">arrow_back</span><h2>Reports</h2></div>
+        <div style="padding:15px;"><div class="section-card"><input type="date" id="r-start" class="m-input"><input type="date" id="r-end" class="m-input" style="margin-top:10px;"><button class="btn-pay" onclick="reports.gen()">Calculate</button></div><div id="r-out"></div></div>
+    </div>
 
-    <!-- MODAL -->
+    <!-- ENTRY MODAL -->
     <div id="modal" class="modal" onclick="if(event.target===this) ui.closeModal()">
         <div class="sheet">
-            <h3 id="modal-date" style="text-align:center; margin-bottom:15px; color:var(--primary);">Date</h3>
-            <div class="type-grid">
-                <button class="type-btn" data-t="Present" onclick="data.setType('Present', this)">Present</button>
-                <button class="type-btn" data-t="Leave" onclick="data.setType('Leave', this)">Leave</button>
-                <button class="type-btn" data-t="Sick" onclick="data.setType('Sick', this)">Sick</button>
-                <button class="type-btn" data-t="Holiday" onclick="data.setType('Holiday', this)">Holiday</button>
-                <button class="type-btn" data-t="Off" onclick="data.setType('Off', this)">Off</button>
+            <h3 id="modal-date" style="text-align:center; color:var(--primary-dark);">Date Status</h3>
+            <div class="type-selector">
+                <button class="t-btn" data-t="Present" onclick="data.setType('Present', this)">Present</button>
+                <button class="t-btn" data-t="Leave" onclick="data.setType('Leave', this)">Leave</button>
+                <button class="t-btn" data-t="Sick" onclick="data.setType('Sick', this)">Sick</button>
+                <button class="t-btn" data-t="Holiday" onclick="data.setType('Holiday', this)">Holiday</button>
+                <button class="t-btn" data-t="Off" onclick="data.setType('Off', this)">Off Day</button>
             </div>
-            <div class="input-row">
-                <div class="input-box" style="flex:1"><label>Overtime (Hrs)</label><input type="number" id="inp-ot" placeholder="0"></div>
-                <div class="input-box" style="flex:1"><label>Late (Mins)</label><input type="number" id="inp-late" placeholder="0"></div>
-            </div>
-            <button class="save-btn" onclick="data.save()">SAVE ENTRY</button>
-            <button style="width:100%; margin-top:10px; padding:12px; background:#ffebee; color:red; border:none; border-radius:12px; font-weight:bold;" onclick="data.clear()">CLEAR ENTRY</button>
+            <div style="display:flex; gap:15px;"><input type="number" id="inp-ot" class="m-input" placeholder="OT Hours"><input type="number" id="inp-late" class="m-input" placeholder="Late Mins"></div>
+            <button class="btn-pay" onclick="data.save()">Save Status</button>
         </div>
     </div>
 
-    <!-- SETTINGS (Updated with Salary & Currency and Links) -->
-    <div id="settings" class="full-page">
-        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-            <span class="material-icons" onclick="ui.togglePage('settings', false)">arrow_back</span><h3>Settings</h3>
-        </div>
-        <div style="padding:20px; overflow-y: auto;">
-            <label><b>My Number (ID)</b></label>
-            <input type="text" id="uid-disp" readonly style="width:100%; padding:15px; background:#eee; border:none; border-radius:8px; margin-bottom:20px; font-family:monospace; font-size:16px;">
-            
-            <label><b>Currency Symbol</b></label>
-            <select id="set-currency" class="input-box" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
-                <option value="৳">৳ (BDT - Taka)</option>
-                <option value="₹">₹ (INR - Rupee)</option>
-                <option value="$">$ (USD - Dollar)</option>
-                <option value="€">€ (EUR - Euro)</option>
-                <option value="£">£ (GBP - Pound)</option>
-                <option value="¥">¥ (JPY - Yen)</option>
-                <option value="د.إ">د.إ (AED - Dirham)</option>
-                <option value="SAR">SAR (Riyal)</option>
-                <option value="RM">RM (MYR - Ringgit)</option>
-            </select>
-
-            <label><b>Daily Salary Amount</b></label>
-            <input type="number" id="set-salary" placeholder="Example: 500" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
-
-            <label><b>Overtime Rate (Per Hour)</b></label>
-            <input type="number" id="set-ot-rate" placeholder="Example: 50" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:8px;">
-
-            <hr style="border:0; border-top:1px solid #eee; margin:10px 0 20px 0;">
-
-            <label><b>Week Start Day</b></label>
-            <select id="set-week" onchange="settings.save()" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
-                <option value="0">Sunday</option><option value="1">Monday</option>
-            </select>
-            
-            <label><b>Weekly Off Day</b></label>
-            <select id="set-off" onchange="settings.save()" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
-                <option value="0">Sunday</option><option value="6">Saturday</option><option value="5">Friday</option>
-            </select>
-
-            <!-- NEW: Support & Policies -->
-            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-
-            <h4 style="margin-bottom:10px; color:var(--primary);">Support & Policies</h4>
-            <a href="https://nitaistudio.github.io/DutyTrackerPro/policies.html" target="_blank" style="display:block; margin-bottom:10px; color:var(--primary); text-decoration:none; font-weight:500; display:flex; align-items:center; gap:5px;">
-                <span class="material-icons" style="font-size:18px;">policy</span> Privacy Policy
-            </a>
-            <div style="margin-bottom:15px; font-size:14px; display:flex; align-items:center; gap:5px;">
-                <span class="material-icons" style="font-size:18px; color:#555;">mail_outline</span>
-                Support: <a href="mailto:nitai.grp00@gmail.com" style="color:#555; text-decoration:none;">nitai.grp00@gmail.com</a>
-            </div>
-
-            <h4 style="margin-top:20px; margin-bottom:15px; color:var(--primary);">Donate for Development</h4>
-            <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
-                <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank">
-                    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee">
-                </a>
-                <a href="https://ko-fi.com/nitaisarkar" target="_blank">
-                    <img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi">
-                </a>
-                <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank">
-                    <img src="https://img.shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white" alt="Patreon">
-                </a>
-            </div>
-            
-        </div>
-    </div>
-
-    <!-- REPORTS (Updated with Salary Calculation) -->
-    <div id="reports" class="full-page">
-        <div style="padding:15px; background:white; display:flex; align-items:center; gap:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-            <span class="material-icons" onclick="ui.togglePage('reports', false)">arrow_back</span><h3>Reports</h3>
-        </div>
-        <div style="padding:20px">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div style="flex:1"><label>From</label><input type="date" id="r-start" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></div>
-                <div style="flex:1"><label>To</label><input type="date" id="r-end" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;"></div>
-            </div>
-            <button class="save-btn" onclick="reports.gen()">CALCULATE SALARY</button>
-            <div id="r-out" style="margin-top:20px;"></div>
-        </div>
-    </div>
-
-    <div id="toast">Saved Successfully!</div>
+    <div id="toast">Message</div>
 
     <script>
-        // NOTE ON SECURITY: For a real-world app, you MUST implement Firebase Security Rules 
-        // to protect user data from unauthorized access and manipulation, as this is a client-side app.
-
-        // --- FIREBASE CONFIG (UPDATED) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk",
             authDomain: "duty-tracker-pro.firebaseapp.com",
@@ -370,341 +243,149 @@
             messagingSenderId: "716525293622",
             appId: "1:716525293622:web:880f39084c86180fbb0897"
         };
-        
-        try { firebase.initializeApp(firebaseConfig); } catch(e) { console.error("Firebase Init Failed", e); }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const RAZORPAY_KEY = 'rzp_live_RyuF0DQNLGiAH2'; // Razorpay Live Key
 
-        // --- STATE ---
-        const s = { 
-            uid: null, 
-            date: new Date(), 
-            data: {}, 
-            conf: { ws: 0, wo: 0, cur: '৳', sal: 0, otr: 0 }, 
-            sub: { expiry: 0, active: false } // Subscription state
-        };
+        const s = { uid: null, date: new Date(), data: {}, conf: { ws: 0, wo: 0, cur: '৳', sal: 0, otr: 0, exp: 0 } };
         let sel = { d: null, t: null };
 
-        // --- STARTUP ---
         window.onload = () => {
-            // Updated Splash Screen Timeout to ensure animation is seen
             setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash').classList.add('hidden');
-                    const id = localStorage.getItem('dt_id');
-                    if(id && id !== "null") app.start(id); 
-                    else document.getElementById('auth-screen').classList.remove('hidden');
-                }, 600);
-            }, 3000); // 3 seconds splash display
+                const splash = document.getElementById('splash');
+                splash.style.opacity = "0"; splash.style.transform = "scale(1.2)";
+                setTimeout(() => splash.classList.add('hidden'), 700);
+                const id = localStorage.getItem('dt_id');
+                if(id) app.start(id); else document.getElementById('auth-screen').classList.remove('hidden');
+            }, 2000);
         };
 
         const app = {
-            login: () => { 
-                const phone = document.getElementById('auth-phone').value.trim(); 
-                if(phone.length >= 6){ // Basic validation
-                    const cleanId = phone.replace(/\D/g,''); // Remove non-digits
-                    localStorage.setItem('dt_id', cleanId); 
-                    app.start(cleanId); 
-                } 
-                else ui.toast("Enter valid mobile number");
+            login: () => {
+                const phone = document.getElementById('auth-phone').value.trim();
+                if(phone.length < 10) return ui.toast("Invalid number");
+                localStorage.setItem('dt_id', phone); app.start(phone);
             },
             start: (id) => {
-                s.uid = id;
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('uid-disp').value = id;
-                
-                // Realtime Listener
+                s.uid = id; document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('uid-disp').innerText = id;
                 db.ref('u/'+id).on('value', snap => {
                     const v = snap.val();
-                    let isFirstLogin = false;
-                    
-                    if(v) { 
-                        s.data = v.att || {}; 
-                        if(v.conf) s.conf = { ...s.conf, ...v.conf }; 
-                        s.sub = v.sub || { expiry: 0, active: false };
-                    } else {
-                        // NEW USER: Initiate 3-day trial logic
-                        isFirstLogin = true; 
-                    }
-                    
-                    // Trial/Subscription Check
-                    app.checkSubscription(isFirstLogin);
-
-                    // Update Settings/Subscription UI
-                    document.getElementById('set-week').value = s.conf.ws;
-                    document.getElementById('set-off').value = s.conf.wo;
-                    document.getElementById('set-currency').value = s.conf.cur || '৳';
-                    document.getElementById('set-salary').value = s.conf.sal || '';
-                    document.getElementById('set-ot-rate').value = s.conf.otr || '';
-                    document.getElementById('sub-currency').innerText = s.conf.cur || '₹';
-                    document.getElementById('sub-button-price').innerText = `${s.conf.cur || '₹'} 10`;
-                    
-                    cal.render();
+                    if(v) { s.data = v.att || {}; s.conf = { ...s.conf, ...v.conf }; }
+                    else { const trial = Date.now() + (3 * 24 * 60 * 60 * 1000); s.conf.exp = trial; db.ref(`u/${id}/conf`).set(s.conf); }
+                    app.checkSub(); cal.render(); settings.updateUI();
                 });
             },
-            
-            checkSubscription: (isFirstLogin) => {
-                const now = Date.now();
-                let expiry = s.sub.expiry;
+            checkSub: () => {
+                const diff = s.conf.exp - Date.now();
+                const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                const badge = document.getElementById('trial-badge');
+                if(daysLeft > 30) { badge.innerText = "PRO ACTIVE"; badge.style.background = "#4CAF50"; }
+                else if (daysLeft > 0) { badge.innerText = `TRIAL: ${daysLeft} DAYS LEFT`; }
+                else { document.getElementById('lock-screen').classList.remove('hidden'); document.getElementById('main-app').classList.add('hidden'); }
+            }
+        };
 
-                if (isFirstLogin) {
-                    // Set 3-day free trial expiry (3 * 24 * 60 * 60 * 1000)
-                    expiry = now + (3 * 24 * 60 * 60 * 1000);
-                    s.sub.expiry = expiry;
-                    s.sub.active = true; 
-                    db.ref(`u/${s.uid}/sub`).set(s.sub);
-                    ui.toast("3-Day Free Trial Started!", 5000);
-                }
-
-                s.sub.active = (expiry > now);
-                
-                if (s.sub.active) {
-                    document.getElementById('main-app').classList.remove('hidden');
-                    document.getElementById('subscription-screen').style.display = 'none';
-                } else {
-                    document.getElementById('main-app').classList.add('hidden');
-                    document.getElementById('subscription-screen').style.display = 'flex'; // Show sub screen
-                    ui.toast("Trial Expired. Please Subscribe!", 4000);
-                }
-            },
-
-            subscribe: () => {
-                if(!s.uid) return ui.toast("Login first.");
-                
+        const sub = {
+            pay: () => {
                 const options = {
-                    key: RAZORPAY_KEY, 
-                    amount: 1000, // 1000 paise = 10.00 INR
-                    currency: 'INR',
-                    name: 'Duty Tracker Pro',
-                    description: '1 Month Subscription',
-                    image: 'https://nitaistudio.github.io/DutyTrackerPro/icon-192x192.png', // App logo/icon
-                    handler: function (response){
-                        // Payment successful logic
-                        const now = Date.now();
-                        const newExpiry = now + (30 * 24 * 60 * 60 * 1000); // 30 days
-                        
-                        s.sub.expiry = newExpiry;
-                        s.sub.active = true;
-                        s.sub.lastPayment = now;
-                        s.sub.paymentId = response.razorpay_payment_id;
-                        s.sub.orderId = response.razorpay_order_id;
-                        
-                        db.ref(`u/${s.uid}/sub`).set(s.sub)
-                            .then(() => {
-                                ui.toast("Subscription Successful! Enjoy!", 5000);
-                                app.checkSubscription(); // Reload the app view
-                            })
-                            .catch(e => {
-                                console.error(e);
-                                ui.toast("Subscription Data Save Error! Contact Support.");
-                            });
-                    },
-                    prefill: {
-                        contact: s.uid // Use mobile number for contact
-                    },
-                    theme: {
-                        color: "#6200ea" // Match primary color
+                    key: "rzp_live_Rz7kQ4RAloCWGp", amount: 1000, currency: "INR", name: "Duty Tracker Pro",
+                    description: "30 Days Subscription",
+                    handler: (res) => {
+                        const curExp = s.conf.exp > Date.now() ? s.conf.exp : Date.now();
+                        const newExp = curExp + (30 * 24 * 60 * 60 * 1000);
+                        db.ref(`u/${s.uid}/conf/exp`).set(newExp).then(() => ui.toast("Subscription Activated!"));
                     }
                 };
-                const rzp = new Razorpay(options);
-                rzp.on('payment.failed', function (response){
-                    ui.toast(`Payment failed: ${response.error.description}`, 5000);
-                });
-                rzp.open();
-            },
-            
-            logout: () => {
-                localStorage.removeItem('dt_id');
-                location.reload();
+                new Razorpay(options).open();
             }
         };
 
         const cal = {
             getIso: (y, m, d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
             render: () => {
-                if (!s.sub.active) return; // Do not render calendar if not active
-                
-                const y=s.date.getFullYear(), m=s.date.getMonth();
+                const y = s.date.getFullYear(), m = s.date.getMonth();
                 document.getElementById('month-txt').innerText = new Date(y, m).toLocaleString('default', { month: 'long', year: 'numeric' });
-                
-                const days = s.conf.ws===1 ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
-                document.getElementById('week-header').innerHTML = days.map(d=>`<div>${d}</div>`).join('');
-                
-                const grid = document.getElementById('calendar-grid'); grid.innerHTML='';
-                const fDay = new Date(y,m,1).getDay(), lDate = new Date(y,m+1,0).getDate();
-                
-                let pad = fDay - s.conf.ws; if(pad<0) pad+=7;
-                for(let i=0; i<pad; i++) grid.innerHTML += `<div></div>`;
-                
+                const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+                const fDay = new Date(y, m, 1).getDay(); const lDate = new Date(y, m+1, 0).getDate();
+                for(let i=0; i<fDay; i++) grid.innerHTML += '<div></div>';
                 const todayIso = new Date().toISOString().split('T')[0];
-
                 for(let i=1; i<=lDate; i++) {
-                    const iso = cal.getIso(y, m, i);
-                    const dObj = new Date(y,m,i);
-                    const ent = s.data[iso];
-                    
-                    const el = document.createElement('div'); el.className = 'day-cell';
-                    if(iso === todayIso) el.classList.add('today');
-                    
-                    if(ent && ent.t) el.classList.add('bg-'+ent.t);
-                    else if(dObj.getDay()===parseInt(s.conf.wo)) el.classList.add('bg-Off');
-                    
-                    let h = `<span class="day-num">${i}</span>`;
-                    if(ent) {
-                        h += `<div class="info-badges">`;
-                        if(ent.ot>0) h+=`<span class="badge b-ot">OT:${ent.ot}</span>`;
-                        if(ent.lt>0) h+=`<span class="badge b-late">L:${ent.lt}</span>`;
-                        h += `</div>`;
-                    }
-                    el.innerHTML = h; el.onclick=()=>ui.open(iso,ent);
-                    grid.appendChild(el);
+                    const iso = cal.getIso(y, m, i); const ent = s.data[iso];
+                    const cell = document.createElement('div'); cell.className = 'day-cell';
+                    if(iso === todayIso) cell.classList.add('today');
+                    if(ent && ent.t) cell.classList.add('bg-'+ent.t);
+                    else if(new Date(y,m,i).getDay() === parseInt(s.conf.wo)) cell.classList.add('bg-Off');
+                    cell.innerHTML = `<span class="day-num">${i}</span>` + (ent && ent.ot ? `<span class="badge-ot">OT: ${ent.ot}h</span>` : '');
+                    cell.onclick = () => ui.open(iso, ent); grid.appendChild(cell);
                 }
             },
-            move: (v) => { s.date.setMonth(s.date.getMonth()+v); cal.render(); }
+            move: (v) => { s.date.setMonth(s.date.getMonth() + v); cal.render(); }
         };
 
         const data = {
-            setType: (t,b) => { 
-                sel.t=t; 
-                document.querySelectorAll('.type-btn').forEach(btn=>btn.classList.remove('active')); 
-                b.classList.add('active'); 
-            },
+            setType: (t, btn) => { sel.t = t; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); },
             save: () => {
-                if(!sel.t) return ui.toast("Select Status Type first!");
-                const p = { 
-                    t: sel.t, 
-                    ot: parseFloat(document.getElementById('inp-ot').value)||0, 
-                    lt: parseInt(document.getElementById('inp-late').value)||0 
-                };
-                s.data[sel.d] = p; cal.render();
-                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => ui.toast("Saved!"));
-                ui.closeModal();
-            },
-            clear: () => {
-                delete s.data[sel.d]; cal.render();
-                db.ref(`u/${s.uid}/att/${sel.d}`).remove();
-                ui.closeModal();
+                if(!sel.t) return ui.toast("Select status");
+                const entry = { t: sel.t, ot: parseFloat(document.getElementById('inp-ot').value) || 0, lt: parseInt(document.getElementById('inp-late').value) || 0 };
+                db.ref(`u/${s.uid}/att/${sel.d}`).set(entry).then(() => { ui.toast("Updated"); ui.closeModal(); });
             }
         };
 
         const settings = {
+            updateUI: () => {
+                document.getElementById('set-currency').value = s.conf.cur || '৳';
+                document.getElementById('set-salary').value = s.conf.sal || '';
+                document.getElementById('set-ot-rate').value = s.conf.otr || '';
+                document.getElementById('set-off').value = s.conf.wo || 0;
+            },
             save: () => {
-                s.conf.ws = parseInt(document.getElementById('set-week').value);
-                s.conf.wo = parseInt(document.getElementById('set-off').value);
                 s.conf.cur = document.getElementById('set-currency').value;
                 s.conf.sal = parseFloat(document.getElementById('set-salary').value) || 0;
                 s.conf.otr = parseFloat(document.getElementById('set-ot-rate').value) || 0;
-                
-                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>ui.toast("Settings Updated"));
-                cal.render();
+                s.conf.wo = document.getElementById('set-off').value;
+                db.ref(`u/${s.uid}/conf`).update(s.conf); cal.render();
             }
         };
 
         const reports = {
             gen: () => {
-                const sD=document.getElementById('r-start').value, eD=document.getElementById('r-end').value;
-                if(!sD || !eD) return ui.toast("Select Dates First");
-                
-                let tot=0, pres=0, leave=0, hol=0, sick=0, otHrs=0;
-                const start=new Date(sD), end=new Date(eD);
-                
-                for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) {
-                    const iso = d.toISOString().split('T')[0]; 
-                    tot++;
-                    const e = s.data[iso];
-                    if(e) {
-                        if(e.t==='Present') pres++;
-                        if(e.t==='Holiday') hol++;
-                        if(e.t==='Sick') sick++;
-                        if(e.t==='Leave') leave++;
-                        otHrs += (e.ot||0);
-                    }
+                const start = document.getElementById('r-start').value, end = document.getElementById('r-end').value;
+                if(!start || !end) return ui.toast("Select dates");
+                let pres = 0, hol = 0, sick = 0, ot = 0; const sDate = new Date(start), eDate = new Date(end);
+                for(let d = new Date(sDate); d <= eDate; d.setDate(d.getDate()+1)) {
+                    const iso = d.toISOString().split('T')[0]; const e = s.data[iso];
+                    if(e) { if(e.t === 'Present') pres++; if(e.t === 'Holiday') hol++; if(e.t === 'Sick') sick++; ot += (e.ot || 0); }
                 }
-
-                // Salary Calculation Logic
-                // Assume: Present, Holiday, Sick = Paid Days. Leave/Off = Unpaid (Customize if needed)
-                const paidDays = pres + hol + sick;
-                const dailySal = s.conf.sal || 0;
-                const otRate = s.conf.otr || 0;
-
-                const baseSalary = (paidDays * dailySal).toFixed(2);
-                const otEarnings = (otHrs * otRate).toFixed(2);
-                const totalEarn = (parseFloat(baseSalary) + parseFloat(otEarnings)).toFixed(2);
-                const cur = s.conf.cur || '৳';
-                
-                const row = (l,v,c) => `<div style="display:flex; justify-content:space-between; padding:12px; background:white; margin-bottom:8px; border-left:5px solid ${c}; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"><span>${l}</span><b>${v}</b></div>`;
-                
-                document.getElementById('r-out').innerHTML = 
-                    row('Total Duty Days', tot, '#333') +
-                    row(`Paid Days (${pres}P + ${hol}H + ${sick}S)`, paidDays, '#4caf50') +
-                    row('Total OT Hours', otHrs + ' Hrs', '#ff9800') +
-                    `<hr style="margin:15px 0; border-top:1px dashed #ccc;">` +
-                    row('Base Salary', `${cur} ${baseSalary}`, '#2196f3') +
-                    row('OT Earnings', `${cur} ${otEarnings}`, '#ff9800') +
-                    `<div style="background:var(--primary); color:white; padding:15px; border-radius:10px; text-align:center; font-size:18px; font-weight:bold; margin-top:10px;">
-                        GRAND TOTAL: ${cur} ${totalEarn}
-                    </div>`;
+                const basicPay = (pres + hol + sick) * s.conf.sal, otPay = ot * s.conf.otr;
+                document.getElementById('r-out').innerHTML = `<div class="section-card" style="background:var(--grad); color:white;"><h2>${s.conf.cur} ${(basicPay + otPay).toLocaleString()}</h2><p style="font-size:12px;">Days: ${pres+hol+sick} | OT: ${ot}h</p></div>`;
             }
         };
 
         const ui = {
-            open: (d,e) => {
-                if (!s.sub.active) return ui.toast("Subscription required to add entries.");
-                
-                sel.d=d; sel.t=null;
-                document.getElementById('modal-date').innerText = new Date(d).toDateString();
+            open: (d, e) => {
+                sel.d = d; sel.t = null; document.getElementById('modal-date').innerText = new Date(d).toDateString();
+                document.getElementById('inp-ot').value = e ? e.ot : ''; document.getElementById('inp-late').value = e ? e.lt : '';
+                document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+                if(e) data.setType(e.t, document.querySelector(`[data-t="${e.t}"]`));
                 document.getElementById('modal').classList.add('show');
-                document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
-                document.getElementById('inp-ot').value=''; 
-                document.getElementById('inp-late').value='';
-                
-                if(e) {
-                    sel.t=e.t;
-                    const btn=document.querySelector(`.type-btn[data-t="${e.t}"]`);
-                    if(btn) btn.classList.add('active');
-                    document.getElementById('inp-ot').value = e.ot||'';
-                    document.getElementById('inp-late').value = e.lt||'';
-                }
             },
             closeModal: () => document.getElementById('modal').classList.remove('show'),
-            togglePage: (id,o) => { 
-                if (id !== 'settings' && id !== 'reports' && !s.sub.active) return ui.toast("Subscription required to access this feature.");
-                
-                const el=document.getElementById(id); 
-                o?el.classList.add('open'):el.classList.remove('open');
-                if(id==='reports' && o) {
-                    const n=new Date(), y=n.getFullYear(), m=String(n.getMonth()+1).padStart(2,'0');
-                    document.getElementById('r-start').value=`${y}-${m}-01`;
-                    document.getElementById('r-end').value=new Date().toISOString().split('T')[0];
-                }
+            togglePage: (id, open) => {
+                document.getElementById(id).classList.toggle('open', open);
+                if(id === 'reports' && open) { document.getElementById('r-start').value = cal.getIso(s.date.getFullYear(), s.date.getMonth(), 1); document.getElementById('r-end').value = new Date().toISOString().split('T')[0]; }
             },
-            toast: (m, d=2000) => { 
-                const t=document.getElementById('toast'); 
-                t.innerText=m; t.classList.add('show'); 
-                setTimeout(()=>t.classList.remove('show'),d); 
-            }
+            toast: (m) => { const t = document.getElementById('toast'); t.innerText = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
         };
-        
-        // PWA Install
-        let deferredPrompt;
-        const pwaBtn = document.getElementById('install-btn');
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e; pwaBtn.style.display = 'block';
-        });
-        const pwa = {
-            install: () => {
-                if(deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((c) => {
-                        if(c.outcome==='accepted') pwaBtn.style.display='none';
-                        deferredPrompt = null;
-                    });
-                }
-            }
-        };
-        
-        if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+
+        // SERVICE WORKER REGISTRATION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('PWA SW Registered'))
+                .catch(err => console.error('PWA SW Register Failed', err));
+            });
+        }
     </script>
 </body>
 </html>
