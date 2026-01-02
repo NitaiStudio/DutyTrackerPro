@@ -38,36 +38,29 @@
         
         body { 
             background-color: var(--dark-bg);
+            /* Fixed background issue to prevent overlay problems */
             background-image: radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.15) 0%, transparent 20%),
                               radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.15) 0%, transparent 20%);
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- SPLASH SCREEN (CENTERED) --- */
+        /* --- SPLASH SCREEN --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             z-index: 999999; 
             display: flex; flex-direction: column; 
             align-items: center; justify-content: center;
-            text-align: center;
             transition: opacity 0.8s ease-out;
         }
-        
         .splash-logo-icon {
             font-size: 80px; 
             background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 15px; animation: pulse 2s infinite;
+            margin-bottom: 20px; animation: pulse 2s infinite;
             filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6));
-            display: block; margin: 0 auto;
         }
-
-        .splash-title {
-            font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 25px;
-            display: block;
-        }
-
-        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
+        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
         .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; animation: fadeInUp 1s ease-out 0.5s backwards; }
         .dev-text { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -75,9 +68,26 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- AUTH SCREEN (FIXED OVERLAY) --- */
+        #auth-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--dark-bg); /* Solid Background Fix */
+            z-index: 5000; 
+            display: flex; /* Always flex initially */
+            flex-direction: column;
+            align-items: center; justify-content: center; 
+            padding: 20px;
+        }
+        .auth-box {
+            background: var(--glass); padding: 40px 30px; max-width: 350px; width: 100%;
+            border-radius: 20px; text-align: center;
+            border: 1px solid var(--border); box-shadow: 0 0 40px rgba(108, 99, 255, 0.2);
+        }
+        .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; }
+        .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        
         /* --- MAIN UI --- */
         nav {
             display: flex; justify-content: space-between; align-items: center;
@@ -96,13 +106,13 @@
         /* --- PAYMENT SCREEN --- */
         #payment-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
+            background: rgba(0,0,0,0.98); backdrop-filter: blur(20px);
             z-index: 99999; display: none; flex-direction: column; 
             align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
         }
         .lock-card {
-            background: #111; padding: 20px; border-radius: 20px;
-            border: 1px solid var(--accent); box-shadow: 0 0 40px rgba(255, 0, 85, 0.3);
+            background: #111; padding: 25px; border-radius: 20px;
+            border: 1px solid var(--accent); box-shadow: 0 0 50px rgba(255, 0, 85, 0.3);
             max-width: 380px; width: 100%; margin-top: 50px; position: relative;
         }
         #pay-close-btn {
@@ -127,17 +137,16 @@
             border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        
         .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
 
-        /* AUTH & OTHERS */
-        .auth-box {
-            margin: auto; padding: 40px 30px; max-width: 350px; width: 90%;
-            background: var(--glass); border-radius: 20px; text-align: center;
-            border: 1px solid var(--border); box-shadow: 0 0 30px rgba(108, 99, 255, 0.2);
-        }
-        .auth-inp { width: 100%; padding: 15px; margin: 20px 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; }
-        .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+        /* LEGAL & OTHERS */
+        .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
+        .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Donate */
+        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; }
+        .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
+        .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
 
         .app-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
@@ -154,20 +163,15 @@
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
-        /* Donate Section */
-        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; }
-        .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
-        .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-
-        /* Legal Buttons */
-        .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
-        .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
 
-        #main-app, #auth-screen { display: none; }
+        #legal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 15px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
+        .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+
+        #main-app { display: none; }
     </style>
 </head>
 <body>
@@ -186,15 +190,15 @@
     </div>
 
     <!-- 2. AUTH SCREEN -->
-    <div id="auth-screen" style="display:flex; height:100vh; align-items:center; justify-content:center;">
+    <div id="auth-screen">
         <div class="auth-box">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
             <h2 style="margin-bottom:10px;">Login</h2>
-            <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Enter Mobile Number for Sync & Trial</p>
+            <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Enter Mobile Number to Sync Data</p>
             
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:90px;">
-                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+91">🇮🇳 +91</option> <!-- India -->
                     <option value="+880">🇧🇩 +880</option>
                     <option value="+1">🇺🇸 +1</option>
                     <option value="+44">🇬🇧 +44</option>
@@ -281,9 +285,9 @@
             <div class="profile-card">
                 <i class="fas fa-user-circle" style="font-size:50px; color:var(--secondary); margin-bottom:10px;"></i>
                 <h3 id="prof-id">...</h3>
-                <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
-                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Expires on: ...</p>
-                <button class="action-btn" style="background:var(--accent); font-size:14px;" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
+                <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">FREE</span></div>
+                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Enjoy Free Access</p>
+                <button class="action-btn" style="background:var(--accent); font-size:14px; display:none;" id="extend-btn" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
 
             <h4 style="color:var(--primary); margin-bottom:10px;">Preferences</h4>
@@ -292,7 +296,7 @@
             <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
             <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
 
-            <!-- Donate -->
+            <!-- DONATE -->
             <div class="donate-section">
                 <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
                 <div class="donate-badges">
@@ -302,8 +306,10 @@
                 </div>
             </div>
 
-            <h4 style="color:white; margin-bottom:10px; margin-top:20px;">Legal & Support</h4>
-            <button class="legal-btn" onclick="window.open('https://nitaistudio.github.io/DutyTrackerPro/policies.html', '_blank')"><span>Legal Policies</span> <i class="fas fa-chevron-right"></i></button>
+            <h4 style="color:white; margin:20px 0 10px;">Legal & Support</h4>
+            <button class="legal-btn" onclick="legal.show('privacy')"><span>Privacy Policy</span> <i class="fas fa-chevron-right"></i></button>
+            <button class="legal-btn" onclick="legal.show('refund')"><span>Refund Policy</span> <i class="fas fa-chevron-right"></i></button>
+            <button class="legal-btn" onclick="legal.show('terms')"><span>Disclaimer</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="location.href='mailto:nitai.grp00@gmail.com'"><span>Contact Support</span> <i class="fas fa-envelope"></i></button>
         </div>
     </div>
@@ -318,6 +324,15 @@
             </div>
             <button class="action-btn" onclick="reports.gen()">Generate</button>
             <div id="r-out" style="margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- LEGAL MODAL -->
+    <div id="legal-modal">
+        <div class="legal-content">
+            <button class="legal-close" onclick="document.getElementById('legal-modal').style.display='none'">&times;</button>
+            <h3 id="legal-title">Policy</h3>
+            <div id="legal-body" style="font-size:13px; color:#aaa;"></div>
         </div>
     </div>
 
@@ -346,7 +361,7 @@
         const db = firebase.database();
         const RZP_KEY = "rzp_live_RyuF0DQNLGiAH2";
 
-        const s = { uid: null, date: new Date(), data: {}, sub: 0, conf: { cur: '৳', sal: 0, otr: 0 } };
+        const s = { uid: null, country: null, date: new Date(), data: {}, sub: 0, conf: { cur: '৳', sal: 0, otr: 0 } };
         let sel = { d: null, t: null };
         let paypalRendered = false;
 
@@ -356,8 +371,11 @@
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
                     const id = localStorage.getItem('dt_id');
-                    if(id && id !== "null") app.start(id); 
-                    else document.getElementById('auth-screen').style.display = 'flex';
+                    const country = localStorage.getItem('dt_country');
+                    if(id) {
+                        s.country = country || '+91'; // Default to India if null
+                        app.start(id);
+                    } else document.getElementById('auth-screen').style.display = 'flex';
                 }, 800);
             }, 3000);
         };
@@ -366,9 +384,12 @@
             login: () => {
                 const code = document.getElementById('country-code').value;
                 const num = document.getElementById('auth-phone').value.trim();
+                
                 if(num.length > 5) {
                     const fullId = code + num;
+                    s.country = code;
                     localStorage.setItem('dt_id', fullId);
+                    localStorage.setItem('dt_country', code);
                     document.getElementById('auth-screen').style.display = 'none';
                     app.start(fullId);
                 } else alert("Invalid Number");
@@ -378,20 +399,37 @@
                 db.ref('u/' + s.uid).on('value', snap => {
                     const v = snap.val() || {};
                     s.data = v.att || {};
-                    if (!v.subExp) {
-                        const trialEnd = Date.now() + (30 * 24 * 60 * 60 * 1000); // 30 Days Free Trial
-                        db.ref('u/' + s.uid + '/subExp').set(trialEnd);
-                        s.sub = trialEnd;
-                    } else { s.sub = v.subExp; }
                     
-                    // Fixed: Load settings correctly matching HTML IDs
+                    // --- LOCATION BASED LOGIC ---
+                    const isIndia = (s.country === '+91');
+
+                    if (isIndia) {
+                        // India: Check Subscription
+                        if (!v.subExp) {
+                            const trialEnd = Date.now() + (30 * 24 * 60 * 60 * 1000);
+                            db.ref('u/' + s.uid + '/subExp').set(trialEnd);
+                            s.sub = trialEnd;
+                        } else { s.sub = v.subExp; }
+                        
+                        document.getElementById('extend-btn').style.display = 'block'; // Show Pay Button
+                        app.checkSub();
+                    } else {
+                        // Outside India: Always Free
+                        document.getElementById('main-app').style.display = 'block';
+                        document.getElementById('sub-badge').innerText = "FREE USER";
+                        document.getElementById('sub-badge').style.background = "#4caf50";
+                        document.getElementById('prof-exp').innerText = "Unlimited Access (International)";
+                        document.getElementById('extend-btn').style.display = 'none'; // Hide Pay Button
+                        cal.render();
+                    }
+                    
+                    // Load Settings
                     if(v.conf) {
                         s.conf = { ...s.conf, ...v.conf };
                         document.getElementById('set-cur').value = s.conf.cur || '৳';
                         document.getElementById('set-sal').value = s.conf.sal || '';
                         document.getElementById('set-otr').value = s.conf.otr || '';
                     }
-                    app.checkSub();
                 });
             },
             checkSub: () => {
@@ -411,9 +449,7 @@
                 document.getElementById('payment-screen').style.display = 'flex';
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
-                
-                // FORCE RENDER PAYPAL WITH TIMEOUT
-                setTimeout(() => pay.initPayPal(), 500); 
+                setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
                 const options = {
@@ -426,28 +462,13 @@
             },
             initPayPal: () => {
                 if(paypalRendered) return;
-                
-                // Clear previous
                 document.getElementById('paypal-btn-monthly').innerHTML = "";
                 document.getElementById('paypal-btn-yearly').innerHTML = "";
 
                 if (typeof paypal !== 'undefined') {
                     const style = { layout: 'horizontal', color: 'gold', height: 40, label: 'pay', tagline: false };
-
-                    // Monthly
-                    paypal.Buttons({
-                        style: style,
-                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }),
-                        onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id))
-                    }).render('#paypal-btn-monthly');
-
-                    // Yearly
-                    paypal.Buttons({
-                        style: style,
-                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }),
-                        onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id))
-                    }).render('#paypal-btn-yearly');
-
+                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id)) }).render('#paypal-btn-monthly');
+                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id)) }).render('#paypal-btn-yearly');
                     paypalRendered = true;
                 }
             },
@@ -461,20 +482,37 @@
             }
         };
 
+        const legal = {
+            show: (type) => {
+                const titleMap = { 'privacy': 'Privacy Policy', 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
+                const textMap = {
+                    'privacy': 'We collect numbers for sync only. Data is safe on Firebase.',
+                    'refund': 'Digital goods are non-refundable. Contact support for help.',
+                    'terms': 'Use at your own risk. Verify calculations manually.'
+                };
+                document.getElementById('legal-title').innerText = titleMap[type];
+                document.getElementById('legal-body').innerText = textMap[type];
+                document.getElementById('legal-modal').style.display = 'flex';
+            }
+        };
+
         const ui = {
             openProfile: () => {
                 document.getElementById('settings').style.display = 'flex';
                 document.getElementById('prof-id').innerText = s.uid;
-                const expDate = new Date(s.sub);
-                const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
-                document.getElementById('prof-exp').innerText = `Valid till: ${expDate.toDateString()}`;
                 
-                if(daysLeft > 30) {
-                    document.getElementById('prof-status').innerText = "PREMIUM";
-                    document.getElementById('prof-status').style.background = "#4caf50";
-                } else {
-                    document.getElementById('prof-status').innerText = `${daysLeft} DAYS LEFT`;
-                    document.getElementById('prof-status').style.background = "#ff9800";
+                // Show Subscription Info Only for India
+                if(s.country === '+91') {
+                    const expDate = new Date(s.sub);
+                    const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
+                    document.getElementById('prof-exp').innerText = `Valid till: ${expDate.toDateString()}`;
+                    if(daysLeft > 30) {
+                        document.getElementById('prof-status').innerText = "PREMIUM";
+                        document.getElementById('prof-status').style.background = "#4caf50";
+                    } else {
+                        document.getElementById('prof-status').innerText = `${daysLeft} DAYS LEFT`;
+                        document.getElementById('prof-status').style.background = "#ff9800";
+                    }
                 }
             }
         };
@@ -549,7 +587,7 @@
             }
         };
 
-        // PWA Install Logic
+        // PWA
         let deferredPrompt;
         const pwaBtn = document.getElementById('pwa-install-btn');
         window.addEventListener('beforeinstallprompt', (e) => {
