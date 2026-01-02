@@ -35,19 +35,29 @@
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- SPLASH SCREEN (Z-INDEX FIXED) --- */
+        /* --- SPLASH SCREEN (PERFECT CENTER) --- */
         #splash { 
             position: fixed; inset: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            z-index: 9999999; /* Highest Priority */
+            z-index: 999999; 
             display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
+            align-items: center; justify-content: center;
             transition: opacity 0.5s ease-out;
         }
-        .splash-logo-icon { font-size: 90px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; }
+        
+        .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+        .splash-logo-icon {
+            font-size: 90px; 
+            background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 20px; animation: pulse 2s infinite;
+            filter: drop-shadow(0 0 20px rgba(108, 99, 255, 0.5));
+        }
+
         .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
         .loader { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
         .splash-footer { position: absolute; bottom: 40px; width: 100%; text-align: center; }
+        .dev-text { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px; }
         .made-in img { width: 22px; border-radius: 2px; }
 
@@ -57,7 +67,7 @@
         /* AUTH SCREEN */
         #auth-screen {
             position: fixed; inset: 0; width: 100%; height: 100%;
-            background-color: #050505; z-index: 5000; 
+            background-color: var(--dark-bg); z-index: 5000; 
             display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
         .auth-box {
@@ -65,7 +75,7 @@
             border-radius: 24px; text-align: center; border: 1px solid var(--border);
         }
         .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline:none; }
-        .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 20px; }
+        .action-btn { width: 100%; padding: 16px; border-radius: 50px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 20px; }
 
         /* MAIN UI */
         #main-app { display: none; }
@@ -75,11 +85,11 @@
 
         /* PAYMENT SCREEN */
         #payment-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); backdrop-filter: blur(20px); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .lock-card { background: #111; padding: 20px; border-radius: 20px; border: 1px solid var(--accent); max-width: 380px; width: 100%; margin-top: 50px; position: relative; }
-        #pay-close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 20; }
-        .plan-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .lock-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); max-width: 380px; width: 100%; margin-top: 50px; position: relative; }
+        #pay-close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 20; }
+        .plan-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 15px; }
         .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        .pay-btn-rzp { width: 100%; padding: 12px; background: #3399cc; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .pay-btn-rzp { width: 100%; padding: 14px; background: #3399cc; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
 
         /* CALENDAR */
@@ -99,12 +109,12 @@
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
-        /* Donate Section (FIXED DISPLAY) */
-        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
+        /* DONATE SECTION */
+        .donate-section { background: rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
         .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
 
-        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s;}
+        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s;}
 
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
@@ -158,7 +168,7 @@
             <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
             <i class="fas fa-crown" style="font-size:40px; color:var(--accent); margin-bottom:15px; display:block; text-align:center;"></i>
             <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
-            <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Secure your data & enjoy ad-free experience.</p>
+            <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Renew to continue using Duty Tracker Pro.</p>
             <div class="plan-box">
                 <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5 / $0.10</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
@@ -214,10 +224,11 @@
         <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Profile & Settings</h3></div>
         <div class="fp-body">
             <div class="profile-card">
-                <i class="fas fa-user-circle" style="font-size:50px; color:var(--secondary); margin-bottom:10px;"></i>
-                <h3 id="prof-id">...</h3>
+                <i class="fas fa-user-circle" style="font-size:60px; color:var(--secondary); margin-bottom:15px;"></i>
+                <h3 id="prof-id" style="font-size:20px;">...</h3>
                 <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
                 <p id="prof-exp" style="font-size:13px; color:#aaa; margin-bottom:20px;">Expires on: ...</p>
+                <!-- Pay Button (India Only) -->
                 <button class="action-btn" style="background:var(--accent); font-size:14px; display:none;" id="extend-btn" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
 
@@ -227,12 +238,13 @@
             <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
             <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
 
-            <div class="donate-section" id="donate-box">
+            <!-- Donate Section (International Only) -->
+            <div class="donate-section" id="donate-box" style="display:none;">
                 <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
                 <div class="donate-badges">
                     <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge" alt="Buy Me A Coffee"></a>
                     <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white&style=for-the-badge" alt="Ko-fi"></a>
-                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white&style=for-the-badge" alt="Patreon"></a>
+                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img-shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white&style=for-the-badge" alt="Patreon"></a>
                 </div>
             </div>
 
@@ -334,7 +346,7 @@
                     const isIndia = (s.country === '+91');
                     if (isIndia) {
                         if (!v.subExp) {
-                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Days Trial
+                            const trialEnd = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 Days Trial
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                             s.sub = trialEnd;
                         } else { s.sub = v.subExp; }
@@ -377,14 +389,13 @@
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
                 
-                // FORCE RENDER PAYPAL
                 setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
                 const options = {
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR",
                     "name": "Duty Tracker Pro", "description": plan,
-                    "handler": function (response) { pay.success(plan, response.razorpay_payment_id); },
+                    "handler": function (response) { pay.success(plan); },
                     "prefill": { "contact": s.uid }, "theme": { "color": "#6C63FF" }
                 };
                 const rzp1 = new Razorpay(options); rzp1.open();
@@ -397,21 +408,8 @@
 
                 if (typeof paypal !== 'undefined') {
                     const style = { layout: 'horizontal', color: 'gold', height: 40, label: 'pay', tagline: false };
-
-                    // Monthly
-                    paypal.Buttons({
-                        style: style,
-                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }),
-                        onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id))
-                    }).render('#paypal-btn-monthly');
-
-                    // Yearly
-                    paypal.Buttons({
-                        style: style,
-                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }),
-                        onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id))
-                    }).render('#paypal-btn-yearly');
-
+                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id)) }).render('#paypal-btn-monthly');
+                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id)) }).render('#paypal-btn-yearly');
                     paypalRendered = true;
                 }
             },
@@ -448,7 +446,7 @@
                     const expDate = new Date(s.sub);
                     const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
                     document.getElementById('prof-exp').innerText = `Valid till: ${expDate.toDateString()}`;
-                    if(daysLeft > 3) {
+                    if(daysLeft > 7) {
                         document.getElementById('prof-status').innerText = "PREMIUM";
                         document.getElementById('prof-status').style.background = "#4caf50";
                     } else {
@@ -496,8 +494,7 @@
                 if(!sel.t && !document.getElementById('inp-ot').value) return alert("Select Type");
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
                 
-                // INSTANT UI UPDATE
-                s.data[sel.d] = p;
+                s.data[sel.d] = p; 
                 cal.render(); 
                 
                 db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => {
