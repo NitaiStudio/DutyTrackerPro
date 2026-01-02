@@ -15,9 +15,6 @@
     
     <!-- Razorpay SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    
-    <!-- PayPal SDK -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AfOzNhmiQjamiR4usKOUs_hullqnPZaXSTks076L48mXJJaMAn3Rblux_KJsP6_D20xX3s37hnns4p2R&currency=USD&disable-funding=credit,card"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -43,36 +40,34 @@
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- FIXED SPLASH SCREEN --- */
+        /* --- SPLASH SCREEN --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            z-index: 999999; 
-            display: flex; flex-direction: column; 
+            z-index: 999999; display: flex; flex-direction: column; 
             align-items: center; justify-content: center;
             transition: opacity 0.8s ease-out;
         }
-        .splash-content { display: flex; flex-direction: column; align-items: center; }
-        .splash-logo-icon { font-size: 80px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .splash-logo-icon {
+            font-size: 80px; 
+            background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 20px; animation: pulse 2s infinite;
+        }
         .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
         .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
-        .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; animation: fadeInUp 1s ease-out 0.5s backwards; }
-        .dev-text { font-size: 14px; color: #ccc; margin-bottom: 5px; }
+        .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; }
         .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .made-in img { width: 22px; border-radius: 2px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- AUTH SCREEN (SOLID OVERLAY FIX) --- */
+        /* --- AUTH SCREEN --- */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--dark-bg); /* Solid Color */
-            z-index: 5000; 
+            background-color: var(--dark-bg); z-index: 5000; 
             display: flex; flex-direction: column;
-            align-items: center; justify-content: center; 
-            padding: 20px;
+            align-items: center; justify-content: center; padding: 20px;
         }
         .auth-box {
             background: var(--glass); padding: 40px 30px; max-width: 350px; width: 100%;
@@ -83,7 +78,7 @@
         .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
 
         /* --- MAIN UI --- */
-        #main-app { display: none; } /* Hidden Initially */
+        #main-app { display: none; }
 
         nav {
             display: flex; justify-content: space-between; align-items: center;
@@ -99,42 +94,36 @@
             display: none; animation: pulse 2s infinite;
         }
 
-        /* --- PAYMENT SCREEN --- */
+        /* --- PAYMENT LOCK --- */
         #payment-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); backdrop-filter: blur(20px);
             z-index: 99999; display: none; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
+            align-items: center; justify-content: center; padding: 20px;
         }
         .lock-card {
-            background: #111; padding: 20px; border-radius: 20px;
-            border: 1px solid var(--accent); box-shadow: 0 0 40px rgba(255, 0, 85, 0.3);
+            background: #111; padding: 25px; border-radius: 20px;
+            border: 1px solid var(--accent); box-shadow: 0 0 50px rgba(255, 0, 85, 0.3);
             max-width: 380px; width: 100%; margin-top: 50px; position: relative;
         }
         #pay-close-btn {
             position: absolute; top: 10px; right: 10px;
             background: rgba(255,255,255,0.1); border: none; color: white;
             width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
-            display: none; align-items: center; justify-content: center; z-index: 20;
+            display: none; align-items: center; justify-content: center;
         }
         .plan-box {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
             border-radius: 12px; padding: 15px; margin-bottom: 15px;
         }
-        .plan-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
-        }
-        .plan-title { font-weight: bold; color: white; font-size: 16px; }
-        .plan-price { color: var(--secondary); font-weight: 800; }
+        .plan-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
         .pay-btn-rzp {
             width: 100%; padding: 12px; background: #3399cc; color: white; 
             border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
 
-        /* APP HEADER & CALENDAR */
+        /* CALENDAR */
         .app-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-cell { height: 85px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; position: relative; border: 1px solid transparent; transition: 0.2s; }
@@ -144,24 +133,23 @@
         .bg-Holiday { background: #9c27b0 !important; color: white; }
         .bg-Off { background: #607d8b !important; color: white; }
 
+        /* SETTINGS & PROFILE */
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
         .fp-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.8); }
-        .fp-body { padding: 20px; padding-bottom: 100px; }
+        .fp-body { padding: 20px; }
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
-        /* Donate Section */
+        /* DONATE SECTION (Only for International) */
         .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
         .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
 
         .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
-        .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
-
+        
         #legal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 15px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
@@ -169,7 +157,6 @@
 </head>
 <body>
 
-    <!-- 1. SPLASH SCREEN -->
     <div id="splash">
         <div class="splash-content">
             <span class="material-icons splash-logo-icon">assignment_ind</span>
@@ -182,13 +169,11 @@
         </div>
     </div>
 
-    <!-- 2. AUTH SCREEN -->
     <div id="auth-screen">
         <div class="auth-box">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
             <h2 style="margin-bottom:10px;">Login</h2>
             <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Enter Mobile Number for Sync & Trial</p>
-            
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:90px;">
                     <option value="+91">🇮🇳 +91</option>
@@ -201,37 +186,27 @@
                 </select>
                 <input type="number" id="auth-phone" class="auth-inp" placeholder="Mobile Number" style="margin:0; flex:1;">
             </div>
-            
             <button class="action-btn" onclick="app.login()">Get Started</button>
         </div>
     </div>
 
-    <!-- 3. PAYMENT SCREEN -->
     <div id="payment-screen">
         <div class="lock-card">
             <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
-            
             <i class="fas fa-crown" style="font-size:40px; color:var(--accent); margin-bottom:15px; display:block; text-align:center;"></i>
             <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
             <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Secure your data & enjoy ad-free experience.</p>
-            
-            <!-- Monthly -->
             <div class="plan-box">
-                <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5 / $0.10</span></div>
+                <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
-                <div id="paypal-btn-monthly" class="paypal-container">Loading PayPal...</div>
             </div>
-
-            <!-- Yearly -->
             <div class="plan-box">
-                <div class="plan-header"><span class="plan-title">Yearly (365 Days)</span><span class="plan-price">₹40 / $0.50</span></div>
+                <div class="plan-header"><span class="plan-title">Yearly (365 Days)</span><span class="plan-price">₹40</span></div>
                 <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
-                <div id="paypal-btn-yearly" class="paypal-container">Loading PayPal...</div>
             </div>
         </div>
     </div>
 
-    <!-- 4. MAIN APP -->
     <div id="main-app">
         <nav>
             <div class="logo">Duty Tracker</div>
@@ -253,7 +228,6 @@
         </div>
     </div>
 
-    <!-- MODAL -->
     <div id="modal">
         <h3 id="modal-date" style="text-align:center; margin-bottom:15px; color:white;">Date</h3>
         <div style="display:flex; flex-wrap:wrap; justify-content:center;">
@@ -271,15 +245,15 @@
         <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#f44336; margin-top:5px;">Cancel</button>
     </div>
 
-    <!-- PROFILE & SETTINGS -->
     <div id="settings" class="full-page">
         <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Profile & Settings</h3></div>
         <div class="fp-body">
             <div class="profile-card">
                 <i class="fas fa-user-circle" style="font-size:50px; color:var(--secondary); margin-bottom:10px;"></i>
                 <h3 id="prof-id">...</h3>
-                <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">FREE</span></div>
-                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Access Level</p>
+                <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
+                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Expires on: ...</p>
+                <!-- Only Shows for India -->
                 <button class="action-btn" style="background:var(--accent); font-size:14px; display:none;" id="extend-btn" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
 
@@ -289,7 +263,7 @@
             <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
             <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
 
-            <!-- Donate Section (Visible for Non-India) -->
+            <!-- Only Shows for Non-India -->
             <div class="donate-section" id="donate-box">
                 <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
                 <div class="donate-badges">
@@ -307,7 +281,6 @@
         </div>
     </div>
 
-    <!-- REPORTS -->
     <div id="reports" class="full-page">
         <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Reports</h3></div>
         <div class="fp-body">
@@ -320,7 +293,6 @@
         </div>
     </div>
 
-    <!-- LEGAL MODAL -->
     <div id="legal-modal">
         <div class="legal-content">
             <button class="legal-close" onclick="document.getElementById('legal-modal').style.display='none'">&times;</button>
@@ -356,7 +328,6 @@
 
         const s = { uid: null, country: null, date: new Date(), data: {}, sub: 0, conf: { cur: '৳', sal: 0, otr: 0 } };
         let sel = { d: null, t: null };
-        let paypalRendered = false;
 
         window.onload = () => {
             setTimeout(() => {
@@ -395,21 +366,23 @@
                     
                     const isIndia = (s.country === '+91');
                     if (isIndia) {
+                        // INDIA Logic (Sub + Pay)
                         if (!v.subExp) {
                             const trialEnd = Date.now() + (30 * 24 * 60 * 60 * 1000);
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                             s.sub = trialEnd;
                         } else { s.sub = v.subExp; }
                         document.getElementById('extend-btn').style.display = 'block';
-                        document.getElementById('donate-box').style.display = 'none'; // Hide Donate
+                        document.getElementById('donate-box').style.display = 'none';
                         app.checkSub();
                     } else {
+                        // GLOBAL Logic (Free + Donate)
                         document.getElementById('main-app').style.display = 'block';
                         document.getElementById('sub-badge').innerText = "FREE USER";
                         document.getElementById('sub-badge').style.background = "#4caf50";
                         document.getElementById('prof-exp').innerText = "Unlimited Access (International)";
                         document.getElementById('extend-btn').style.display = 'none';
-                        document.getElementById('donate-box').style.display = 'block'; // Show Donate
+                        document.getElementById('donate-box').style.display = 'block';
                         cal.render();
                     }
                     
@@ -438,46 +411,17 @@
                 document.getElementById('payment-screen').style.display = 'flex';
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
-                
-                // FORCE RENDER PAYPAL
-                setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
                 const options = {
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR",
                     "name": "Duty Tracker Pro", "description": plan,
-                    "handler": function (response) { pay.success(plan, response.razorpay_payment_id); },
+                    "handler": function (response) { pay.success(plan); },
                     "prefill": { "contact": s.uid }, "theme": { "color": "#6C63FF" }
                 };
                 const rzp1 = new Razorpay(options); rzp1.open();
             },
-            initPayPal: () => {
-                if(paypalRendered) return;
-                
-                document.getElementById('paypal-btn-monthly').innerHTML = "";
-                document.getElementById('paypal-btn-yearly').innerHTML = "";
-
-                if (typeof paypal !== 'undefined') {
-                    const style = { layout: 'horizontal', color: 'gold', height: 40, label: 'pay', tagline: false };
-
-                    // Monthly
-                    paypal.Buttons({
-                        style: style,
-                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }),
-                        onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly', det.id))
-                    }).render('#paypal-btn-monthly');
-
-                    // Yearly
-                    paypal.Buttons({
-                        style: style,
-                        createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }),
-                        onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly', det.id))
-                    }).render('#paypal-btn-yearly');
-
-                    paypalRendered = true;
-                }
-            },
-            success: (plan, pid) => {
+            success: (plan) => {
                 const now = Date.now();
                 let add = (plan === 'yearly') ? 31536000000 : 2592000000;
                 let newExp = (now > s.sub ? now : s.sub) + add;
@@ -489,10 +433,11 @@
 
         const legal = {
             show: (type) => {
-                const titleMap = { 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
+                const titleMap = { 'privacy': 'Privacy Policy', 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
                 const textMap = {
-                    'refund': 'Digital goods are non-refundable. Contact support within 24 hours if payment fails.',
-                    'terms': 'Use at your own risk. Verify calculations manually.'
+                    'privacy': 'We collect numbers for authentication only. Data is secure on Firebase.',
+                    'refund': 'Digital goods are non-refundable. Contact support for issues.',
+                    'terms': 'App provided as-is. Verify salary calculations manually.'
                 };
                 document.getElementById('legal-title').innerText = titleMap[type];
                 document.getElementById('legal-body').innerText = textMap[type];
@@ -556,8 +501,12 @@
             save: () => {
                 if(!sel.t && !document.getElementById('inp-ot').value) return alert("Select Type");
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
+                
+                // INSTANT UI UPDATE FIX
+                s.data[sel.d] = p; 
+                cal.render(); // Update UI immediately
+                
                 db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => {
-                    alert("Saved!");
                     document.getElementById('modal').style.display='none';
                 });
             }
@@ -567,7 +516,7 @@
             save: () => {
                 s.conf.cur = document.getElementById('set-cur').value;
                 s.conf.sal = parseFloat(document.getElementById('set-sal').value) || 0;
-                s.conf.otr = parseFloat(document.getElementById('set-otr').value) || 0;
+                s.conf.otr = parseFloat(document.getElementById('set-ot-rate') ? document.getElementById('set-ot-rate').value : document.getElementById('set-otr').value) || 0;
                 
                 db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Settings Saved"));
             }
@@ -589,7 +538,7 @@
             }
         };
 
-        // PWA
+        // PWA Install
         let deferredPrompt;
         const pwaBtn = document.getElementById('pwa-install-btn');
         window.addEventListener('beforeinstallprompt', (e) => {
