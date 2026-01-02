@@ -45,72 +45,44 @@
 
         /* --- 1. SPLASH SCREEN (PERFECT CENTER FIX) --- */
         #splash { 
-            position: fixed; 
-            inset: 0; /* Covers entire screen top/bottom/left/right */
-            width: 100%; height: 100%; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             z-index: 999999; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; /* Vertical Center */
-            align-items: center; /* Horizontal Center */
-            transition: opacity 0.8s ease-out;
-        }
-        
-        .splash-content { 
             display: flex; flex-direction: column; 
             align-items: center; justify-content: center;
-            text-align: center;
-            width: 100%;
+            transition: opacity 0.8s ease-out;
         }
-
         .splash-logo-icon {
-            font-size: 90px; 
+            font-size: 80px; 
             background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 20px; animation: pulse 2s infinite;
-            filter: drop-shadow(0 0 20px rgba(108, 99, 255, 0.6));
+            filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6));
             display: block;
         }
-
-        .splash-title { 
-            font-size: 32px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; 
-            display: block;
-        }
-
-        .loader { 
-            width: 45px; height: 45px; 
-            border: 4px solid rgba(255,255,255,0.1); 
-            border-top-color: var(--secondary); border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-        }
-
-        .splash-footer { 
-            position: absolute; bottom: 40px; width: 100%; text-align: center; 
-            animation: fadeInUp 1s ease-out 0.5s backwards;
-        }
-        .made-in { font-size: 13px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px; }
+        .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; display: block; }
+        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+        .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; animation: fadeInUp 1s ease-out 0.5s backwards; }
+        .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .made-in img { width: 22px; border-radius: 2px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- 2. AUTH SCREEN (SOLID & CENTERED) --- */
         #auth-screen {
-            position: fixed; inset: 0; width: 100%; height: 100%;
-            background-color: #050505; /* Solid Black */
-            z-index: 5000; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--dark-bg); z-index: 5000; 
             display: flex; flex-direction: column;
-            align-items: center; justify-content: center; 
-            padding: 20px;
+            align-items: center; justify-content: center; padding: 20px;
         }
         .auth-box {
             background: var(--glass); padding: 40px 30px; max-width: 350px; width: 100%;
-            border-radius: 24px; text-align: center;
-            border: 1px solid var(--border); box-shadow: 0 0 50px rgba(108, 99, 255, 0.2);
+            border-radius: 20px; text-align: center;
+            border: 1px solid var(--border); box-shadow: 0 0 40px rgba(108, 99, 255, 0.2);
         }
-        .auth-inp { width: 100%; padding: 16px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline: none; }
-        .action-btn { width: 100%; padding: 16px; border-radius: 50px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 20px; }
+        .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; }
+        .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
 
         /* --- MAIN UI (HIDDEN INITIALLY) --- */
         #main-app { display: none; }
@@ -131,25 +103,25 @@
 
         /* --- PAYMENT SCREEN --- */
         #payment-screen {
-            position: fixed; inset: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); backdrop-filter: blur(20px);
             z-index: 99999; display: none; flex-direction: column; 
             align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
         }
         .lock-card {
-            background: #111; padding: 25px; border-radius: 24px;
+            background: #111; padding: 20px; border-radius: 20px;
             border: 1px solid var(--accent); box-shadow: 0 0 50px rgba(255, 0, 85, 0.3);
-            max-width: 380px; width: 100%; position: relative;
+            max-width: 380px; width: 100%; margin-top: 50px; position: relative;
         }
         #pay-close-btn {
-            position: absolute; top: 15px; right: 15px;
+            position: absolute; top: 10px; right: 10px;
             background: rgba(255,255,255,0.1); border: none; color: white;
-            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
             display: none; align-items: center; justify-content: center; z-index: 20;
         }
         .plan-box {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-            border-radius: 16px; padding: 15px; margin-bottom: 15px;
+            border-radius: 12px; padding: 15px; margin-bottom: 15px;
         }
         .plan-header { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -157,6 +129,7 @@
         }
         .plan-title { font-weight: bold; color: white; font-size: 16px; }
         .plan-price { color: var(--secondary); font-weight: 800; }
+        
         .pay-btn-rzp {
             width: 100%; padding: 12px; background: #3399cc; color: white; 
             border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
@@ -164,7 +137,7 @@
         }
         .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
 
-        /* APP UI */
+        /* APP HEADER & CALENDAR */
         .app-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-cell { height: 85px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; position: relative; border: 1px solid transparent; transition: 0.2s; }
@@ -174,24 +147,25 @@
         .bg-Holiday { background: #9c27b0 !important; color: white; }
         .bg-Off { background: #607d8b !important; color: white; }
 
-        .full-page { position: fixed; inset: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
+        /* PROFILE & SETTINGS */
+        .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
         .fp-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.8); }
-        .fp-body { padding: 20px; padding-bottom: 100px; }
-        .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
-        .sub-badge { background: var(--accent); color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .fp-body { padding: 20px; padding-bottom: 50px; }
+        .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
+        .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
-        /* Donate Section */
-        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; }
+        /* DONATE SECTION */
+        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
         .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
 
-        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 10px; color: #ccc; border-radius: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s;}
+        .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
         .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
 
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
-
+        
         #legal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 15px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
@@ -199,7 +173,7 @@
 </head>
 <body>
 
-    <!-- 1. SPLASH SCREEN (PERFECT CENTER) -->
+    <!-- 1. SPLASH SCREEN -->
     <div id="splash">
         <div class="splash-content">
             <span class="material-icons splash-logo-icon">assignment_ind</span>
@@ -310,7 +284,8 @@
                 <h3 id="prof-id">...</h3>
                 <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
                 <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Expires on: ...</p>
-                <!-- Only Shows for India -->
+                
+                <!-- INDIA: Pay Button -->
                 <button class="action-btn" style="background:var(--accent); font-size:14px; display:none;" id="extend-btn" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
 
@@ -320,8 +295,8 @@
             <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
             <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
 
-            <!-- Only Shows for Non-India -->
-            <div class="donate-section" id="donate-box" style="display:none;">
+            <!-- INTERNATIONAL: Donate Section -->
+            <div class="donate-section" id="donate-box">
                 <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
                 <div class="donate-badges">
                     <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge" alt="Buy Me A Coffee"></a>
@@ -394,11 +369,11 @@
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
-                    // Auto Login with Country Check
+                    // Auto Login Check
                     const id = localStorage.getItem('dt_id');
                     const country = localStorage.getItem('dt_country');
                     if(id) {
-                        s.country = country || '+91'; // Default to India if null
+                        s.country = country || '+91';
                         app.start(id);
                     } else document.getElementById('auth-screen').style.display = 'flex';
                 }, 800);
@@ -427,6 +402,7 @@
                     
                     const isIndia = (s.country === '+91');
                     if (isIndia) {
+                        // INDIA: Subscription & Payment
                         if (!v.subExp) {
                             const trialEnd = Date.now() + (30 * 24 * 60 * 60 * 1000);
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
@@ -436,6 +412,7 @@
                         document.getElementById('donate-box').style.display = 'none';
                         app.checkSub();
                     } else {
+                        // INTERNATIONAL: Free + Donate
                         document.getElementById('main-app').style.display = 'block';
                         document.getElementById('sub-badge').innerText = "FREE USER";
                         document.getElementById('sub-badge').style.background = "#4caf50";
@@ -470,24 +447,19 @@
                 document.getElementById('payment-screen').style.display = 'flex';
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
-                
-                // Force PayPal Render with Timeout
-                document.getElementById('paypal-btn-monthly').innerHTML = "Loading...";
-                document.getElementById('paypal-btn-yearly').innerHTML = "Loading...";
-                setTimeout(() => pay.initPayPal(), 1000); 
+                setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
                 const options = {
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR",
                     "name": "Duty Tracker Pro", "description": plan,
-                    "handler": function (response) { pay.success(plan, response.razorpay_payment_id); },
+                    "handler": function (response) { pay.success(plan); },
                     "prefill": { "contact": s.uid }, "theme": { "color": "#6C63FF" }
                 };
                 const rzp1 = new Razorpay(options); rzp1.open();
             },
             initPayPal: () => {
                 if(paypalRendered) return;
-                
                 document.getElementById('paypal-btn-monthly').innerHTML = "";
                 document.getElementById('paypal-btn-yearly').innerHTML = "";
 
@@ -510,11 +482,10 @@
 
         const legal = {
             show: (type) => {
-                const titleMap = { 'privacy': 'Privacy Policy', 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
+                const titleMap = { 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
                 const textMap = {
-                    'privacy': 'We collect numbers for authentication only. Data is secure on Firebase.',
-                    'refund': 'Digital goods are non-refundable. Contact support for issues.',
-                    'terms': 'App provided as-is. Verify salary calculations manually.'
+                    'refund': 'Digital goods are non-refundable.',
+                    'terms': 'Use at your own risk. Verify calculations manually.'
                 };
                 document.getElementById('legal-title').innerText = titleMap[type];
                 document.getElementById('legal-body').innerText = textMap[type];
@@ -579,7 +550,7 @@
                 if(!sel.t && !document.getElementById('inp-ot').value) return alert("Select Type");
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
                 
-                // INSTANT UI UPDATE
+                // INSTANT UPDATE
                 s.data[sel.d] = p;
                 cal.render(); 
                 
