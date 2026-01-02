@@ -43,42 +43,32 @@
             color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* --- SPLASH SCREEN (PERFECT CENTER) --- */
+        /* --- FIXED SPLASH SCREEN --- */
         #splash { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             z-index: 999999; 
             display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
+            align-items: center; justify-content: center;
             transition: opacity 0.8s ease-out;
         }
-        
-        .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-
-        .splash-logo-icon {
-            font-size: 80px; 
-            background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 20px; animation: pulse 2s infinite;
-            filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6));
-            display: block;
-        }
-
-        .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; display: block; }
-        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        .splash-footer { position: absolute; bottom: 30px; width: 100%; text-align: center; animation: fadeInUp 1s ease-out 0.5s backwards; }
+        .splash-content { display: flex; flex-direction: column; align-items: center; }
+        .splash-logo-icon { font-size: 80px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
+        .loader { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; animation: fadeInUp 1s ease-out 0.5s backwards; }
         .dev-text { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .made-in img { width: 22px; border-radius: 2px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- AUTH SCREEN (SOLID BACKGROUND FIX) --- */
+        /* --- AUTH SCREEN (SOLID OVERLAY FIX) --- */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #050505 !important; /* Solid Black Force */
+            background-color: var(--dark-bg); /* Solid Color */
             z-index: 5000; 
             display: flex; flex-direction: column;
             align-items: center; justify-content: center; 
@@ -92,8 +82,8 @@
         .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; }
         .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
 
-        /* --- MAIN UI (HIDDEN BY DEFAULT) --- */
-        #main-app { display: none; } /* Critical Fix */
+        /* --- MAIN UI --- */
+        #main-app { display: none; } /* Hidden Initially */
 
         nav {
             display: flex; justify-content: space-between; align-items: center;
@@ -137,7 +127,6 @@
         }
         .plan-title { font-weight: bold; color: white; font-size: 16px; }
         .plan-price { color: var(--secondary); font-weight: 800; }
-        
         .pay-btn-rzp {
             width: 100%; padding: 12px; background: #3399cc; color: white; 
             border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
@@ -157,9 +146,14 @@
 
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
         .fp-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.8); }
-        .fp-body { padding: 20px; }
+        .fp-body { padding: 20px; padding-bottom: 100px; }
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+
+        /* Donate Section */
+        .donate-section { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--border); text-align: center; display: none; }
+        .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
+        .donate-badges img { height: 35px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
 
         .legal-btn { width: 100%; padding: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 8px; color: #ccc; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
         .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -168,7 +162,6 @@
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
 
-        /* LEGAL MODAL */
         #legal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(5px); z-index: 4000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 15px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
@@ -285,9 +278,9 @@
             <div class="profile-card">
                 <i class="fas fa-user-circle" style="font-size:50px; color:var(--secondary); margin-bottom:10px;"></i>
                 <h3 id="prof-id">...</h3>
-                <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
-                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Expires on: ...</p>
-                <button class="action-btn" style="background:var(--accent); font-size:14px;" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
+                <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">FREE</span></div>
+                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Access Level</p>
+                <button class="action-btn" style="background:var(--accent); font-size:14px; display:none;" id="extend-btn" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
 
             <h4 style="color:var(--primary); margin-bottom:10px;">Preferences</h4>
@@ -296,8 +289,17 @@
             <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
             <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
 
-            <hr style="border-color:var(--border); margin:20px 0;">
-            <h4 style="color:white; margin-bottom:10px;">Legal & Support</h4>
+            <!-- Donate Section (Visible for Non-India) -->
+            <div class="donate-section" id="donate-box">
+                <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
+                <div class="donate-badges">
+                    <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge" alt="Buy Me A Coffee"></a>
+                    <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white&style=for-the-badge" alt="Ko-fi"></a>
+                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white&style=for-the-badge" alt="Patreon"></a>
+                </div>
+            </div>
+
+            <h4 style="color:white; margin:20px 0 10px;">Legal & Support</h4>
             <button class="legal-btn" onclick="window.open('https://nitaistudio.github.io/DutyTrackerPro/policies.html', '_blank')"><span>Privacy Policy</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="legal.show('refund')"><span>Refund Policy</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="legal.show('terms')"><span>Disclaimer</span> <i class="fas fa-chevron-right"></i></button>
@@ -362,8 +364,11 @@
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
                     const id = localStorage.getItem('dt_id');
-                    if(id && id !== "null") app.start(id); 
-                    else document.getElementById('auth-screen').style.display = 'flex';
+                    const country = localStorage.getItem('dt_country');
+                    if(id) {
+                        s.country = country || '+91';
+                        app.start(id);
+                    } else document.getElementById('auth-screen').style.display = 'flex';
                 }, 800);
             }, 3000);
         };
@@ -395,12 +400,16 @@
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                             s.sub = trialEnd;
                         } else { s.sub = v.subExp; }
+                        document.getElementById('extend-btn').style.display = 'block';
+                        document.getElementById('donate-box').style.display = 'none'; // Hide Donate
                         app.checkSub();
                     } else {
                         document.getElementById('main-app').style.display = 'block';
                         document.getElementById('sub-badge').innerText = "FREE USER";
                         document.getElementById('sub-badge').style.background = "#4caf50";
                         document.getElementById('prof-exp').innerText = "Unlimited Access (International)";
+                        document.getElementById('extend-btn').style.display = 'none';
+                        document.getElementById('donate-box').style.display = 'block'; // Show Donate
                         cal.render();
                     }
                     
@@ -430,10 +439,8 @@
                 document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
                 if(isLocked) document.getElementById('main-app').style.display = 'none';
                 
-                // Force PayPal Render with Timeout
-                document.getElementById('paypal-btn-monthly').innerHTML = "Loading...";
-                document.getElementById('paypal-btn-yearly').innerHTML = "Loading...";
-                setTimeout(() => pay.initPayPal(), 1000); 
+                // FORCE RENDER PAYPAL
+                setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
                 const options = {
@@ -482,11 +489,10 @@
 
         const legal = {
             show: (type) => {
-                const titleMap = { 'privacy': 'Privacy Policy', 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
+                const titleMap = { 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
                 const textMap = {
-                    'privacy': 'Duty Tracker Pro respects your privacy. We collect your mobile number solely for account authentication. Your data is stored securely on Google Firebase and never shared. Payments are processed via Razorpay/PayPal.',
-                    'refund': 'All payments are final. However, if you face technical issues preventing access to premium features, please contact support within 24 hours for assistance.',
-                    'terms': 'This app is provided "as is". Duty Tracker Pro is not responsible for any financial losses due to calculation errors. Users are advised to verify salary calculations manually.'
+                    'refund': 'Digital goods are non-refundable. Contact support within 24 hours if payment fails.',
+                    'terms': 'Use at your own risk. Verify calculations manually.'
                 };
                 document.getElementById('legal-title').innerText = titleMap[type];
                 document.getElementById('legal-body').innerText = textMap[type];
@@ -561,7 +567,7 @@
             save: () => {
                 s.conf.cur = document.getElementById('set-cur').value;
                 s.conf.sal = parseFloat(document.getElementById('set-sal').value) || 0;
-                s.conf.otr = parseFloat(document.getElementById('set-ot-rate') ? document.getElementById('set-ot-rate').value : document.getElementById('set-otr').value) || 0;
+                s.conf.otr = parseFloat(document.getElementById('set-otr').value) || 0;
                 
                 db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Settings Saved"));
             }
@@ -583,7 +589,7 @@
             }
         };
 
-        // PWA Install Logic
+        // PWA
         let deferredPrompt;
         const pwaBtn = document.getElementById('pwa-install-btn');
         window.addEventListener('beforeinstallprompt', (e) => {
