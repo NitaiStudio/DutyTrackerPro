@@ -10,11 +10,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <!-- Razorpay & PayPal SDKs -->
+    <!-- SDKs -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=AfOzNhmiQjamiR4usKOUs_hullqnPZaXSTks076L48mXJJaMAn3Rblux_KJsP6_D20xX3s37hnns4p2R&currency=USD&disable-funding=credit,card"></script>
-
-    <!-- Firebase SDKs -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AfOzNhmiQjamiR4usKOUs_hullqnPZaXSTks076L48mXJJaMAn3Rblux_KJsP6_D20xX3s37hnns4p2R&currency=USD"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -29,84 +27,78 @@
             --gradient: linear-gradient(135deg, #6C63FF, #00F0FF);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background-color: var(--dark-bg);
-            background-image: radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.1) 0%, transparent 50%);
-            color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--dark-bg); color: #ffffff; overflow-x: hidden; min-height: 100vh; }
 
-        /* --- SPLASH SCREEN (PERFECTLY CENTERED) --- */
+        /* --- 1. FIXED SPLASH SCREEN (PERFECT CENTER) --- */
         #splash { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            position: fixed; inset: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            z-index: 9999999; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; text-align: center;
-            transition: opacity 0.8s ease-out;
+            z-index: 9999999; display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease-out;
         }
-        
-        .splash-logo-icon { font-size: 80px !important; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6)); }
-        .splash-title { font-size: 28px; font-weight: 800; letter-spacing: 1px; color: white; margin-bottom: 30px; }
-        .loader { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .splash-logo-icon { font-size: 100px !important; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6)); }
+        .splash-title { font-size: 32px; font-weight: 800; color: white; margin-bottom: 30px; text-align: center; }
+        .loader { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; }
         .splash-footer { position: absolute; bottom: 30px; text-align: center; width: 100%; }
-        .made-in { font-size: 12px; color: #888; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 5px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
         /* --- AUTH SCREEN --- */
-        #auth-screen { position: fixed; inset: 0; width: 100%; height: 100%; background-color: var(--dark-bg); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .auth-box { background: var(--glass); padding: 40px 30px; max-width: 360px; width: 100%; border-radius: 24px; text-align: center; border: 1px solid var(--border); }
-        .auth-inp { width: 100%; padding: 15px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline: none; }
-        .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 20px; }
+        #auth-screen { position: fixed; inset: 0; width: 100%; height: 100%; background-color: var(--dark-bg); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: var(--glass); padding: 40px 30px; max-width: 380px; width: 100%; border-radius: 24px; text-align: center; border: 1px solid var(--border); box-shadow: 0 0 40px rgba(108, 99, 255, 0.2); }
+        .auth-inp { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline: none; margin-bottom: 20px; }
 
         /* --- MAIN UI --- */
-        #main-app { display: none; flex-direction: column; flex: 1; }
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; position: sticky; top: 0; z-index: 1000; background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); }
+        #main-app { display: none; flex-direction: column; min-height: 100vh; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 20px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #pwa-install-btn { background: var(--gradient); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; }
-
-        /* --- PAYMENT / LOCK SCREEN --- */
-        #payment-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); backdrop-filter: blur(20px); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .lock-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); max-width: 380px; width: 100%; margin-top: 50px; position: relative; }
-        #pay-close-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 20; }
-        .plan-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .pay-btn-rzp { width: 100%; padding: 12px; background: #3399cc; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
-
-        /* --- CALENDAR --- */
+        
         .app-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .day-cell { height: 80px; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 5px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid transparent; transition: 0.2s; }
+        .day-cell { height: 85px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid transparent; cursor: pointer; transition: 0.2s; }
+        .day-cell:active { transform: scale(0.95); }
+        
+        /* Calendar Backgrounds */
         .bg-Present { background: #4caf50 !important; color: white; }
         .bg-Leave { background: #f44336 !important; color: white; }
         .bg-Sick { background: #ff9800 !important; color: white; }
         .bg-Holiday { background: #9c27b0 !important; color: white; }
         .bg-Off { background: #607d8b !important; color: white; }
 
-        /* PROFILE & SETTINGS */
+        /* --- PAGES --- */
         .full-page { position: fixed; inset: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
         .fp-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.8); }
-        .fp-body { padding: 20px; padding-bottom: 120px; }
-        .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 20px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center; }
-        .sub-badge { background: var(--accent); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .fp-body { padding: 20px; padding-bottom: 150px; }
 
-        /* DONATE SECTION (INTERNATIONAL ONLY) */
-        #donate-box { background: rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 20px; margin-top: 25px; border: 1px solid var(--secondary); text-align: center; display: none; }
+        .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
+        .sub-badge { background: var(--accent); color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+
+        /* Donate Box (International Only) */
+        #donate-box { background: rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; margin: 25px 0; border: 1px solid var(--secondary); text-align: center; display: none; }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }
-        .donate-badges img { height: 40px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        .donate-badges img { height: 40px; border-radius: 6px; cursor: pointer; }
 
-        .legal-btn { width: 100%; padding: 14px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 10px; color: #ccc; border-radius: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s;}
-        
+        /* Shared Components */
+        .action-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 25px 25px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
-        .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; }
+        .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; font-weight: bold; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
+        
+        #payment-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); backdrop-filter: blur(20px); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .lock-card { background: #111; padding: 25px; border-radius: 20px; border: 1px solid var(--accent); max-width: 400px; width: 100%; }
+        .paypal-container { width: 100%; margin-top: 15px; min-height: 50px; }
+
+        /* Footer Nav */
+        .bottom-bar { position: fixed; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 500; }
+        .bar-btn { padding: 12px 25px; border-radius: 50px; border: 1px solid var(--border); background: rgba(255,255,255,0.1); color: white; font-weight: bold; backdrop-filter: blur(10px); }
     </style>
 </head>
 <body>
 
-    <!-- 1. SPLASH SCREEN (CENTERED) -->
+    <!-- SPLASH SCREEN (FIXED CENTER) -->
     <div id="splash">
         <div class="splash-content">
             <span class="material-icons splash-logo-icon">assignment_ind</span>
@@ -115,17 +107,17 @@
         </div>
         <div class="splash-footer">
             <div style="font-size:14px; color:#ccc;">Developer By <b>Nitai Studio</b></div>
-            <div class="made-in">Made in India <img src="https://flagcdn.com/w40/in.png" alt="India Flag"></div>
+            <div style="font-size:12px; color:#888; display:flex; align-items:center; justify-content:center; gap:6px; margin-top:5px;">Made in India <img src="https://flagcdn.com/w40/in.png" style="width:20px;"></div>
         </div>
     </div>
 
-    <!-- 2. AUTH SCREEN -->
+    <!-- AUTH SCREEN -->
     <div id="auth-screen">
         <div class="auth-box">
-            <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
-            <h2 style="margin-bottom:10px; color:white;">Login</h2>
-            <p style="color:#aaa; font-size:12px; margin-bottom:25px;">Enter Mobile Number for Data Sync & Trial</p>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <i class="fas fa-fingerprint" style="font-size:60px; color:var(--primary); margin-bottom:20px;"></i>
+            <h2>Sign In</h2>
+            <p style="color:#aaa; font-size:13px; margin-bottom:25px;">Enter Mobile Number for Data Persistence</p>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
                 <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:95px; outline:none;">
                     <option value="+91">🇮🇳 +91</option>
                     <option value="+880">🇧🇩 +880</option>
@@ -137,52 +129,52 @@
                 </select>
                 <input type="number" id="auth-phone" class="auth-inp" placeholder="Mobile Number" style="margin:0; flex:1;">
             </div>
-            <button class="action-btn" onclick="app.login()">Get Started</button>
+            <button class="action-btn" onclick="app.login()">Access My Account</button>
         </div>
     </div>
 
-    <!-- 3. PAYMENT SCREEN -->
+    <!-- PAYMENT / LOCK SCREEN -->
     <div id="payment-screen">
         <div class="lock-card">
-            <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
-            <i class="fas fa-crown" style="font-size:40px; color:var(--accent); margin-bottom:15px; display:block; text-align:center;"></i>
-            <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
-            <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Trial ended. Subscribe to continue.</p>
+            <button style="position:absolute; top:15px; right:15px; background:none; border:none; color:white;" id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom:10px; text-align:center;">Premium Access</h2>
+            <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Your trial period has ended. Please subscribe.</p>
             <div class="plan-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:white; font-weight:bold;">Monthly</span> <span style="color:var(--secondary)">₹5 / $0.10</span></div>
-                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
-                <div id="paypal-btn-monthly" class="paypal-container"></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Monthly Plan</b> <span>₹5 / $0.10</span></div>
+                <button class="action-btn" style="background:#3399cc; font-size:14px;" onclick="pay.razorpay(5, 'monthly')">Pay with Razorpay</button>
+                <div id="pp-monthly" class="paypal-container"></div>
             </div>
             <div class="plan-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:white; font-weight:bold;">Yearly</span> <span style="color:var(--secondary)">₹40 / $0.50</span></div>
-                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
-                <div id="paypal-btn-yearly" class="paypal-container"></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Yearly Plan</b> <span>₹40 / $0.50</span></div>
+                <button class="action-btn" style="background:#3399cc; font-size:14px;" onclick="pay.razorpay(40, 'yearly')">Pay with Razorpay</button>
+                <div id="pp-yearly" class="paypal-container"></div>
             </div>
         </div>
     </div>
 
-    <!-- 4. MAIN APP -->
+    <!-- MAIN APP -->
     <div id="main-app">
         <nav>
-            <div class="logo">Duty Tracker</div>
-            <button id="pwa-install-btn" onclick="pwa.install()"><i class="fas fa-download"></i> Install</button>
+            <div class="logo">Duty Tracker Pro</div>
+            <button id="pwa-install-btn" onclick="pwa.install()" style="background:var(--gradient); border:none; padding:6px 15px; border-radius:20px; color:white; font-size:11px; font-weight:bold;">INSTALL APP</button>
         </nav>
         <div class="app-header">
-            <button onclick="cal.move(-1)" style="background:none; border:none; color:white;"><i class="fas fa-chevron-left" style="font-size:28px;"></i></button>
-            <h3 id="month-txt" style="font-size:20px;">...</h3>
-            <button onclick="cal.move(1)" style="background:none; border:none; color:white;"><i class="fas fa-chevron-right" style="font-size:28px;"></i></button>
+            <button onclick="cal.move(-1)" style="background:none; border:none; color:white;"><i class="fas fa-chevron-left" style="font-size:24px;"></i></button>
+            <h3 id="month-txt">...</h3>
+            <button onclick="cal.move(1)" style="background:none; border:none; color:white;"><i class="fas fa-chevron-right" style="font-size:24px;"></i></button>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px; color:#aaa; padding:0 15px;"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+        <div style="display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px; color:#666; padding:0 15px;"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
         <div id="calendar-grid" style="padding:0 10px;"></div>
-        <div style="position:fixed; bottom:20px; left:0; width:100%; display:flex; justify-content:center; gap:15px; z-index:500;">
-            <button onclick="document.getElementById('reports').style.display='flex'; reports.gen();" class="action-btn" style="width:auto; padding:12px 25px; backdrop-filter:blur(10px); background:rgba(255,255,255,0.1); border:1px solid var(--border);"><i class="fas fa-chart-pie"></i> Reports</button>
-            <button onclick="ui.openProfile()" class="action-btn" style="width:auto; padding:12px 25px; backdrop-filter:blur(10px); background:rgba(255,255,255,0.1); border:1px solid var(--border);"><i class="fas fa-user"></i> Profile</button>
+        
+        <div class="bottom-bar">
+            <button onclick="reports.open()" class="bar-btn"><i class="fas fa-chart-pie"></i> Reports</button>
+            <button onclick="ui.openProfile()" class="bar-btn"><i class="fas fa-user-circle"></i> Profile</button>
         </div>
     </div>
 
     <!-- MODAL -->
     <div id="modal">
-        <h3 id="modal-date" style="text-align:center; margin-bottom:15px; color:white;">Date</h3>
+        <h3 id="modal-date" style="text-align:center; margin-bottom:20px;">Date</h3>
         <div style="display:flex; flex-wrap:wrap; justify-content:center;">
             <button class="type-btn" onclick="data.set('Present', this)">Present</button>
             <button class="type-btn" onclick="data.set('Leave', this)">Leave</button>
@@ -190,15 +182,15 @@
             <button class="type-btn" onclick="data.set('Holiday', this)">Holiday</button>
             <button class="type-btn" onclick="data.set('Off', this)">Off</button>
         </div>
-        <div style="margin-top:15px; display:flex; gap:10px;">
-            <input type="number" id="inp-ot" placeholder="OT Hrs" style="width:50%; padding:12px; background:#222; border:1px solid #333; color:white; border-radius:8px;">
-            <input type="number" id="inp-late" placeholder="Late Min" style="width:50%; padding:12px; background:#222; border:1px solid #333; color:white; border-radius:8px;">
+        <div style="margin-top:20px; display:flex; gap:15px;">
+            <input type="number" id="inp-ot" placeholder="OT (Hrs)" style="width:50%; padding:14px; background:#222; border:1px solid #333; color:white; border-radius:12px; outline:none;">
+            <input type="number" id="inp-late" placeholder="Late (Min)" style="width:50%; padding:14px; background:#222; border:1px solid #333; color:white; border-radius:12px; outline:none;">
         </div>
-        <button class="action-btn" onclick="data.save()" style="margin-top:15px;">Save Entry</button>
-        <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#f44336; margin-top:5px;">Cancel</button>
+        <button class="action-btn" onclick="data.save()">Save Status</button>
+        <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; padding:10px; background:none; border:none; color:#FF2E63; margin-top:5px; font-weight:bold;">Cancel</button>
     </div>
 
-    <!-- PROFILE & SETTINGS -->
+    <!-- SETTINGS & PROFILE PAGE -->
     <div id="settings" class="full-page">
         <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Profile & Settings</h3></div>
         <div class="fp-body">
@@ -206,50 +198,61 @@
                 <i class="fas fa-user-circle" style="font-size:60px; color:var(--secondary); margin-bottom:10px;"></i>
                 <h3 id="prof-id">...</h3>
                 <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
-                <p id="prof-exp" style="font-size:12px; color:#aaa; margin-bottom:15px;">Expires on: ...</p>
+                <p id="prof-exp" style="font-size:13px; color:#aaa;"></p>
                 <button class="action-btn" id="extend-btn" style="background:var(--accent); font-size:14px; display:none;" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
 
-            <h4 style="color:var(--primary); margin-bottom:10px;">Preferences</h4>
-            <label>Currency</label><select id="set-cur" class="auth-inp" style="margin:5px 0; text-align:left;"><option value="৳">৳ (BDT)</option><option value="₹">₹ (INR)</option><option value="$">$ (USD)</option></select>
-            <label>Daily Salary</label><input type="number" id="set-sal" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="500">
-            <label>Overtime Rate</label><input type="number" id="set-otr" class="auth-inp" style="margin:5px 0; text-align:left;" placeholder="50">
-            <button class="action-btn" onclick="settings.save()" style="margin-top:10px;">Save Settings</button>
+            <h4 style="color:var(--primary); margin-bottom:15px;">Global Preferences</h4>
+            <div style="background:var(--glass); border-radius:16px; padding:15px; border:1px solid var(--border);">
+                <label style="font-size:12px; color:#666;">Currency</label>
+                <select id="set-cur" class="auth-inp" style="margin:5px 0 15px; text-align:left;"><option value="৳">৳ (BDT)</option><option value="₹">₹ (INR)</option><option value="$">$ (USD)</option></select>
+                <label style="font-size:12px; color:#666;">Daily Salary</label>
+                <input type="number" id="set-sal" class="auth-inp" style="margin:5px 0 15px; text-align:left;" placeholder="0">
+                <label style="font-size:12px; color:#666;">Overtime Rate (Hour)</label>
+                <input type="number" id="set-otr" class="auth-inp" style="margin:5px 0 15px; text-align:left;" placeholder="0">
+                <button class="action-btn" onclick="settings.save()">Save Configuration</button>
+            </div>
 
-            <!-- DONATE -->
-            <div class="donate-section" id="donate-box">
-                <h4 style="color:white; margin-bottom:10px;">Support Development ❤️</h4>
+            <div id="donate-box">
+                <h4 style="color:white; margin-bottom:10px; margin-top:20px;">Support Nitai Studio ❤️</h4>
                 <div class="donate-badges">
-                    <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge" alt="Buy Me A Coffee"></a>
-                    <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white&style=for-the-badge" alt="Ko-fi"></a>
-                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white&style=for-the-badge" alt="Patreon"></a>
+                    <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge"></a>
+                    <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white&style=for-the-badge"></a>
+                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support%20Me-F96854?logo=patreon&logoColor=white&style=for-the-badge"></a>
                 </div>
             </div>
 
-            <h4 style="color:white; margin:20px 0 10px;">Legal & Support</h4>
-            <button class="legal-btn" onclick="window.open('https://nitaistudio.github.io/DutyTrackerPro/policies.html', '_blank')"><span>Legal Policies</span> <i class="fas fa-chevron-right"></i></button>
+            <h4 style="color:white; margin:30px 0 15px;">Legal Info</h4>
+            <button class="legal-btn" onclick="window.open('https://nitaistudio.github.io/DutyTrackerPro/policies.html', '_blank')"><span>Privacy & Legal Policies</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="location.href='mailto:nitai.grp00@gmail.com'"><span>Contact Support</span> <i class="fas fa-envelope"></i></button>
         </div>
     </div>
 
-    <!-- REPORTS -->
+    <!-- REPORTS PAGE -->
     <div id="reports" class="full-page">
-        <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Reports</h3></div>
-        <div class="fp-body"><div id="r-out"></div></div>
+        <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Attendance Report</h3></div>
+        <div class="fp-body">
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1;"><label style="font-size:12px; color:#aaa;">From</label><input type="date" id="r-start" class="auth-inp" style="margin:0; font-size:14px;"></div>
+                <div style="flex:1;"><label style="font-size:12px; color:#aaa;">To</label><input type="date" id="r-end" class="auth-inp" style="margin:0; font-size:14px;"></div>
+            </div>
+            <button class="action-btn" onclick="reports.calc()">Calculate Report</button>
+            <div id="r-out" style="margin-top:25px;"></div>
+        </div>
     </div>
 
     <script>
-        // --- 🔒 DOMAIN LOCK (ANTI-THEFT) ---
+        // --- 🕵️ DOMAIN LOCK SECURITY ---
         (function() {
-            var allowed = "nitaistudio.github.io"; 
-            var host = window.location.hostname;
-            if (host && host !== allowed && host !== "localhost" && host !== "127.0.0.1") {
-                document.body.innerHTML = "<div style='display:flex;height:100vh;justify-content:center;align-items:center;background:#000;color:red;flex-direction:column;text-align:center;'><h1>🚫 Access Denied</h1><p>Code Theft Detected</p></div>";
-                throw new Error("Unauthorized Domain");
+            const allowed = "nitaistudio.github.io";
+            const current = window.location.hostname;
+            if (current && current !== allowed && current !== "localhost" && current !== "127.0.0.1") {
+                document.body.innerHTML = "<div style='height:100vh;display:flex;justify-content:center;align-items:center;background:#000;color:red;text-align:center;'><h1>🚫 Access Denied</h1><p>Unauthorized Domain</p></div>";
+                throw new Error("Domain Locked");
             }
         })();
 
-        // CONFIG (NEW FIREBASE)
+        // --- NEW FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk",
             authDomain: "duty-tracker-pro.firebaseapp.com",
@@ -265,25 +268,24 @@
 
         const s = { uid: null, country: null, date: new Date(), data: {}, sub: 0, conf: { cur: '৳', sal: 0, otr: 0 } };
         let sel = { d: null, t: null };
-        let ppLoaded = false;
+        let ppDone = false;
 
-        // --- BOOT LOGIC ---
+        // --- CORE INITIALIZATION ---
         window.onload = () => {
-            const id = localStorage.getItem('dt_id');
-            const country = localStorage.getItem('dt_country');
-            
-            // Hide Splash after 3s
+            const savedId = localStorage.getItem('dt_id');
+            const savedCountry = localStorage.getItem('dt_country');
+
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
-                    if(id && country) {
-                        s.country = country;
-                        app.start(id);
+                    if(savedId && savedCountry) {
+                        s.country = savedCountry;
+                        app.start(savedId);
                     } else {
                         document.getElementById('auth-screen').style.display = 'flex';
                     }
-                }, 800);
+                }, 600);
             }, 3000);
         };
 
@@ -298,7 +300,7 @@
                     localStorage.setItem('dt_country', code);
                     document.getElementById('auth-screen').style.display = 'none';
                     app.start(fullId);
-                }
+                } else alert("Invalid Number");
             },
             start: (id) => { 
                 s.uid = id;
@@ -307,26 +309,24 @@
                     const v = snap.val() || {};
                     s.data = v.att || {};
                     const isIndia = (s.country === '+91');
-                    
+
                     if (isIndia) {
                         if (!v.subExp) {
-                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Days
+                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Day Trial
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                             s.sub = trialEnd;
-                        } else { s.sub = v.subExp; }
+                        } else s.sub = v.subExp;
                         document.getElementById('extend-btn').style.display = 'block';
                         document.getElementById('donate-box').style.display = 'none';
                         if(Date.now() > s.sub) pay.showPaymentScreen(true);
                         else document.getElementById('payment-screen').style.display = 'none';
                     } else {
-                        // International: Free Access
                         document.getElementById('payment-screen').style.display = 'none';
                         document.getElementById('extend-btn').style.display = 'none';
                         document.getElementById('donate-box').style.display = 'block';
                         s.sub = Date.now() + 99999999999; 
                     }
                     
-                    // PERSISTENCE FIX: Load settings into state & UI
                     if(v.conf) {
                         s.conf = { ...s.conf, ...v.conf };
                         document.getElementById('set-cur').value = s.conf.cur || '৳';
@@ -342,11 +342,11 @@
             showPaymentScreen: (locked) => {
                 document.getElementById('payment-screen').style.display = 'flex';
                 document.getElementById('pay-close-btn').style.display = locked ? 'none' : 'flex';
-                if(!ppLoaded) {
-                    ppLoaded = true;
+                if(!ppDone) {
+                    ppDone = true;
                     setTimeout(() => {
-                        paypal.Buttons({ style: { layout: 'horizontal', color: 'gold', height: 40 }, createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: (d,a) => a.order.capture().then(() => pay.success(30)) }).render('#paypal-btn-monthly');
-                        paypal.Buttons({ style: { layout: 'horizontal', color: 'blue', height: 40 }, createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: (d,a) => a.order.capture().then(() => pay.success(365)) }).render('#paypal-btn-yearly');
+                        paypal.Buttons({ createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: (d,a) => a.order.capture().then(() => pay.success(30)) }).render('#paypal-btn-monthly');
+                        paypal.Buttons({ createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: (d,a) => a.order.capture().then(() => pay.success(365)) }).render('#paypal-btn-yearly');
                     }, 500);
                 }
             },
@@ -355,9 +355,8 @@
                 new Razorpay(opt).open();
             },
             success: (days) => {
-                const now = Date.now();
                 const add = days * 24 * 60 * 60 * 1000;
-                db.ref('u/' + s.uid + '/subExp').set((now > s.sub ? now : s.sub) + add).then(() => location.reload());
+                db.ref('u/' + s.uid + '/subExp').set((Date.now() > s.sub ? Date.now() : s.sub) + add).then(() => location.reload());
             }
         };
 
@@ -365,8 +364,8 @@
             getIso: (y, m, d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
             render: () => {
                 const y=s.date.getFullYear(), m=s.date.getMonth();
-                const mNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-                document.getElementById('month-txt').innerText = `${mNames[m]} ${y}`;
+                const mN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                document.getElementById('month-txt').innerText = `${mN[m]} ${y}`;
                 const grid = document.getElementById('calendar-grid'); grid.innerHTML='';
                 const fDay = new Date(y,m,1).getDay(), lDate = new Date(y,m+1,0).getDate();
                 for(let i=0; i<fDay; i++) grid.innerHTML += `<div></div>`;
@@ -378,7 +377,7 @@
                     el.innerHTML = `<span style="font-weight:bold">${i}</span>`;
                     if(ent) {
                         el.innerHTML += `<div style="font-size:9px; margin-top:4px;">${ent.t}</div>`;
-                        if(ent.ot > 0) el.innerHTML += `<div style="font-size:9px; color:#ffff00; font-weight:bold;">OT: ${ent.ot}</div>`;
+                        if(ent.ot > 0) el.innerHTML += `<div style="font-size:8px; color:#ffff00; font-weight:800;">OT: ${ent.ot}</div>`;
                     }
                     el.onclick=()=> {
                         sel.d = iso;
@@ -416,29 +415,46 @@
             openProfile: () => {
                 document.getElementById('settings').style.display = 'flex';
                 document.getElementById('prof-id').innerText = s.uid;
-                if(s.country === '+91') {
-                    const days = Math.ceil((s.sub - Date.now()) / 86400000);
-                    document.getElementById('prof-status').innerText = days > 0 ? days + " DAYS LEFT" : "EXPIRED";
-                    document.getElementById('prof-status').style.background = days > 1 ? "#4caf50" : "#ff9800";
-                    document.getElementById('prof-exp').innerText = "Trial Mode (India)";
-                } else {
-                    document.getElementById('prof-status').innerText = "LIFETIME FREE";
-                    document.getElementById('prof-status').style.background = "#4caf50";
-                    document.getElementById('prof-exp').innerText = "Global Access";
-                }
+                const days = Math.ceil((s.sub - Date.now()) / 86400000);
+                document.getElementById('prof-status').innerText = (s.country==='+91') ? (days > 0 ? days + " DAYS LEFT" : "EXPIRED") : "LIFETIME FREE";
+                document.getElementById('prof-exp').innerText = `Valid till: ${new Date(s.sub).toDateString()}`;
             }
         };
 
         const reports = {
-            gen: () => {
-                let pres=0, otHrs=0, tot=0;
-                for(let k in s.data) { if(['Present','Holiday','Sick'].includes(s.data[k].t)) pres++; otHrs += parseFloat(s.data[k].ot||0); tot++; }
+            open: () => {
+                document.getElementById('reports').style.display='flex';
+                const now=new Date(), y=now.getFullYear(), m=String(now.getMonth()+1).padStart(2,'0');
+                document.getElementById('r-start').value=`${y}-${m}-01`;
+                document.getElementById('r-end').value=now.toISOString().split('T')[0];
+            },
+            calc: () => {
+                const sD=document.getElementById('r-start').value, eD=document.getElementById('r-end').value;
+                if(!sD || !eD) return alert("Select Dates First");
+                let pres=0, otHrs=0, tot=0, late=0;
+                const start=new Date(sD), end=new Date(eD);
+                for(let k in s.data) {
+                    const d = new Date(k);
+                    if(d >= start && d <= end) {
+                        if(['Present','Holiday','Sick'].includes(s.data[k].t)) pres++;
+                        otHrs += parseFloat(s.data[k].ot||0);
+                        late += parseFloat(s.data[k].lt||0);
+                        tot++;
+                    }
+                }
                 const earn = (pres * s.conf.sal) + (otHrs * s.conf.otr);
-                document.getElementById('r-out').innerHTML = `<div style="background:#222; padding:20px; border-radius:15px; border:1px solid var(--border);">Total Entries: ${tot} <br> Paid Days: ${pres} <br> OT: ${otHrs} Hrs <hr> <h3 style="color:var(--secondary)">Total Salary: ${s.conf.cur} ${earn}</h3><button onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="action-btn" style="margin-top:20px;">Close Report</button></div>`;
+                document.getElementById('r-out').innerHTML = `
+                    <div style="background:var(--surface); padding:20px; border-radius:20px; border:1px solid var(--border);">
+                        <p>Total Entries: <b>${tot}</b></p>
+                        <p>Paid Days: <b>${pres}</b></p>
+                        <p>OT: <b>${otHrs} Hrs</b> | Late: <b>${late} Min</b></p>
+                        <hr style="margin:15px 0; border-color:#333;">
+                        <h3 style="color:var(--secondary)">Total Salary: ${s.conf.cur} ${earn}</h3>
+                        <button onclick="document.getElementById('reports').style.display='none'" class="action-btn" style="margin-top:20px;">Close Report</button>
+                    </div>`;
             }
         };
 
-        const pwa = { install: () => { /* Logic */ } };
         if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
     </script>
 </body>
