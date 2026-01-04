@@ -22,20 +22,15 @@
 
     <style>
         :root {
-            --primary: #6C63FF;
-            --secondary: #00F0FF;
-            --accent: #FF0055;
-            --dark-bg: #050505;
-            --surface: #121212;
-            --glass: rgba(255, 255, 255, 0.08);
-            --border: rgba(255, 255, 255, 0.15);
-            --gradient: linear-gradient(135deg, #6C63FF, #00F0FF);
+            --primary: #6C63FF; --secondary: #00F0FF; --accent: #FF0055;
+            --dark-bg: #050505; --surface: #121212; --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.15); --gradient: linear-gradient(135deg, #6C63FF, #00F0FF);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--dark-bg); color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        body { background-color: var(--dark-bg); background-image: radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.12) 0%, transparent 60%); color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- SPLASH SCREEN (FIXED CENTER) --- */
+        /* --- 1. FIXED SPLASH SCREEN (PERFECT CENTER) --- */
         #splash { 
             position: fixed; inset: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -43,7 +38,7 @@
             justify-content: center; align-items: center; text-align: center;
             transition: opacity 0.8s ease-out;
         }
-        .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
         .splash-logo-icon { font-size: 100px !important; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; animation: pulse 2s infinite; filter: drop-shadow(0 0 15px rgba(108, 99, 255, 0.6)); }
         .splash-title { font-size: 32px; font-weight: 800; color: white; margin-bottom: 30px; }
         .loader { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
@@ -53,28 +48,31 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
-        /* --- AUTH SCREEN --- */
+        /* --- 2. AUTH SCREEN --- */
         #auth-screen { position: fixed; inset: 0; width: 100%; height: 100%; background-color: var(--dark-bg); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .auth-box { background: var(--glass); padding: 40px 30px; max-width: 380px; width: 100%; border-radius: 24px; text-align: center; border: 1px solid var(--border); box-shadow: 0 0 40px rgba(108, 99, 255, 0.2); }
-        .auth-inp { width: 100%; padding: 16px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline: none; margin-bottom: 20px; }
+        .auth-box { background: var(--glass); padding: 40px 30px; max-width: 400px; width: 100%; border-radius: 24px; text-align: center; border: 1px solid var(--border); box-shadow: 0 0 50px rgba(108, 99, 255, 0.2); }
+        .auth-inp { width: 100%; padding: 16px; margin: 0; border-radius: 12px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 18px; outline: none; margin-bottom: 20px; border-radius: 12px; }
+        .action-btn { width: 100%; padding: 16px; border-radius: 50px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; margin-top: 10px; }
 
-        /* --- MAIN UI --- */
+        /* --- 3. MAIN UI --- */
         #main-app { display: none; flex-direction: column; flex: 1; }
         nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; position: sticky; top: 0; z-index: 1000; background: rgba(5, 5, 5, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); }
         .logo { font-size: 20px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Fixed Install Button Style */
-        #pwa-install-btn {
-            background: var(--gradient); border: none; color: white;
-            padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: bold;
-            display: none; cursor: pointer;
-        }
+        #pwa-install-btn { background: var(--gradient); border: none; color: white; padding: 8px 16px; border-radius: 50px; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+        /* PAYMENT SCREEN */
+        #payment-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); backdrop-filter: blur(25px); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .lock-card { background: #111; padding: 25px; border-radius: 24px; border: 1px solid var(--accent); max-width: 380px; width: 100%; margin-top: 50px; position: relative; }
+        #pay-close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; }
+        .plan-box { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 15px; }
+        .pay-btn-rzp { width: 100%; padding: 14px; background: #3399cc; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .paypal-container { width: 100%; margin-top: 10px; min-height: 50px; position: relative; z-index: 10; clear: both; display: flex; justify-content: center; }
 
         /* CALENDAR */
-        .app-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .app-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-cell { height: 85px; background: rgba(255,255,255,0.05); border-radius: 14px; border: 1px solid transparent; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-        
+        .day-num { font-weight: bold; font-size: 16px; }
         .bg-Present { background: #4caf50 !important; color: white; }
         .bg-Leave { background: #f44336 !important; color: white; }
         .bg-Sick { background: #ff9800 !important; color: white; }
@@ -88,22 +86,25 @@
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
-        /* DONATE */
-        #donate-box { background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; margin: 25px 0; border: 1px solid var(--secondary); text-align: center; display: none; }
+        /* DONATE SECTION (Fixed) */
+        #donate-box { background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; margin: 25px 0; border: 1px solid var(--secondary); text-align: center; display: none; box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; }
         .donate-badges img { height: 42px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .donate-badges img:hover { transform: translateY(-3px); }
 
-        .action-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--gradient); color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .legal-btn { width: 100%; padding: 15px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin-bottom: 10px; color: #ccc; border-radius: 12px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 30px 30px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
         .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; font-weight: bold; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
         
-        #payment-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); backdrop-filter: blur(25px); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .lock-card { background: #111; padding: 25px; border-radius: 24px; border: 1px solid var(--accent); max-width: 400px; width: 100%; }
-        .paypal-container { width: 100%; margin-top: 15px; min-height: 50px; }
-
         .bottom-bar { position: fixed; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 500; }
         .bar-btn { padding: 12px 25px; border-radius: 50px; border: 1px solid var(--border); background: rgba(255,255,255,0.1); color: white; font-weight: bold; backdrop-filter: blur(10px); }
+
+        #legal-modal { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 20px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
+        .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -117,21 +118,24 @@
         </div>
         <div class="splash-footer">
             <div style="font-size:14px; color:#ccc;">Developer By <b>Nitai Studio</b></div>
-            <div style="font-size:12px; color:#888; display:flex; align-items:center; justify-content:center; gap:6px; margin-top:5px;">Made in India <img src="https://flagcdn.com/w40/in.png" style="width:20px;"></div>
+            <div class="made-in">Made in India <img src="https://flagcdn.com/w40/in.png" alt="India Flag"></div>
         </div>
     </div>
 
     <!-- 2. AUTH SCREEN -->
     <div id="auth-screen">
         <div class="auth-box">
-            <i class="fas fa-fingerprint" style="font-size:60px; color:var(--primary); margin-bottom:20px;"></i>
-            <h2>Sign In</h2>
-            <div style="display:flex; gap:10px; margin:25px 0;">
-                <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:95px; outline:none;">
-                    <option value="+91">🇮🇳 +91</option><option value="+880">🇧🇩 +880</option><option value="+1">🇺🇸 +1</option><option value="">🌍 Other</option>
+            <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
+            <h2 style="margin-bottom:10px;">Login</h2>
+            <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Enter Mobile Number for Sync & Trial</p>
+            
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <select id="country-code" style="padding:15px; border-radius:12px; background:#000; color:white; border:1px solid #333; width:90px; outline:none;">
+                    <option value="+91">🇮🇳 +91</option><option value="+880">🇧🇩 +880</option><option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+971">🇦🇪 +971</option><option value="+966">🇸🇦 +966</option><option value="+60">🇲🇾 +60</option><option value="+65">🇸🇬 +65</option><option value="+974">🇶🇦 +974</option><option value="+968">🇴🇲 +968</option><option value="+965">🇰🇼 +965</option><option value="+973">🇧🇭 +973</option><option value="+355">🇦🇱 +355</option><option value="+213">🇩🇿 +213</option><option value="+376">🇦🇩 +376</option><option value="+244">🇦🇴 +244</option><option value="+54">🇦🇷 +54</option><option value="+374">🇦🇲 +374</option><option value="+61">🇦🇺 +61</option><option value="+43">🇦🇹 +43</option><option value="+994">🇦🇿 +994</option><option value="+973">🇧🇭 +973</option><option value="+32">🇧🇪 +32</option><option value="+501">🇧🇿 +501</option><option value="+229">🇧🇯 +229</option><option value="+975">🇧🇹 +975</option><option value="+591">🇧🇴 +591</option><option value="+387">🇧🇦 +387</option><option value="+267">🇧🇼 +267</option><option value="+55">🇧🇷 +55</option><option value="+359">🇧🇬 +359</option><option value="+226">🇧🇫 +226</option><option value="+257">🇧🇮 +257</option><option value="+855">🇰🇭 +855</option><option value="+237">🇨🇲 +237</option><option value="+238">🇨disable-funding=credit,card</option>
                 </select>
                 <input type="number" id="auth-phone" class="auth-inp" placeholder="Mobile Number" style="margin:0; flex:1;">
             </div>
+            
             <button class="action-btn" onclick="app.login()">Get Started</button>
         </div>
     </div>
@@ -139,18 +143,21 @@
     <!-- 3. PAYMENT SCREEN -->
     <div id="payment-screen">
         <div class="lock-card">
-            <button style="position:absolute; top:15px; right:15px; background:none; border:none; color:white;" id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
-            <h2 style="margin-bottom:10px; text-align:center;">Premium Access</h2>
-            <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Renew subscription to continue tracking your duties.</p>
+            <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
+            <i class="fas fa-crown" style="font-size:50px; color:var(--accent); margin-bottom:15px; display:block; text-align:center;"></i>
+            <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
+            <p style="color:#aaa; font-size:13px; margin-bottom:20px; text-align:center;">Secure your data & enjoy ad-free experience.</p>
+            
             <div class="plan-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Monthly Plan</b> <span>₹5 / $0.10</span></div>
-                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')">Pay via Razorpay (India)</button>
-                <div id="paypal-btn-monthly" class="paypal-container"></div>
+                <div class="plan-header"><span class="plan-title">Monthly (30 Days)</span><span class="plan-price">₹5 / $0.10</span></div>
+                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
+                <div id="paypal-btn-monthly" class="paypal-container">Loading PayPal...</div>
             </div>
+
             <div class="plan-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Yearly Plan</b> <span>₹40 / $0.50</span></div>
-                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')">Pay via Razorpay (India)</button>
-                <div id="paypal-btn-yearly" class="paypal-container"></div>
+                <div class="plan-header"><span class="plan-title">Yearly (365 Days)</span><span class="plan-price">₹40 / $0.50</span></div>
+                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')"><i class="fas fa-bolt"></i> Pay with Razorpay</button>
+                <div id="paypal-btn-yearly" class="paypal-container">Loading PayPal...</div>
             </div>
         </div>
     </div>
@@ -159,19 +166,21 @@
     <div id="main-app">
         <nav>
             <div class="logo">Duty Tracker</div>
-            <!-- FIXED INSTALL BUTTON -->
-            <button id="pwa-install-btn" onclick="pwa.install()"><i class="fas fa-download"></i> INSTALL APP</button>
+            <button id="pwa-install-btn" onclick="pwa.install()"><i class="fas fa-download"></i> Install App</button>
         </nav>
+
         <div class="app-header">
             <button onclick="cal.move(-1)" style="background:none; border:none; color:white;"><i class="fas fa-chevron-left" style="font-size:24px;"></i></button>
-            <h3 id="month-txt">...</h3>
+            <h3 id="month-txt" style="font-size:20px;">Loading...</h3>
             <button onclick="cal.move(1)" style="background:none; border:none; color:white;"><i class="fas fa-chevron-right" style="font-size:24px;"></i></button>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px; color:#666; padding:0 15px;"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+
+        <div style="display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:12px; font-weight:bold; margin-bottom:10px; color:#aaa; padding:0 15px;"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
         <div id="calendar-grid" style="padding:0 10px;"></div>
-        <div class="bottom-bar">
-            <button onclick="reports.open()" class="bar-btn">Reports</button>
-            <button onclick="ui.openProfile()" class="bar-btn">Profile</button>
+
+        <div style="position:fixed; bottom:25px; left:0; width:100%; display:flex; justify-content:center; gap:20px;">
+            <button onclick="reports.open()" class="action-btn" style="width:auto; padding:12px 30px;"><i class="fas fa-chart-pie"></i> Reports</button>
+            <button onclick="ui.openProfile()" class="action-btn" style="width:auto; padding:12px 30px;"><i class="fas fa-user"></i> Profile</button>
         </div>
     </div>
 
@@ -185,49 +194,79 @@
             <button class="type-btn" onclick="data.set('Holiday', this)">Holiday</button>
             <button class="type-btn" onclick="data.set('Off', this)">Off</button>
         </div>
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="inp-ot" placeholder="OT Hrs" class="auth-inp" style="width:50%; margin:0;">
-            <input type="number" id="inp-late" placeholder="Late Min" class="auth-inp" style="width:50%; margin:0;">
+        <div style="margin-top:20px; display:flex; gap:15px;">
+            <input type="number" id="inp-ot" placeholder="OT (Hrs)" class="auth-inp" style="width:50%; margin:0; border-radius:10px;">
+            <input type="number" id="inp-late" placeholder="Late (Min)" class="auth-inp" style="width:50%; margin:0; border-radius:10px;">
         </div>
-        <button class="action-btn" onclick="data.save()">Save Entry</button>
-        <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; color:red; background:none; border:none; margin-top:10px;">Cancel</button>
+        <button class="action-btn" onclick="data.save()" style="margin-top:20px;">Save Entry</button>
+        <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; padding:15px; background:none; border:none; color:#f44336; margin-top:5px; font-weight:bold;">Cancel</button>
     </div>
 
-    <!-- SETTINGS -->
+    <!-- PROFILE & SETTINGS -->
     <div id="settings" class="full-page">
-        <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Profile</h3></div>
+        <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'" style="font-size:24px;"></i> <h3>Profile & Settings</h3></div>
         <div class="fp-body">
             <div class="profile-card">
-                <i class="fas fa-user-circle" style="font-size:60px; color:var(--secondary); margin-bottom:10px;"></i>
-                <h3 id="prof-id">...</h3>
+                <i class="fas fa-user-circle" style="font-size:60px; color:var(--secondary); margin-bottom:15px;"></i>
+                <h3 id="prof-id" style="font-size:20px;">...</h3>
                 <div style="margin:10px 0;"><span class="sub-badge" id="prof-status">TRIAL</span></div>
-                <p id="prof-exp" style="font-size:12px; color:#aaa;"></p>
+                <p id="prof-exp" style="font-size:14px; color:#aaa; margin-bottom:20px;">Expires on: ...</p>
                 <button class="action-btn" id="extend-btn" style="background:var(--accent); font-size:14px; display:none;" onclick="pay.showPaymentScreen(false)">⚡ Extend / Buy Premium</button>
             </div>
+
             <h4 style="color:var(--primary); margin-bottom:15px;">Preferences</h4>
-            <div style="background:var(--glass); border-radius:16px; padding:20px; border:1px solid var(--border);">
-                <label>Currency</label><select id="set-cur" class="auth-inp" style="margin-bottom:15px;"><option value="৳">৳ (BDT)</option><option value="₹">₹ (INR)</option><option value="$">$ (USD)</option></select>
-                <label>Daily Salary</label><input type="number" id="set-sal" class="auth-inp" placeholder="Salary">
-                <label>OT Rate (Hour)</label><input type="number" id="set-otr" class="auth-inp" placeholder="OT Rate">
+            <div style="background:var(--glass); border-radius:16px; padding:20px; border:1px solid var(--border); margin-bottom: 20px;">
+                <label style="font-size:12px; color:#aaa;">Currency</label>
+                <select id="set-cur" class="auth-inp" style="margin:5px 0 15px; text-align:left;"><option value="৳">৳ (BDT)</option><option value="₹">₹ (INR)</option><option value="$">$ (USD)</option></select>
+                <label style="font-size:12px; color:#aaa;">Daily Salary</label>
+                <input type="number" id="set-sal" class="auth-inp" style="margin:5px 0 15px; text-align:left;" placeholder="0">
+                <label style="font-size:12px; color:#aaa;">Overtime Rate (Hour)</label>
+                <input type="number" id="set-otr" class="auth-inp" style="margin:5px 0 15px; text-align:left;" placeholder="0">
                 <button class="action-btn" onclick="settings.save()">Save Configuration</button>
             </div>
+
             <div id="donate-box">
-                <h4 style="color:white; margin:20px 0 10px;">Donate & Support ❤️</h4>
+                <h4 style="color:white; margin:20px 0 10px; text-align:center;">Support Development ❤️</h4>
                 <div class="donate-badges">
                     <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buy-me-a-coffee&logoColor=black&style=for-the-badge"></a>
                     <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Ko--fi-Support_Me-FF5E5B?logo=ko-fi&logoColor=white&style=for-the-badge"></a>
+                    <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support_Me-F96854?logo=patreon&logoColor=white&style=for-the-badge"></a>
                 </div>
             </div>
+
+            <h4 style="color:white; margin:30px 0 15px;">Legal & Support</h4>
+            <button class="legal-btn" onclick="window.open('https://nitaistudio.github.io/DutyTrackerPro/policies.html', '_blank')"><span>Privacy Policy</span> <i class="fas fa-chevron-right"></i></button>
+            <button class="legal-btn" onclick="location.href='mailto:nitai.grp00@gmail.com'"><span>Contact Support</span> <i class="fas fa-envelope"></i></button>
+            
+            <button class="action-btn" style="background:none; border:1px solid #333; margin-top:30px;" onclick="localStorage.clear(); location.reload();">Logout & Reset</button>
         </div>
     </div>
 
+    <!-- REPORTS -->
     <div id="reports" class="full-page">
-        <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'"></i> <h3>Work Reports</h3></div>
-        <div class="fp-body"><div id="r-out"></div></div>
+        <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'" style="font-size:24px;"></i> <h3>Reports</h3></div>
+        <div class="fp-body">
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+                <div style="flex:1;"><label style="font-size:12px; color:#aaa;">From</label><input type="date" id="r-start" class="auth-inp" style="margin:0; font-size:14px;"></div>
+                <div style="flex:1;"><label style="font-size:12px; color:#aaa;">To</label><input type="date" id="r-end" class="auth-inp" style="margin:0; font-size:14px;"></div>
+            </div>
+            <button class="action-btn" onclick="reports.calc()">Generate Report</button>
+            <div id="r-out" style="margin-top:25px;"></div>
+        </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG (NEW) ---
+        // DOMAIN LOCK
+        (function() {
+            var allowed = "nitaistudio.github.io"; 
+            var host = window.location.hostname;
+            if (host && host !== allowed && host !== "localhost" && host !== "127.0.0.1") {
+                document.body.innerHTML = "<div style='display:flex;height:100vh;justify-content:center;align-items:center;background:#000;color:red;flex-direction:column;text-align:center;'><h1>🚫 Access Denied</h1><p>Code Theft Detected</p></div>";
+                throw new Error("Unauthorized");
+            }
+        })();
+
+        // CONFIG (NEW)
         const firebaseConfig = {
             apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk",
             authDomain: "duty-tracker-pro.firebaseapp.com",
@@ -237,48 +276,29 @@
             messagingSenderId: "716525293622",
             appId: "1:716525293622:web:880f39084c86180fbb0897"
         };
-        firebase.initializeApp(firebaseConfig);
+        try { firebase.initializeApp(firebaseConfig); } catch(e) {}
         const db = firebase.database();
         const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
 
         const s = { uid: null, country: null, date: new Date(), data: {}, sub: 0, conf: { cur: '৳', sal: 0, otr: 0 } };
         let sel = { d: null, t: null };
-        let deferredPrompt;
+        let paypalRendered = false;
 
-        // --- PWA INSTALL LOGIC FIXED ---
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show button only when browser is ready
-            document.getElementById('pwa-install-btn').style.display = 'block';
-        });
-
-        const pwa = {
-            install: () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choice) => {
-                        if (choice.outcome === 'accepted') {
-                            document.getElementById('pwa-install-btn').style.display = 'none';
-                        }
-                        deferredPrompt = null;
-                    });
-                } else {
-                    alert("App is already installed or your browser doesn't support 1-click install. Try 'Add to Home Screen' from browser menu.");
-                }
-            }
-        };
-
-        // --- PERSISTENT LOGIN ---
+        // --- PERSISTENT BOOT LOGIC ---
         window.onload = () => {
-            const id = localStorage.getItem('dt_id');
-            const country = localStorage.getItem('dt_country');
+            const savedId = localStorage.getItem('dt_id');
+            const savedCountry = localStorage.getItem('dt_country');
+
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
-                    if(id && country) { s.country = country; app.start(id); }
-                    else document.getElementById('auth-screen').style.display = 'flex';
+                    if(savedId && savedCountry) {
+                        s.country = savedCountry;
+                        app.start(savedId);
+                    } else {
+                        document.getElementById('auth-screen').style.display = 'flex';
+                    }
                 }, 800);
             }, 3000);
         };
@@ -297,26 +317,28 @@
             },
             start: (id) => { 
                 s.uid = id;
-                document.getElementById('main-app').style.display = 'flex';
                 db.ref('u/' + s.uid).on('value', snap => {
                     const v = snap.val() || {};
                     s.data = v.att || {};
                     const isIndia = (s.country === '+91');
+
                     if (isIndia) {
                         if (!v.subExp) {
-                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000);
+                            const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Day Trial
                             db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                             s.sub = trialEnd;
-                        } else s.sub = v.subExp;
+                        } else { s.sub = v.subExp; }
                         document.getElementById('extend-btn').style.display = 'block';
                         document.getElementById('donate-box').style.display = 'none';
-                        if(Date.now() > s.sub) pay.showPaymentScreen(true);
-                        else document.getElementById('payment-screen').style.display = 'none';
+                        app.checkSub();
                     } else {
+                        document.getElementById('main-app').style.display = 'block';
+                        document.getElementById('payment-screen').style.display = 'none';
                         document.getElementById('extend-btn').style.display = 'none';
                         document.getElementById('donate-box').style.display = 'block';
                         s.sub = Date.now() + 999999999999;
                     }
+                    
                     if(v.conf) {
                         s.conf = { ...s.conf, ...v.conf };
                         document.getElementById('set-cur').value = s.conf.cur || '৳';
@@ -325,25 +347,43 @@
                     }
                     cal.render();
                 });
+            },
+            checkSub: () => {
+                const now = Date.now();
+                if(now > s.sub) pay.showPaymentScreen(true);
+                else { document.getElementById('payment-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'block'; }
             }
         };
 
         const pay = {
-            showPaymentScreen: (locked) => {
+            showPaymentScreen: (isLocked) => {
                 document.getElementById('payment-screen').style.display = 'flex';
-                document.getElementById('pay-close-btn').style.display = locked ? 'none' : 'flex';
-                setTimeout(() => {
-                    document.getElementById('paypal-btn-monthly').innerHTML = "";
-                    paypal.Buttons({ style: { layout: 'horizontal', color: 'gold', height: 40 }, createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: () => pay.success(30) }).render('#paypal-btn-monthly');
-                    paypal.Buttons({ style: { layout: 'horizontal', color: 'blue', height: 40 }, createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: () => pay.success(365) }).render('#paypal-btn-yearly');
-                }, 500);
+                document.getElementById('pay-close-btn').style.display = isLocked ? 'none' : 'flex';
+                if(isLocked) document.getElementById('main-app').style.display = 'none';
+                setTimeout(() => pay.initPayPal(), 100); 
             },
             razorpay: (amt, plan) => {
-                const opt = { "key": RZP_KEY, "amount": amt * 100, "currency": "INR", "name": "Duty Tracker Pro", "handler": () => pay.success(plan==='yearly'?365:30) };
-                new Razorpay(opt).open();
+                const options = {
+                    "key": RZP_KEY, "amount": amt * 100, "currency": "INR",
+                    "name": "Duty Tracker Pro", "description": plan,
+                    "handler": function (response) { pay.success(plan); },
+                    "prefill": { "contact": s.uid }, "theme": { "color": "#6C63FF" }
+                };
+                const rzp1 = new Razorpay(options); rzp1.open();
             },
-            success: (days) => {
-                const add = days * 24 * 60 * 60 * 1000;
+            initPayPal: () => {
+                if(paypalRendered) return;
+                document.getElementById('paypal-btn-monthly').innerHTML = "";
+                document.getElementById('paypal-btn-yearly').innerHTML = "";
+                if (typeof paypal !== 'undefined') {
+                    const style = { layout: 'horizontal', color: 'gold', height: 40, label: 'pay', tagline: false };
+                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.10' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('monthly')) }).render('#paypal-btn-monthly');
+                    paypal.Buttons({ style: style, createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: '0.50' } }] }), onApprove: (d, a) => a.order.capture().then(det => pay.success('yearly')) }).render('#paypal-btn-yearly');
+                    paypalRendered = true;
+                }
+            },
+            success: (plan) => {
+                const add = (plan === 'yearly') ? 31536000000 : 2592000000;
                 db.ref('u/' + s.uid + '/subExp').set(Date.now() + add).then(() => location.reload());
             }
         };
@@ -352,8 +392,7 @@
             getIso: (y, m, d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
             render: () => {
                 const y=s.date.getFullYear(), m=s.date.getMonth();
-                const mN = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-                document.getElementById('month-txt').innerText = `${mN[m]} ${y}`;
+                document.getElementById('month-txt').innerText = new Date(y, m).toLocaleString('default', { month: 'long', year: 'numeric' });
                 const grid = document.getElementById('calendar-grid'); grid.innerHTML='';
                 const fDay = new Date(y,m,1).getDay(), lDate = new Date(y,m+1,0).getDate();
                 for(let i=0; i<fDay; i++) grid.innerHTML += `<div></div>`;
@@ -364,11 +403,12 @@
                     if(iso === new Date().toISOString().split('T')[0]) el.style.border = '2px solid var(--secondary)';
                     el.innerHTML = `<span style="font-weight:bold">${i}</span>`;
                     if(ent) {
-                        el.innerHTML += `<div style="font-size:9px; margin-top:3px;">${ent.t}</div>`;
-                        if(ent.ot > 0) el.innerHTML += `<div style="font-size:8px; color:#ffff00; font-weight:800;">OT: ${ent.ot}</div>`;
+                        el.innerHTML += `<div style="font-size:10px; margin-top:5px; opacity:0.8; font-weight:bold">${ent.t}</div>`;
+                        if(ent.ot) el.innerHTML += `<div style="font-size:9px; color:#ffff00">OT: ${ent.ot}</div>`;
                     }
                     el.onclick=()=> {
-                        sel.d = iso; document.getElementById('modal-date').innerText = new Date(iso).toDateString();
+                        sel.d = iso;
+                        document.getElementById('modal-date').innerText = new Date(iso).toDateString();
                         document.getElementById('modal').style.display='block';
                         if(ent) { document.getElementById('inp-ot').value = ent.ot || ''; document.getElementById('inp-late').value = ent.lt || ''; }
                         else { document.getElementById('inp-ot').value = ''; document.getElementById('inp-late').value = ''; }
@@ -380,10 +420,12 @@
         };
 
         const data = {
-            set: (t, b) => { sel.t = t; document.querySelectorAll('.type-btn').forEach(btn=>btn.classList.remove('active')); b.classList.add('active'); },
+            set: (t, btn) => { sel.t = t; document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); },
             save: () => {
-                const p = { t: sel.t || 'Present', ot: parseFloat(document.getElementById('inp-ot').value)||0, lt: parseFloat(document.getElementById('inp-late').value)||0 };
-                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => { s.data[sel.d] = p; cal.render(); document.getElementById('modal').style.display='none'; });
+                const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
+                db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => {
+                    s.data[sel.d] = p; cal.render(); document.getElementById('modal').style.display='none';
+                });
             }
         };
 
@@ -403,10 +445,9 @@
                 const days = Math.ceil((s.sub - Date.now()) / 86400000);
                 if(s.country === '+91') {
                     document.getElementById('prof-status').innerText = days > 0 ? days + " DAYS LEFT" : "EXPIRED";
-                    document.getElementById('prof-exp').innerText = `Valid till: ${new Date(s.sub).toDateString()}`;
                 } else {
                     document.getElementById('prof-status').innerText = "LIFETIME FREE";
-                    document.getElementById('prof-exp').innerText = "International Access";
+                    document.getElementById('prof-exp').innerText = "Global Access Active";
                 }
             }
         };
@@ -414,26 +455,28 @@
         const reports = {
             open: () => {
                 document.getElementById('reports').style.display='flex';
+                document.getElementById('r-start').value = new Date(s.date.getFullYear(), s.date.getMonth(), 1).toISOString().split('T')[0];
+                document.getElementById('r-end').value = new Date().toISOString().split('T')[0];
             },
             calc: () => {
                 const start = new Date(document.getElementById('r-start').value);
                 const end = new Date(document.getElementById('r-end').value);
-                if(!start || !end) return alert("Select Dates");
-                let pres=0, otHrs=0, tot=0, late=0;
+                if(!start || !end) return alert("Select Dates First");
+                let pres=0, otHrs=0, tot=0;
                 for(let k in s.data) {
                     const d = new Date(k);
                     if(d >= start && d <= end) {
                         if(['Present','Holiday','Sick'].includes(s.data[k].t)) pres++;
                         otHrs += parseFloat(s.data[k].ot||0);
-                        late += parseFloat(s.data[k].lt||0);
                         tot++;
                     }
                 }
                 const earn = (pres * s.conf.sal) + (otHrs * s.conf.otr);
-                document.getElementById('r-out').innerHTML = `<div style="background:var(--surface); padding:20px; border-radius:20px; border:1px solid var(--border); text-align:left;"><p>Entries: <b>${tot}</b></p><p>Paid Days: <b>${pres}</b></p><p>OT Hours: <b>${otHrs}</b></p><hr style="margin:15px 0;"><h3 style="color:var(--secondary); text-align:center;">Salary: ${s.conf.cur} ${earn}</h3><button onclick="document.getElementById('reports').style.display='none'" class="action-btn" style="margin-top:20px;">Close</button></div>`;
+                document.getElementById('r-out').innerHTML = `<div style="background:var(--surface); padding:20px; border-radius:20px; border:1px solid var(--border); text-align:left;"><p>Entries: <b>${tot}</b></p><p>Paid Days: <b>${pres}</b></p><p>OT Hours: <b>${otHrs}</b></p><hr style="margin:15px 0;"><h3 style="color:var(--secondary); text-align:center;">Salary: ${s.conf.cur} ${earn}</h3><button onclick="document.getElementById('reports').style.display='none'" class="action-btn" style="margin-top:20px;">Close Report</button></div>`;
             }
         };
 
+        // PWA
         if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
     </script>
 </body>
