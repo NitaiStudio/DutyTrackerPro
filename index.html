@@ -144,21 +144,42 @@
         </div>
     </div>
 
-    <!-- 3. PAYMENT -->
+   <!-- ৩. পেমেন্ট স্ক্রিন (Payment Screen with Close Button) -->
     <div id="payment-screen">
         <div class="lock-card">
-            <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
-            <h2 style="margin-bottom:10px; text-align:center; color:white;">Premium Access</h2>
-            <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Trial ended. Subscribe to continue.</p>
-            <div class="plan-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Monthly</b> <span>₹5 / $0.10</span></div>
-                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')">Pay Razorpay (India)</button>
-                <div id="paypal-btn-monthly" class="paypal-container"></div>
+            <!-- ক্লোজ বাটন উপরে রাখা হয়েছে -->
+            <button id="pay-close-btn" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); border:none; color:white; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('payment-screen').style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <i class="fas fa-crown" style="font-size:50px; color:var(--accent); margin-bottom:15px; display:block; text-align:center;"></i>
+            <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
+            <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Renew subscription to continue tracking your duties.</p>
+            
+            <!-- Monthly Plan -->
+            <div class="plan-box" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:16px; padding:15px; margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <b style="color:white; font-size:16px;">Monthly Plan</b> 
+                    <span style="color:var(--secondary); font-weight:800;">₹5 / $0.10</span>
+                </div>
+                <!-- Razorpay Button with design -->
+                <button class="pay-btn-rzp" style="width:100%; padding:12px; background:#3399cc; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="pay.razorpay(5, 'monthly')">
+                    <i class="fas fa-bolt"></i> Pay with Razorpay
+                </button>
+                <!-- PayPal Container -->
+                <div id="paypal-btn-monthly" class="paypal-container" style="margin-top:10px; min-height:45px;"></div>
             </div>
-            <div class="plan-box">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Yearly</b> <span>₹40 / $0.50</span></div>
-                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')">Pay Razorpay (India)</button>
-                <div id="paypal-btn-yearly" class="paypal-container"></div>
+
+            <!-- Yearly Plan -->
+            <div class="plan-box" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:16px; padding:15px; margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <b style="color:white; font-size:16px;">Yearly Plan</b> 
+                    <span style="color:var(--secondary); font-weight:800;">₹40 / $0.50</span>
+                </div>
+                <button class="pay-btn-rzp" style="width:100%; padding:12px; background:#3399cc; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="pay.razorpay(40, 'yearly')">
+                    <i class="fas fa-bolt"></i> Pay with Razorpay
+                </button>
+                <div id="paypal-btn-yearly" class="paypal-container" style="margin-top:10px; min-height:45px;"></div>
             </div>
         </div>
     </div>
