@@ -144,21 +144,21 @@
         </div>
     </div>
 
-    <!-- 3. PAYMENT SCREEN -->
+    <!-- 3. PAYMENT -->
     <div id="payment-screen">
         <div class="lock-card">
-            <button style="position:absolute; top:15px; right:15px; background:none; border:none; color:white;" id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
-            <h2 style="margin-bottom:10px; text-align:center;">Premium Access</h2>
+            <button id="pay-close-btn" onclick="document.getElementById('payment-screen').style.display='none'"><i class="fas fa-times"></i></button>
+            <h2 style="margin-bottom:10px; text-align:center; color:white;">Premium Access</h2>
             <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Trial ended. Subscribe to continue.</p>
             <div class="plan-box">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Monthly</b> <span>₹5 / $0.10</span></div>
-                <button class="pay-btn-rzp" style="background:#3399cc;" onclick="pay.razorpay(5, 'monthly')">Pay Razorpay (India)</button>
-                <div id="pp-monthly" class="paypal-container"></div>
+                <button class="pay-btn-rzp" onclick="pay.razorpay(5, 'monthly')">Pay Razorpay (India)</button>
+                <div id="paypal-btn-monthly" class="paypal-container"></div>
             </div>
             <div class="plan-box">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>Yearly</b> <span>₹40 / $0.50</span></div>
-                <button class="pay-btn-rzp" style="background:#3399cc;" onclick="pay.razorpay(40, 'yearly')">Pay Razorpay (India)</button>
-                <div id="pp-yearly" class="paypal-container"></div>
+                <button class="pay-btn-rzp" onclick="pay.razorpay(40, 'yearly')">Pay Razorpay (India)</button>
+                <div id="paypal-btn-yearly" class="paypal-container"></div>
             </div>
         </div>
     </div>
