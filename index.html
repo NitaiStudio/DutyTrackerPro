@@ -35,7 +35,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--dark-bg); background-image: radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.12) 0%, transparent 60%); color: #ffffff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- SPLASH SCREEN (FIXED CENTER) --- */
+        /* --- SPLASH SCREEN --- */
         #splash { 
             position: fixed; inset: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -82,7 +82,10 @@
         .profile-card { background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(0, 240, 255, 0.2)); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; text-align: center; }
         .sub-badge { background: var(--accent); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
-        /* DONATE SECTION - VISIBLE FOR ALL */
+        /* UPDATE LINK BOX */
+        .update-box { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--secondary); padding: 15px; border-radius: 16px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; animation: pulse 2s infinite; }
+        
+        /* DONATE SECTION */
         #donate-box { background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; margin: 25px 0; border: 1px solid var(--secondary); text-align: center; }
         .donate-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; }
         .donate-badges img { height: 42px; border-radius: 8px; cursor: pointer; }
@@ -144,7 +147,7 @@
         </div>
     </div>
 
-   <!-- ৩. পেমেন্ট স্ক্রিন (Payment Screen with Close Button) -->
+   <!-- 3. PAYMENT SCREEN -->
     <div id="payment-screen">
         <div class="lock-card">
             <button id="pay-close-btn" style="position:absolute; top:15px; right:15px; background:rgba(255,255,255,0.1); border:none; color:white; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('payment-screen').style.display='none'">
@@ -155,21 +158,17 @@
             <h2 style="margin-bottom:10px; color:white; text-align:center;">Premium Access</h2>
             <p style="color:#aaa; font-size:13px; margin-bottom:25px; text-align:center;">Renew subscription to continue tracking your duties.</p>
             
-            <!-- Monthly Plan -->
             <div class="plan-box" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:16px; padding:15px; margin-bottom:15px;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <b style="color:white; font-size:16px;">Monthly Plan</b> 
                     <span style="color:var(--secondary); font-weight:800;">₹5 / $0.10</span>
                 </div>
-                <!-- Razorpay Button -->
                 <button class="pay-btn-rzp" style="width:100%; padding:12px; background:#3399cc; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="pay.razorpay(5, 'monthly')">
                     <i class="fas fa-bolt"></i> Pay with Razorpay
                 </button>
-                <!-- PayPal Container -->
                 <div id="paypal-btn-monthly" class="paypal-container" style="margin-top:10px; min-height:45px;"></div>
             </div>
 
-            <!-- Yearly Plan -->
             <div class="plan-box" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:16px; padding:15px; margin-bottom:15px;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <b style="color:white; font-size:16px;">Yearly Plan</b> 
@@ -203,7 +202,7 @@
         </div>
     </div>
 
-    <!-- MODAL (ADDED CLEAR BUTTON) -->
+    <!-- MODAL -->
     <div id="modal">
         <h3 id="modal-date" style="text-align:center; margin-bottom:20px;">Date</h3>
         <div class="type-grid">
@@ -218,9 +217,7 @@
             <input type="number" id="inp-late" placeholder="Late (Min)" class="auth-inp" style="width:50%; margin:0; border-radius:12px;">
         </div>
         <button class="action-btn" onclick="data.save()">Save Status</button>
-        <!-- CLEAR BUTTON ADDED -->
         <button class="action-btn" style="background: #d32f2f; margin-top:10px;" onclick="data.clear()">🗑️ Clear Entry</button>
-        
         <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; color:#aaa; background:none; border:none; margin-top:15px; font-weight:bold;">Cancel</button>
     </div>
 
@@ -236,6 +233,18 @@
                 <button class="action-btn" id="extend-btn" style="background:var(--accent); font-size:14px;" onclick="pay.showPaymentScreen(false)">⚡ Buy Premium</button>
             </div>
 
+            <!-- NEW: APP UPDATE LINK -->
+            <div class="update-box" onclick="window.open('https://dutytrackerpro.blogspot.com/?m=1', '_blank')">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-rocket" style="color:var(--secondary); font-size:20px;"></i>
+                    <div style="text-align:left;">
+                        <div style="color:white; font-weight:bold;">App Update Available</div>
+                        <div style="color:#aaa; font-size:12px;">Get the latest version</div>
+                    </div>
+                </div>
+                <i class="fas fa-external-link-alt" style="color:var(--secondary);"></i>
+            </div>
+
             <h4 style="color:var(--primary); margin-bottom:15px;">Preferences</h4>
             <div style="background:var(--glass); border-radius:16px; padding:20px; border:1px solid var(--border);">
                 <label style="font-size:12px; color:#666;">Currency</label>
@@ -247,7 +256,7 @@
                 <button class="action-btn" onclick="settings.save()">Save Configuration</button>
             </div>
 
-            <!-- DONATE BOX (VISIBLE FOR ALL) -->
+            <!-- DONATE BOX -->
             <div id="donate-box">
                 <h4 style="color:white; margin:10px 0; text-align:center;">Support Development ❤️</h4>
                 <div class="donate-badges">
@@ -262,6 +271,11 @@
             <button class="legal-btn" onclick="legal.show('refund')"><span>Refund Policy</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="legal.show('terms')"><span>Disclaimer</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="location.href='mailto:nitai.grp00@gmail.com'"><span>Contact Support</span> <i class="fas fa-envelope"></i></button>
+
+            <!-- NEW: LOGOUT BUTTON -->
+            <button class="action-btn" style="background: #222; margin-top: 30px; border: 1px solid #333;" onclick="app.logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </div>
 
@@ -342,6 +356,13 @@
                     app.start(fullId);
                 } else alert("Invalid Number");
             },
+            logout: () => {
+                if(confirm("Are you sure you want to logout?")) {
+                    localStorage.removeItem('dt_id');
+                    localStorage.removeItem('dt_country');
+                    location.reload();
+                }
+            },
             start: (id) => { 
                 s.uid = id;
                 document.getElementById('main-app').style.display = 'flex';
@@ -349,14 +370,12 @@
                     const v = snap.val() || {};
                     s.data = v.att || {};
                     
-                    // --- SUBSCRIPTION LOGIC APPLIED TO EVERYONE ---
                     if (!v.subExp) {
-                        const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); // 3 Days Trial for EVERYONE
+                        const trialEnd = Date.now() + (3 * 24 * 60 * 60 * 1000); 
                         db.ref('u/' + s.uid + '/subExp').set(trialEnd);
                         s.sub = trialEnd;
                     } else s.sub = v.subExp;
 
-                    // Show Payment Logic
                     document.getElementById('extend-btn').style.display = 'block';
                     
                     if(Date.now() > s.sub) pay.showPaymentScreen(true);
@@ -432,7 +451,6 @@
                     el.onclick=()=> {
                         sel.d = iso; document.getElementById('modal-date').innerText = new Date(iso).toDateString();
                         document.getElementById('modal').style.display='block';
-                        // Clear Inputs for fresh view or load data
                         document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
                         if(ent) { 
                             document.getElementById('inp-ot').value = ent.ot || ''; 
@@ -454,12 +472,11 @@
                 const p = { t: sel.t || 'Present', ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
                 db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => { s.data[sel.d] = p; cal.render(); document.getElementById('modal').style.display='none'; });
             },
-            // --- CLEAR FUNCTION ---
             clear: () => {
                 if(!confirm("Are you sure you want to clear this entry?")) return;
                 db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(() => {
-                    delete s.data[sel.d]; // Update local
-                    cal.render(); // Refresh Calendar
+                    delete s.data[sel.d]; 
+                    cal.render(); 
                     document.getElementById('modal').style.display='none';
                 });
             }
@@ -479,7 +496,6 @@
                 document.getElementById('settings').style.display = 'flex';
                 document.getElementById('prof-id').innerText = s.uid;
                 const days = Math.ceil((s.sub - Date.now()) / 86400000);
-                // SHOW SUBSCRIPTION STATUS FOR EVERYONE
                 document.getElementById('prof-status').innerText = days > 0 ? days + " DAYS LEFT" : "EXPIRED";
                 document.getElementById('prof-exp').innerText = "Premium valid till: " + new Date(s.sub).toDateString();
             }
@@ -505,7 +521,6 @@
             }
         };
 
-        // --- PWA INSTALL FIXED ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault(); deferredPrompt = e;
             document.getElementById('pwa-install-btn').style.display = 'block';
