@@ -233,7 +233,7 @@
                 <button class="action-btn" id="extend-btn" style="background:var(--accent); font-size:14px;" onclick="pay.showPaymentScreen(false)">⚡ Buy Premium</button>
             </div>
 
-            <!-- NEW: APP UPDATE LINK -->
+            <!-- APP UPDATE LINK -->
             <div class="update-box" onclick="window.open('https://dutytrackerpro.blogspot.com/?m=1', '_blank')">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <i class="fas fa-rocket" style="color:var(--secondary); font-size:20px;"></i>
@@ -272,7 +272,7 @@
             <button class="legal-btn" onclick="legal.show('terms')"><span>Disclaimer</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="location.href='mailto:nitai.grp00@gmail.com'"><span>Contact Support</span> <i class="fas fa-envelope"></i></button>
 
-            <!-- NEW: LOGOUT BUTTON -->
+            <!-- LOGOUT BUTTON -->
             <button class="action-btn" style="background: #222; margin-top: 30px; border: 1px solid #333;" onclick="app.logout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
@@ -305,7 +305,7 @@
         // --- SECURITY ---
         (function() {
             var allowed = "nitaistudio.github.io"; 
-            if (window.location.hostname && window.location.hostname !== allowed && window.location.hostname !== "localhost") {
+            if (window.location.hostname && window.location.hostname !== allowed && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
                 document.body.innerHTML = "<div style='height:100vh;display:flex;justify-content:center;align-items:center;background:#000;color:red;text-align:center;'><h1>🚫 Access Denied</h1></div>";
                 throw new Error("Unauthorized");
             }
@@ -329,20 +329,36 @@
         let sel = { d: null, t: null };
         let paypalRendered = false;
         let deferredPrompt;
+        let appLoaded = false;
 
-        // --- INITIALIZATION ---
-        window.onload = () => {
+        // --- OPTIMIZED LOADING LOGIC (Fixes Hanging) ---
+        function initApp() {
+            if(appLoaded) return; // Prevent double load
+            appLoaded = true;
+
             const id = localStorage.getItem('dt_id');
             const country = localStorage.getItem('dt_country');
-            setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
+            
+            const splash = document.getElementById('splash');
+            if(splash) {
+                splash.style.opacity = '0';
                 setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                    if(id && country) { s.country = country; app.start(id); }
-                    else document.getElementById('auth-screen').style.display = 'flex';
+                    splash.style.display = 'none';
+                    if(id && country) { 
+                        s.country = country; 
+                        app.start(id); 
+                    } else {
+                        document.getElementById('auth-screen').style.display = 'flex';
+                    }
                 }, 800);
-            }, 3000);
-        };
+            }
+        }
+
+        // Run as soon as DOM is ready (faster than window.onload)
+        document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 2500));
+        
+        // Fallback: If SDKs (PayPal/Razorpay) hang, force open after 4s
+        setTimeout(initApp, 4000);
 
         const app = {
             login: () => {
@@ -420,61 +436,9 @@
             show: (type) => {
                 const titles = { 'privacy': 'Privacy Policy', 'refund': 'Refund Policy', 'terms': 'Disclaimer' };
                 const texts = {
-                    'privacy': 'Duty Tracker Pro respects and values the privacy of its users. This application is designed
-as a productivity and utility tool for managing attendance, duty records, and salary
-calculations.
-
-Duty Tracker Pro offers optional premium subscription plans to enhance the user experience
-and unlock advanced features. Subscriptions are available on a monthly or yearly basis and
-are processed securely through Razorpay, an RBI-compliant payment gateway. Subscription
-fees are clearly displayed within the application before payment. Premium features are
-activated only after successful payment confirmation. Subscription plans are intended for
-individual users and are non-transferable.
-
-This application is privately developed and maintained. It is not affiliated with, endorsed
-by, or associated with any government department, authority, or scheme.
-
-We collect the user’s mobile number solely for the purpose of account identification,
-authentication, and secure data synchronization across devices. No government-issued
-identity information such as Aadhaar number, PAN number, voter ID, or any other sensitive
-personal data is collected by this application.
-
-All duty records, attendance data, salary settings, and related information are stored
-securely using Google Firebase infrastructure. Reasonable security measures are
-implemented to protect user data against unauthorized access, alteration, or disclosure.
-
-We do not sell, trade, or share any personal or sensitive user data with third parties.
-User data is used strictly for application functionality, subscription management, and
-service improvement purposes.
-
-Users have the right to request access, correction, or deletion of their personal data.
-Such requests can be made by contacting the support team through the contact details
-provided within the application.
-
-By using this application, you acknowledge and agree to the collection and use of
-information in accordance with this Privacy Policy.',
-                    'refund': 'All premium subscriptions offered within Duty Tracker Pro are digital services and are
-activated instantly upon successful payment. Therefore, refunds are generally not provided.
-
-However, in cases of technical failure, unsuccessful activation, or payment-related issues,
-users may contact the support team within 24 hours of the transaction for assistance and
-resolution.
-
-Each request will be reviewed on a case-by-case basis to ensure fair handling in accordance
-with applicable consumer protection guidelines.',
-                    'terms': 'Duty Tracker Pro is provided as a utility and productivity tool intended to assist users in
-tracking attendance, duty schedules, overtime, and salary calculations.
-
-While every effort is made to ensure accuracy in calculations and data processing, the
-application does not guarantee absolute accuracy. Salary figures, overtime amounts, and
-other calculated values are indicative only.
-
-The developer shall not be held responsible for any financial loss, discrepancies, or
-decisions made based on the information provided by this application. Users are strongly
-advised to independently verify all calculations and records before making any official or
-financial decisions.
-
-Use of this application is entirely at the user’s own discretion and responsibility.'
+                    'privacy': 'Duty Tracker Pro respects and values the privacy of its users. We collect the user’s mobile number solely for the purpose of account identification and authentication. All duty records and data are stored securely using Google Firebase.',
+                    'refund': 'All premium subscriptions are digital services and activated instantly. Therefore, refunds are generally not provided. However, in cases of technical failure, users may contact support.',
+                    'terms': 'Duty Tracker Pro is a utility tool. The developer shall not be held responsible for any financial loss or discrepancies based on the information provided by this application.'
                 };
                 document.getElementById('legal-title').innerText = titles[type];
                 document.getElementById('legal-body').innerText = texts[type];
