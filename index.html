@@ -108,6 +108,15 @@
         #legal-modal { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: none; justify-content: center; align-items: center; padding: 20px; }
         .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 20px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+
+        /* --- NEW: CUSTOM CONFIRM BOX (PROFESSIONAL LOOK) --- */
+        #custom-confirm { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .confirm-box { background: #151515; padding: 30px 25px; border-radius: 24px; border: 1px solid var(--border); width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); animation: popIn 0.2s forwards; }
+        @keyframes popIn { to { transform: scale(1); } }
+        .confirm-btn-group { display: flex; gap: 15px; margin-top: 25px; }
+        .c-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+        .c-yes { background: var(--accent); color: white; }
+        .c-no { background: #333; color: white; border: 1px solid #444; }
     </style>
 </head>
 <body>
@@ -221,6 +230,19 @@
         <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; color:#aaa; background:none; border:none; margin-top:15px; font-weight:bold;">Cancel</button>
     </div>
 
+    <!-- NEW: CUSTOM CONFIRM MODAL -->
+    <div id="custom-confirm">
+        <div class="confirm-box">
+            <i class="fas fa-exclamation-triangle" style="font-size:40px; color:var(--accent); margin-bottom:15px;"></i>
+            <h3 id="confirm-msg" style="margin-bottom:10px;">Are you sure?</h3>
+            <p style="color:#aaa; font-size:13px; margin-bottom:20px;">This action cannot be undone.</p>
+            <div class="confirm-btn-group">
+                <button class="c-btn c-no" onclick="customConfirm.close()">Cancel</button>
+                <button class="c-btn c-yes" id="confirm-yes-btn">Yes, Do it</button>
+            </div>
+        </div>
+    </div>
+
     <!-- PROFILE & SETTINGS -->
     <div id="settings" class="full-page">
         <div class="fp-head"><i class="fas fa-arrow-left" onclick="this.parentElement.parentElement.style.display='none'" style="font-size:24px;"></i> <h3>Profile & Settings</h3></div>
@@ -331,9 +353,32 @@
         let deferredPrompt;
         let appLoaded = false;
 
-        // --- OPTIMIZED LOADING LOGIC (Fixes Hanging) ---
+        // --- CUSTOM CONFIRM LOGIC ---
+        const customConfirm = {
+            show: (msg, callback) => {
+                document.getElementById('confirm-msg').innerText = msg;
+                const modal = document.getElementById('custom-confirm');
+                const yesBtn = document.getElementById('confirm-yes-btn');
+                
+                // Reset Listener
+                const newBtn = yesBtn.cloneNode(true);
+                yesBtn.parentNode.replaceChild(newBtn, yesBtn);
+                
+                newBtn.onclick = () => {
+                    callback();
+                    customConfirm.close();
+                };
+                
+                modal.style.display = 'flex';
+            },
+            close: () => {
+                document.getElementById('custom-confirm').style.display = 'none';
+            }
+        };
+
+        // --- OPTIMIZED LOADING LOGIC ---
         function initApp() {
-            if(appLoaded) return; // Prevent double load
+            if(appLoaded) return; 
             appLoaded = true;
 
             const id = localStorage.getItem('dt_id');
@@ -354,10 +399,7 @@
             }
         }
 
-        // Run as soon as DOM is ready (faster than window.onload)
         document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 2500));
-        
-        // Fallback: If SDKs (PayPal/Razorpay) hang, force open after 4s
         setTimeout(initApp, 4000);
 
         const app = {
@@ -373,11 +415,12 @@
                 } else alert("Invalid Number");
             },
             logout: () => {
-                if(confirm("Are you sure you want to logout?")) {
+                // CHANGED: Use Custom Confirm
+                customConfirm.show("Are you sure you want to logout?", () => {
                     localStorage.removeItem('dt_id');
                     localStorage.removeItem('dt_country');
                     location.reload();
-                }
+                });
             },
             start: (id) => { 
                 s.uid = id;
@@ -489,11 +532,13 @@
                 db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => { s.data[sel.d] = p; cal.render(); document.getElementById('modal').style.display='none'; });
             },
             clear: () => {
-                if(!confirm("Are you sure you want to clear this entry?")) return;
-                db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(() => {
-                    delete s.data[sel.d]; 
-                    cal.render(); 
-                    document.getElementById('modal').style.display='none';
+                // CHANGED: Use Custom Confirm
+                customConfirm.show("Delete this entry permanently?", () => {
+                    db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(() => {
+                        delete s.data[sel.d]; 
+                        cal.render(); 
+                        document.getElementById('modal').style.display='none';
+                    });
                 });
             }
         };
