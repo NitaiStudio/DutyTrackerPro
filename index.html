@@ -69,11 +69,14 @@
         #calendar-grid { padding: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-cell { height: 85px; background: rgba(255,255,255,0.05); border-radius: 14px; border: 1px solid transparent; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
         .day-num { font-weight: bold; font-size: 16px; }
+        
+        /* COLORS FOR ATTENDANCE */
         .bg-Present { background: #4caf50 !important; color: white; }
         .bg-Leave { background: #f44336 !important; color: white; }
-        .bg-Sick { background: #ff9800 !important; color: white; }
+        .bg-Sick { background: #ff5722 !important; color: white; }
         .bg-Holiday { background: #9c27b0 !important; color: white; }
         .bg-Off { background: #607d8b !important; color: white; opacity: 0.7; }
+        .bg-HalfDay { background: #ffc107 !important; color: black; } /* NEW HALF DAY COLOR */
 
         /* PAGES */
         .full-page { position: fixed; inset: 0; width: 100%; height: 100%; background: var(--dark-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; }
@@ -95,7 +98,8 @@
         .legal-btn:hover { background: rgba(255,255,255,0.1); color: white; }
 
         #modal { position: fixed; bottom: 0; width: 100%; background: #111; padding: 25px; border-radius: 30px 30px 0 0; display: none; z-index: 2000; border-top: 1px solid var(--border); }
-        .type-btn { padding: 12px; margin: 5px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 30%; font-weight: bold; }
+        .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .type-btn { padding: 12px; background: #222; color: white; border: 1px solid #333; border-radius: 8px; width: 100%; font-weight: bold; }
         .type-btn.active { border-color: var(--secondary); background: rgba(0, 240, 255, 0.1); }
         
         .bottom-bar { position: fixed; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 500; }
@@ -109,14 +113,15 @@
         .legal-content { background: #151515; width: 100%; max-width: 500px; border-radius: 20px; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; padding: 25px; position: relative; color: #ccc; line-height: 1.6; }
         .legal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
 
-        /* --- NEW: CUSTOM CONFIRM BOX (PROFESSIONAL LOOK) --- */
-        #custom-confirm { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        /* --- CUSTOM CONFIRM & ALERT BOXES --- */
+        #custom-confirm, #custom-alert { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .confirm-box { background: #151515; padding: 30px 25px; border-radius: 24px; border: 1px solid var(--border); width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); animation: popIn 0.2s forwards; }
         @keyframes popIn { to { transform: scale(1); } }
         .confirm-btn-group { display: flex; gap: 15px; margin-top: 25px; }
         .c-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
         .c-yes { background: var(--accent); color: white; }
         .c-no { background: #333; color: white; border: 1px solid #444; }
+        .c-ok { background: var(--secondary); color: black; width: 100%; }
     </style>
 </head>
 <body>
@@ -216,6 +221,7 @@
         <h3 id="modal-date" style="text-align:center; margin-bottom:20px;">Date</h3>
         <div class="type-grid">
             <button class="type-btn" onclick="data.set('Present', this)">Present</button>
+            <button class="type-btn" onclick="data.set('Half Day', this)">Half Day</button> <!-- NEW -->
             <button class="type-btn" onclick="data.set('Leave', this)">Leave</button>
             <button class="type-btn" onclick="data.set('Sick', this)">Sick</button>
             <button class="type-btn" onclick="data.set('Holiday', this)">Holiday</button>
@@ -230,7 +236,7 @@
         <button onclick="document.getElementById('modal').style.display='none'" style="width:100%; color:#aaa; background:none; border:none; margin-top:15px; font-weight:bold;">Cancel</button>
     </div>
 
-    <!-- NEW: CUSTOM CONFIRM MODAL -->
+    <!-- CUSTOM CONFIRM MODAL -->
     <div id="custom-confirm">
         <div class="confirm-box">
             <i class="fas fa-exclamation-triangle" style="font-size:40px; color:var(--accent); margin-bottom:15px;"></i>
@@ -240,6 +246,15 @@
                 <button class="c-btn c-no" onclick="customConfirm.close()">Cancel</button>
                 <button class="c-btn c-yes" id="confirm-yes-btn">Yes, Do it</button>
             </div>
+        </div>
+    </div>
+
+    <!-- NEW: CUSTOM ALERT MODAL (For Save Settings) -->
+    <div id="custom-alert">
+        <div class="confirm-box">
+            <i class="fas fa-check-circle" style="font-size:45px; color:#00e676; margin-bottom:15px;"></i>
+            <h3 id="alert-msg" style="margin-bottom:10px;">Saved!</h3>
+            <button class="c-btn c-ok" style="margin-top:15px;" onclick="document.getElementById('custom-alert').style.display='none'">OK</button>
         </div>
     </div>
 
@@ -255,7 +270,6 @@
                 <button class="action-btn" id="extend-btn" style="background:var(--accent); font-size:14px;" onclick="pay.showPaymentScreen(false)">⚡ Buy Premium</button>
             </div>
 
-            <!-- APP UPDATE LINK -->
             <div class="update-box" onclick="window.open('https://dutytrackerpro.blogspot.com/?m=1', '_blank')">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <i class="fas fa-rocket" style="color:var(--secondary); font-size:20px;"></i>
@@ -294,7 +308,6 @@
             <button class="legal-btn" onclick="legal.show('terms')"><span>Disclaimer</span> <i class="fas fa-chevron-right"></i></button>
             <button class="legal-btn" onclick="location.href='mailto:nitai.grp00@gmail.com'"><span>Contact Support</span> <i class="fas fa-envelope"></i></button>
 
-            <!-- LOGOUT BUTTON -->
             <button class="action-btn" style="background: #222; margin-top: 30px; border: 1px solid #333;" onclick="app.logout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
@@ -359,20 +372,19 @@
                 document.getElementById('confirm-msg').innerText = msg;
                 const modal = document.getElementById('custom-confirm');
                 const yesBtn = document.getElementById('confirm-yes-btn');
-                
-                // Reset Listener
                 const newBtn = yesBtn.cloneNode(true);
                 yesBtn.parentNode.replaceChild(newBtn, yesBtn);
-                
-                newBtn.onclick = () => {
-                    callback();
-                    customConfirm.close();
-                };
-                
+                newBtn.onclick = () => { callback(); customConfirm.close(); };
                 modal.style.display = 'flex';
             },
-            close: () => {
-                document.getElementById('custom-confirm').style.display = 'none';
+            close: () => { document.getElementById('custom-confirm').style.display = 'none'; }
+        };
+
+        // --- CUSTOM ALERT LOGIC ---
+        const customAlert = {
+            show: (msg) => {
+                document.getElementById('alert-msg').innerText = msg;
+                document.getElementById('custom-alert').style.display = 'flex';
             }
         };
 
@@ -380,25 +392,18 @@
         function initApp() {
             if(appLoaded) return; 
             appLoaded = true;
-
             const id = localStorage.getItem('dt_id');
             const country = localStorage.getItem('dt_country');
-            
             const splash = document.getElementById('splash');
             if(splash) {
                 splash.style.opacity = '0';
                 setTimeout(() => {
                     splash.style.display = 'none';
-                    if(id && country) { 
-                        s.country = country; 
-                        app.start(id); 
-                    } else {
-                        document.getElementById('auth-screen').style.display = 'flex';
-                    }
+                    if(id && country) { s.country = country; app.start(id); } 
+                    else { document.getElementById('auth-screen').style.display = 'flex'; }
                 }, 800);
             }
         }
-
         document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 2500));
         setTimeout(initApp, 4000);
 
@@ -415,7 +420,6 @@
                 } else alert("Invalid Number");
             },
             logout: () => {
-                // CHANGED: Use Custom Confirm
                 customConfirm.show("Are you sure you want to logout?", () => {
                     localStorage.removeItem('dt_id');
                     localStorage.removeItem('dt_country');
@@ -436,7 +440,6 @@
                     } else s.sub = v.subExp;
 
                     document.getElementById('extend-btn').style.display = 'block';
-                    
                     if(Date.now() > s.sub) pay.showPaymentScreen(true);
                     else document.getElementById('payment-screen').style.display = 'none';
 
@@ -500,7 +503,8 @@
                 for(let i=1; i<=lDate; i++) {
                     const iso = cal.getIso(y, m, i);
                     const ent = s.data[iso];
-                    const el = document.createElement('div'); el.className = 'day-cell ' + (ent ? 'bg-'+ent.t : '');
+                    const cls = ent ? 'bg-'+ent.t.replace(' ', '') : ''; // Fix for Half Day space
+                    const el = document.createElement('div'); el.className = 'day-cell ' + cls;
                     if(iso === new Date().toISOString().split('T')[0]) el.style.border = '2px solid var(--secondary)';
                     el.innerHTML = `<span style="font-weight:bold">${i}</span>`;
                     if(ent) {
@@ -532,7 +536,6 @@
                 db.ref(`u/${s.uid}/att/${sel.d}`).set(p).then(() => { s.data[sel.d] = p; cal.render(); document.getElementById('modal').style.display='none'; });
             },
             clear: () => {
-                // CHANGED: Use Custom Confirm
                 customConfirm.show("Delete this entry permanently?", () => {
                     db.ref(`u/${s.uid}/att/${sel.d}`).remove().then(() => {
                         delete s.data[sel.d]; 
@@ -548,7 +551,7 @@
                 s.conf.cur = document.getElementById('set-cur').value;
                 s.conf.sal = parseFloat(document.getElementById('set-sal').value) || 0;
                 s.conf.otr = parseFloat(document.getElementById('set-otr').value) || 0;
-                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>alert("Saved!"));
+                db.ref(`u/${s.uid}/conf`).set(s.conf).then(()=>customAlert.show("Configuration Saved!"));
             }
         };
 
@@ -568,17 +571,61 @@
                 const start = new Date(document.getElementById('r-start').value);
                 const end = new Date(document.getElementById('r-end').value);
                 if(!start || !end) return alert("Select Dates");
-                let pres=0, otHrs=0, tot=0;
+                let dutyPay=0, otPay=0, presCount=0, totDays=0;
+                
                 for(let k in s.data) {
                     const d = new Date(k);
                     if(d >= start && d <= end) {
-                        if(['Present','Holiday','Sick'].includes(s.data[k].t)) pres++;
-                        otHrs += parseFloat(s.data[k].ot||0);
-                        tot++;
+                        const type = s.data[k].t;
+                        const ot = parseFloat(s.data[k].ot||0);
+                        
+                        // Half Day Logic
+                        if(type === 'Half Day') {
+                            dutyPay += (s.conf.sal / 2);
+                            presCount += 0.5;
+                        } 
+                        else if(['Present','Holiday','Sick'].includes(type)) {
+                            dutyPay += s.conf.sal;
+                            presCount++;
+                        }
+                        
+                        otPay += (ot * s.conf.otr);
+                        totDays++;
                     }
                 }
-                const earn = (pres * s.conf.sal) + (otHrs * s.conf.otr);
-                document.getElementById('r-out').innerHTML = `<div style="background:#222; padding:20px; border-radius:20px; border:1px solid var(--border);"><p>Entries: <b>${tot}</b></p><p>Paid Days: <b>${pres}</b></p><p>OT: <b>${otHrs} Hrs</b></p><hr><h3 style="color:var(--secondary)">Total: ${s.conf.cur} ${earn}</h3><button onclick="document.getElementById('reports').style.display='none'" class="action-btn">Close</button></div>`;
+                const totalPay = dutyPay + otPay;
+                
+                document.getElementById('r-out').innerHTML = `
+                    <div style="background:#1a1a1a; padding:25px; border-radius:24px; border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; color:#aaa;">
+                            <span>Paid Days</span> <b>${presCount}</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-size:14px; color:#aaa;">
+                            <span>Total OT</span> <b>${(otPay/s.conf.otr || 0).toFixed(1)} Hrs</b>
+                        </div>
+                        <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+                        
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="color:var(--primary);">Duty Pay</span>
+                            <b style="font-size:16px;">${s.conf.cur} ${dutyPay.toFixed(0)}</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <span style="color:#ffff00;">Overtime</span>
+                            <b style="font-size:16px;">${s.conf.cur} ${otPay.toFixed(0)}</b>
+                        </div>
+                        
+                        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:white; font-weight:bold;">Total Pay</span>
+                            <span style="font-size:20px; font-weight:800; color:var(--secondary);">${s.conf.cur} ${totalPay.toFixed(0)}</span>
+                        </div>
+                        
+                        <!-- AD FOR NON-SUBSCRIBERS -->
+                        <div style="margin-top:20px; text-align:center; background:linear-gradient(45deg, #FF0055, #6C63FF); padding:10px; border-radius:50px; cursor:pointer;" onclick="ui.openProfile()">
+                            <span style="font-size:12px; font-weight:bold; color:white;">💎 Premium Only ₹5! No Ads & Limits</span>
+                        </div>
+
+                        <button onclick="document.getElementById('reports').style.display='none'" class="action-btn" style="margin-top:20px; background:#333;">Close</button>
+                    </div>`;
             }
         };
 
