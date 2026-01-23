@@ -24,6 +24,7 @@
 
     <style>
         :root {
+            /* DARK THEME (Default) */
             --bg: #000000;
             --surface: #101010;
             --card: #181818;
@@ -39,6 +40,7 @@
         }
 
         [data-theme="light"] {
+            /* LIGHT THEME */
             --bg: #f8f9fa;
             --surface: #ffffff;
             --card: #ffffff;
@@ -58,6 +60,7 @@
 
         /* --- ANIMATIONS --- */
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -67,7 +70,6 @@
         .btn-primary:active { transform:scale(0.97); }
         
         .btn-sec { background:var(--input); color:var(--text); border:1px solid var(--border); transition: 0.2s; }
-        /* NEW: Active State for Attendance Buttons */
         .btn-sec.active { 
             background: rgba(67, 97, 238, 0.15); 
             border-color: var(--primary); 
@@ -80,20 +82,28 @@
         .inp, select { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:12px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
         .inp:focus { border-color:var(--primary); background:var(--card); }
 
-        /* --- TOAST NOTIFICATION (Professional Save) --- */
-        #toast {
-            visibility: hidden; min-width: 250px; background-color: #222; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border: 1px solid var(--border); opacity: 0; transition: opacity 0.3s, bottom 0.3s;
-        }
+        /* Date Input Fix */
+        input[type="date"] { min-width: 0; width: 100%; font-family: 'Outfit', sans-serif; }
+
+        /* --- TOAST --- */
+        #toast { visibility: hidden; min-width: 250px; background-color: #222; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border: 1px solid var(--border); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 80px; }
 
-        /* --- SPLASH SCREEN --- */
+        /* --- CONFIRM MODAL --- */
+        #confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .confirm-box { background: var(--card); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .confirm-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
+        .confirm-actions { display: flex; gap: 10px; }
+
+        /* --- SPLASH --- */
         #splash { position:fixed; inset:0; background:linear-gradient(135deg, #020024, #090979, #00d4ff); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity 0.8s; }
         .splash-logo { font-size:80px; color:white; margin-bottom:20px; animation:float 3s ease-in-out infinite; text-shadow:0 10px 30px rgba(0,0,0,0.5); }
         .loader { width:50px; height:50px; border:4px solid rgba(255,255,255,0.2); border-top-color:white; border-radius:50%; animation:spin 1s linear infinite; margin:30px 0; }
         .india-badge { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); padding:8px 16px; border-radius:20px; backdrop-filter:blur(5px); margin-top:20px; animation:fadeIn 1s ease-out; }
         .india-flag { width:24px; height:16px; box-shadow:0 0 10px rgba(255,165,0,0.5); }
 
-        /* --- AUTH SCREEN --- */
+        /* --- AUTH --- */
         #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
         .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:24px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); animation:fadeIn 0.4s ease-out; }
 
@@ -128,7 +138,7 @@
         .nav-btn.active { color:white; background:var(--primary); transform:translateY(-5px); box-shadow:0 5px 15px rgba(67, 97, 238, 0.4); }
 
         /* PAGES */
-        .page { position:fixed; inset:0; background:var(--bg); z-index:2000; display:none; flex-direction:column; overflow-y:auto; padding-bottom:120px; animation:fadeIn 0.3s ease-out; }
+        .page { position:fixed; inset:0; background:var(--bg); z-index:2000; display:none; flex-direction:column; overflow-y:auto; padding-bottom:150px; animation:fadeIn 0.3s ease-out; }
         .page-header { padding:20px; display:flex; align-items:center; gap:15px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
 
         /* PROFILE */
@@ -155,10 +165,22 @@
 </head>
 <body>
 
-    <!-- CUSTOM TOAST (PROFESSIONAL SAVE) -->
-    <div id="toast">Saved Successfully</div>
+    <!-- TOAST -->
+    <div id="toast">Message Here</div>
 
-    <!-- 1. SPLASH SCREEN -->
+    <!-- CONFIRM MODAL -->
+    <div id="confirm-modal">
+        <div class="confirm-box">
+            <div class="confirm-title" id="c-title">Are you sure?</div>
+            <div class="confirm-desc" id="c-desc">This action cannot be undone.</div>
+            <div class="confirm-actions">
+                <button class="btn btn-sec" style="width:100%" onclick="ui.closeConfirm()">Cancel</button>
+                <button class="btn btn-primary" style="width:100%" id="c-yes-btn">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPLASH -->
     <div id="splash">
         <i class="fas fa-shield-alt splash-logo"></i>
         <h1 style="color:white; font-weight:300;">Duty Tracker <b style="font-weight:800;">Pro</b></h1>
@@ -170,26 +192,24 @@
         <div style="position:absolute; bottom:30px; color:#666; font-size:12px;">Developer By <b>Nitai Studio</b></div>
     </div>
 
-    <!-- 2. AUTH SCREEN -->
+    <!-- AUTH -->
     <div id="auth-screen">
         <div class="auth-card">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
             <h2 style="margin-bottom:10px; color:var(--text);">Welcome</h2>
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Select your country to login</p>
-            
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <select id="cc" class="inp" style="width:140px; margin:0; padding:12px;"></select>
                 <input type="number" id="phone" class="inp" placeholder="Phone Number" style="margin:0;">
             </div>
-            
             <button class="btn btn-primary" onclick="app.login()">Verify & Continue</button>
         </div>
     </div>
 
-    <!-- 3. MAIN APP -->
+    <!-- MAIN APP -->
     <div id="main-app">
         <nav>
-            <div class="logo">Duty Tracker Pro </div>
+            <div class="logo">Duty Tracker Pro</div>
             <div style="display:flex; align-items:center; gap:15px;">
                 <button id="pwa-install" onclick="pwa.install()">INSTALL APP</button>
                 <i class="fas fa-adjust" style="font-size:22px; cursor:pointer;" onclick="ui.toggleTheme()"></i>
@@ -214,7 +234,7 @@
         </div>
     </div>
 
-    <!-- 4. PROFILE PAGE -->
+    <!-- PROFILE -->
     <div id="page-profile" class="page">
         <div class="page-header">
             <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closeAll()"></i>
@@ -250,7 +270,7 @@
             <label style="font-size:12px; color:var(--text-sub);">Food Allowance</label>
             <input type="number" id="set-food" class="inp" placeholder="0" style="margin-bottom:10px;">
             
-            <label style="font-size:12px; color:var(--text-sub);">OT Rate</label>
+            <label style="font-size:12px; color:var(--text-sub);">OT Rate (Per Hour)</label>
             <input type="number" id="set-otr" class="inp" placeholder="0" style="margin-bottom:15px;">
             
             <button class="btn btn-primary" onclick="settings.save()">Save Configuration</button>
@@ -296,10 +316,10 @@
             </div>
         </div>
 
-        <button class="btn btn-danger" style="margin:30px 20px;" onclick="app.logout()">Log Out</button>
+        <button class="btn btn-danger" style="margin: 30px 20px 50px; width: calc(100% - 40px);" onclick="app.logout()">Log Out</button>
     </div>
 
-    <!-- 5. REPORTS PAGE -->
+    <!-- REPORTS -->
     <div id="page-reports" class="page">
         <div class="page-header">
             <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closeAll()"></i>
@@ -317,7 +337,7 @@
         </div>
     </div>
 
-    <!-- 6. ATTENDANCE MODAL (FIXED SELECTION) -->
+    <!-- ATTENDANCE MODAL -->
     <div id="att-modal" class="modal">
         <h3 id="modal-date" style="text-align:center; margin-bottom:20px;">...</h3>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px;">
@@ -339,7 +359,7 @@
         </div>
     </div>
 
-    <!-- 7. PAYWALL -->
+    <!-- PAYWALL -->
     <div id="pay-wall" class="pay-overlay">
         <div class="auth-card">
             <button onclick="document.getElementById('pay-wall').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text); font-size:24px;">&times;</button>
@@ -356,7 +376,7 @@
         </div>
     </div>
 
-    <!-- 8. LEGAL TEXT MODAL -->
+    <!-- LEGAL MODAL -->
     <div id="legal-modal">
         <div style="max-width:800px; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -414,10 +434,12 @@
                     localStorage.setItem('dt_id', id);
                     document.getElementById('auth-screen').style.display='none';
                     app.start(id);
-                } else alert("Invalid Number");
+                } else ui.toast("Invalid Number");
             },
             logout: () => {
-                if(confirm("Are you sure?")) { localStorage.removeItem('dt_id'); location.reload(); }
+                ui.confirm("Log Out", "Are you sure you want to log out of your account?", () => {
+                    localStorage.removeItem('dt_id'); location.reload();
+                });
             },
             start: (id) => {
                 s.uid = id;
@@ -483,14 +505,12 @@
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
-                // Reset Buttons
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 
                 const en = s.data[d];
                 if(en) {
                     document.getElementById('inp-ot').value = en.ot||'';
                     document.getElementById('inp-late').value = en.lt||'';
-                    // Optional: Highlight existing type logic here
                 } else {
                     document.getElementById('inp-ot').value = '';
                     document.getElementById('inp-late').value = '';
@@ -499,7 +519,6 @@
             },
             set: (t, el) => {
                 selType = t;
-                // Button Visual Feedback
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 if(el) el.classList.add('active');
             },
@@ -509,12 +528,14 @@
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
                 document.getElementById('att-modal').style.display='none';
+                ui.toast("Saved Successfully");
             },
             clear: () => {
-                if(confirm("Delete this entry?")) {
+                ui.confirm("Delete Entry", "Are you sure you want to delete this duty record?", () => {
                     db.ref(`u/${s.uid}/att/${selDate}`).remove();
                     document.getElementById('att-modal').style.display='none';
-                }
+                    ui.toast("Entry Deleted");
+                });
             }
         };
 
@@ -548,6 +569,24 @@
                 x.innerText = msg;
                 x.className = "show";
                 setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+            },
+            confirm: (title, desc, callback) => {
+                document.getElementById('c-title').innerText = title;
+                document.getElementById('c-desc').innerText = desc;
+                const modal = document.getElementById('confirm-modal');
+                modal.style.display = "flex";
+                
+                const yesBtn = document.getElementById('c-yes-btn');
+                const newBtn = yesBtn.cloneNode(true);
+                yesBtn.parentNode.replaceChild(newBtn, yesBtn);
+                
+                newBtn.onclick = () => {
+                    callback();
+                    modal.style.display = "none";
+                };
+            },
+            closeConfirm: () => {
+                document.getElementById('confirm-modal').style.display = "none";
             }
         };
 
@@ -563,22 +602,18 @@
             },
             redeem: () => {
                 const c = document.getElementById('friend-code').value.toUpperCase().trim();
-                if(c===s.refCode) return alert("Own code not allowed");
+                if(c===s.refCode) return ui.toast("Own code not allowed");
                 db.ref(`u/${s.uid}/redeemed`).once('value', sn => {
-                    if(sn.exists()) return alert("Already Redeemed");
+                    if(sn.exists()) return ui.toast("Already Redeemed");
                     db.ref('refList/'+c).once('value', rsn => {
-                        if(!rsn.val()) return alert("Invalid Code");
+                        if(!rsn.val()) return ui.toast("Invalid Code");
                         const rid = rsn.val();
-                        let now = Date.now();
-                        let myExp = Math.max(s.sub, now) + (10*86400000);
-                        db.ref(`u/${s.uid}/subExp`).set(myExp);
+                        db.ref(`u/${s.uid}/subExp`).set(Math.max(s.sub, Date.now()) + (10*86400000));
                         db.ref(`u/${s.uid}/redeemed`).set(true);
-                        
                         db.ref(`u/${rid}/subExp`).once('value', os => {
-                            let tx = Math.max(os.val()||now, now) + (30*86400000);
-                            db.ref(`u/${rid}/subExp`).set(tx);
+                            db.ref(`u/${rid}/subExp`).set(Math.max(os.val()||Date.now(), Date.now()) + (30*86400000));
                         });
-                        ui.toast("Success! +10 Days Added.");
+                        ui.toast("Success! +10 Days Added");
                     });
                 });
             }
@@ -592,7 +627,7 @@
                     otr: parseFloat(document.getElementById('set-otr').value) || 0,
                     food: parseFloat(document.getElementById('set-food').value) || 0
                 };
-                db.ref(`u/${s.uid}/conf`).set(c).then(()=>ui.toast("Configuration Saved Successfully!"));
+                db.ref(`u/${s.uid}/conf`).set(c).then(()=>ui.toast("Configuration Saved"));
             }
         };
 
@@ -600,11 +635,9 @@
             gen: () => {
                 const d1 = new Date(document.getElementById('r-start').value);
                 const d2 = new Date(document.getElementById('r-end').value);
-                if(isNaN(d1)) return alert("Select Dates");
-                let dy=0, bs=0, ot=0, fd=0;
-                const SAL = parseFloat(s.conf.sal) || 0;
-                const OTR = parseFloat(s.conf.otr) || 0;
-                const FOOD = parseFloat(s.conf.food) || 0;
+                if(isNaN(d1)) return ui.toast("Select Dates");
+                let dy=0, bs=0, ot=0, fd=0, totalOtHours=0;
+                const SAL = parseFloat(s.conf.sal)||0, OTR = parseFloat(s.conf.otr)||0, FOOD = parseFloat(s.conf.food)||0;
 
                 for(let k in s.data) {
                     const dt = new Date(k);
@@ -614,6 +647,7 @@
                         if(v.t==='Half Day') { dy+=0.5; bs+=(SAL/2); fd+=(FOOD/2); }
                         else if(['Present','Holiday','Sick'].includes(v.t)) { dy++; bs+=SAL; fd+=FOOD; }
                         ot += (o * OTR);
+                        totalOtHours += o;
                     }
                 }
                 const tot = bs + ot + fd;
@@ -623,7 +657,8 @@
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Duty Days</span> <b>${dy}</b></p>
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Basic</span> <b>${s.conf.cur}${bs.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Food</span> <b>${s.conf.cur}${fd.toFixed(0)}</b></p>
-                        <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>OT</span> <b>${s.conf.cur}${ot.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>OT Amount</span> <b>${s.conf.cur}${ot.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between; margin-bottom:10px; color:#aaa; font-size:13px;"><span>Total OT Hours</span> <b>${totalOtHours} Hrs</b></p>
                         <hr style="border-color:var(--border); margin:15px 0;">
                         <h2 style="color:var(--secondary); text-align:right;">Total: ${s.conf.cur}${tot.toFixed(0)}</h2>
                         
@@ -652,19 +687,27 @@
                     body: [
                         [`Duty Days (${dy})`, `${s.conf.cur} ${bs}`],
                         ['Food Allowance', `${s.conf.cur} ${fd}`],
-                        ['Overtime', `${s.conf.cur} ${ot}`],
+                        ['Overtime Pay', `${s.conf.cur} ${ot}`],
                         [{content:'NET TOTAL', styles:{fillColor:[41,121,255], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${tt}`]
                     ],
                     theme: 'grid',
                     headStyles: { fillColor: [41, 121, 255] }
                 });
 
-                const ph = doc.internal.pageSize.height;
-                doc.setFillColor(255, 214, 0); 
-                doc.rect(14, ph-30, 182, 15, 'F');
-                doc.setTextColor(0); doc.setFontSize(11); doc.setFont(undefined, 'bold');
-                doc.text("Get Premium App - Only 5 Rupees/Month", 105, ph-24, null, null, "center");
-                doc.link(14, ph-30, 182, 15, {url:'https://dutytrackerpro.blogspot.com'});
+                // DRAW A BUTTON-LIKE SHAPE FOR DOWNLOAD LINK
+                const pageHeight = doc.internal.pageSize.height;
+                const btnX = 60, btnY = pageHeight - 30, btnW = 90, btnH = 12;
+                
+                doc.setFillColor(41, 121, 255); 
+                doc.roundedRect(btnX, btnY, btnW, btnH, 3, 3, 'F');
+                
+                doc.setTextColor(255, 255, 255); 
+                doc.setFontSize(10); 
+                doc.setFont(undefined, 'bold');
+                doc.text("DOWNLOAD APP", 105, btnY + 8, { align: "center" });
+                
+                doc.link(btnX, btnY, btnW, btnH, { url: "https://dutytrackerpro.blogspot.com/?m=1" });
+
                 doc.save('Salary_Slip.pdf');
             }
         };
