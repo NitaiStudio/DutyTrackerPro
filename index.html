@@ -33,7 +33,7 @@
             --primary: #4361ee;
             --secondary: #4cc9f0;
             --accent: #f72585;
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.15);
             --input: #222222;
             --gradient: linear-gradient(135deg, #4361ee, #4cc9f0);
             --shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -63,6 +63,7 @@
         @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
         /* --- COMPONENTS --- */
         .btn { width:100%; padding:15px; border:none; border-radius:14px; font-weight:700; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:10px; transition:0.2s; font-size:15px; letter-spacing:0.5px; }
@@ -82,16 +83,28 @@
         .inp, select { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:12px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
         .inp:focus { border-color:var(--primary); background:var(--card); }
 
-        /* Date Input Fix */
-        input[type="date"] { min-width: 0; width: 100%; font-family: 'Outfit', sans-serif; }
+        /* Date Input Fix for Mobile */
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px; /* Slightly smaller to fit */
+            text-align: center;
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--input);
+            color: var(--text);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
 
         /* --- TOAST --- */
-        #toast { visibility: hidden; min-width: 250px; background-color: #222; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border: 1px solid var(--border); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        #toast { visibility: hidden; min-width: 250px; background-color: #222; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 12000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border: 1px solid var(--border); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
         #toast.show { visibility: visible; opacity: 1; bottom: 80px; }
 
         /* --- CONFIRM MODAL --- */
-        #confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-        .confirm-box { background: var(--card); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 13000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .confirm-box { background: var(--card); width: 100%; max-width: 320px; padding: 25px; border-radius: 20px; border: 1px solid var(--border); text-align: center; animation: popIn 0.3s; }
         .confirm-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
         .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
         .confirm-actions { display: flex; gap: 10px; }
@@ -107,7 +120,7 @@
         #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
         .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:24px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); animation:fadeIn 0.4s ease-out; }
 
-        /* --- MAIN UI --- */
+        /* --- MAIN APP --- */
         #main-app { display:none; flex-direction:column; flex:1; padding-bottom:100px; }
         nav { padding:15px 20px; background:rgba(var(--bg), 0.85); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; justify-content:space-between; align-items:center; }
         .logo { font-size:22px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
@@ -244,8 +257,10 @@
         <div class="profile-header">
             <i class="fas fa-user-astronaut avatar"></i>
             <h2 id="prof-id" style="margin-bottom:5px;">...</h2>
-            <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold; display:inline-block;">PREMIUM</div>
-            <p id="prof-exp" style="color:var(--text-sub); font-size:13px; margin-top:5px;">Valid till: ...</p>
+            <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold; display:inline-block;" id="prof-badge">PREMIUM</div>
+            
+            <!-- FIXED DATE & DAYS LEFT -->
+            <p id="prof-exp" style="color:var(--text-sub); font-size:13px; margin-top:8px; line-height:1.5;">Checking...</p>
         </div>
 
         <div class="ref-box">
@@ -271,7 +286,10 @@
             <input type="number" id="set-food" class="inp" placeholder="0" style="margin-bottom:10px;">
             
             <label style="font-size:12px; color:var(--text-sub);">OT Rate (Per Hour)</label>
-            <input type="number" id="set-otr" class="inp" placeholder="0" style="margin-bottom:15px;">
+            <input type="number" id="set-otr" class="inp" placeholder="0" style="margin-bottom:10px;">
+
+            <label style="font-size:12px; color:var(--text-sub);">Provident Fund (PF)</label>
+            <input type="number" id="set-pf" class="inp" placeholder="0" style="margin-bottom:15px;">
             
             <button class="btn btn-primary" onclick="settings.save()">Save Configuration</button>
         </div>
@@ -280,28 +298,19 @@
         <div class="settings-card" style="padding:0;">
             <div class="action-item" onclick="location.href='mailto:nitai.grp00@gmail.com'">
                 <i class="fas fa-envelope" style="color:var(--primary); font-size:20px;"></i>
-                <div style="flex:1;">
-                    <div style="font-weight:600;">Contact Support</div>
-                    <div style="font-size:12px; color:var(--text-sub);">nitai.grp00@gmail.com</div>
-                </div>
+                <div style="flex:1;"><div style="font-weight:600;">Contact Support</div><div style="font-size:12px; color:var(--text-sub);">nitai.grp00@gmail.com</div></div>
                 <i class="fas fa-chevron-right" style="color:var(--text-sub);"></i>
             </div>
             
             <div class="action-item" onclick="window.open('https://buymeacoffee.com/nitaigrp00a','_blank')">
                 <i class="fas fa-coffee" style="color:#FFDD00; font-size:20px;"></i>
-                <div style="flex:1;">
-                    <div style="font-weight:600;">Buy Me A Coffee</div>
-                    <div style="font-size:12px; color:var(--text-sub);">Donate & Support</div>
-                </div>
+                <div style="flex:1;"><div style="font-weight:600;">Buy Me A Coffee</div><div style="font-size:12px; color:var(--text-sub);">Donate & Support</div></div>
                 <i class="fas fa-external-link-alt" style="color:var(--text-sub);"></i>
             </div>
 
             <div class="action-item" onclick="window.open('https://dutytracker-admin.vercel.app/','_blank')">
                 <i class="fas fa-rocket" style="color:var(--secondary); font-size:20px;"></i>
-                <div style="flex:1;">
-                    <div style="font-weight:600;">Check for Updates</div>
-                    <div style="font-size:12px; color:var(--text-sub);">Download latest version</div>
-                </div>
+                <div style="flex:1;"><div style="font-weight:600;">Check for Updates</div><div style="font-size:12px; color:var(--text-sub);">Download latest version</div></div>
                 <i class="fas fa-download" style="color:var(--text-sub);"></i>
             </div>
 
@@ -316,7 +325,7 @@
             </div>
         </div>
 
-        <button class="btn btn-danger" style="margin: 30px 20px 50px; width: calc(100% - 40px);" onclick="app.logout()">Log Out</button>
+        <button class="btn btn-danger" style="margin: 30px auto 50px; width: 40%; padding: 10px; font-size: 13px; display: block;" onclick="app.logout()">Log Out</button>
     </div>
 
     <!-- REPORTS -->
@@ -327,11 +336,18 @@
         </div>
         <div style="padding:20px;">
             <div class="settings-card">
-                <div style="display:flex; gap:10px;">
-                    <input type="date" id="r-start" class="inp" style="margin:0;">
-                    <input type="date" id="r-end" class="inp" style="margin:0;">
+                <!-- FIXED DATE INPUTS UI -->
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+                    <div>
+                        <label style="font-size:12px; color:var(--text-sub);">From Date</label>
+                        <input type="date" id="r-start" class="inp" style="margin:0;">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-sub);">To Date</label>
+                        <input type="date" id="r-end" class="inp" style="margin:0;">
+                    </div>
                 </div>
-                <button class="btn btn-primary" style="margin-top:15px;" onclick="reports.gen()">Generate Report</button>
+                <button class="btn btn-primary" onclick="reports.gen()">Generate Report</button>
             </div>
             <div id="report-out"></div>
         </div>
@@ -362,16 +378,16 @@
     <!-- PAYWALL -->
     <div id="pay-wall" class="pay-overlay">
         <div class="auth-card">
-            <button onclick="document.getElementById('pay-wall').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text); font-size:24px;">&times;</button>
+            <button id="pay-close-btn" onclick="document.getElementById('pay-wall').style.display='none'" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text); font-size:24px;">&times;</button>
             <i class="fas fa-crown" style="font-size:50px; color:var(--accent); margin-bottom:20px;"></i>
             <h2>Premium Expired</h2>
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Renew subscription to continue usage.</p>
             
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <b>1 Month</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.rzp(5,30)">₹5</button>
+                <b>1 Month</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(5, 30)">₹5</button>
             </div>
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <b>1 Year</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.rzp(40,365)">₹40</button>
+                <b>1 Year</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(40, 365)">₹40</button>
             </div>
         </div>
     </div>
@@ -392,8 +408,9 @@
         const firebaseConfig = { apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk", authDomain: "duty-tracker-pro.firebaseapp.com", databaseURL: "https://duty-tracker-pro-default-rtdb.firebaseio.com", projectId: "duty-tracker-pro", storageBucket: "duty-tracker-pro.firebasestorage.app", messagingSenderId: "716525293622", appId: "1:716525293622:web:880f39084c86180fbb0897" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
 
-        let s = { uid: null, data: {}, sub: 0, conf: {cur:'₹', sal:0, otr:0, food:0}, refCode: '' };
+        let s = { uid: null, data: {}, sub: 0, conf: {cur:'₹', sal:0, otr:0, food:0, pf:0}, refCode: '' };
         let curDate = new Date();
         let selDate = null;
         let selType = null;
@@ -437,7 +454,7 @@
                 } else ui.toast("Invalid Number");
             },
             logout: () => {
-                ui.confirm("Log Out", "Are you sure you want to log out of your account?", () => {
+                ui.confirm("Log Out", "Are you sure you want to log out?", () => {
                     localStorage.removeItem('dt_id'); location.reload();
                 });
             },
@@ -447,13 +464,9 @@
                 db.ref('u/'+id).on('value', sn => {
                     const v = sn.val() || {};
                     s.data = v.att || {};
-                    s.conf = v.conf || {cur:'₹', sal:0, otr:0, food:0};
-                    
-                    if(!v.subExp) {
-                        const tr = Date.now() + (3*86400000);
-                        db.ref('u/'+id+'/subExp').set(tr);
-                        s.sub = tr;
-                    } else s.sub = v.subExp;
+                    s.conf = v.conf || {cur:'₹', sal:0, otr:0, food:0, pf:0};
+                    s.sub = v.subExp || Date.now() + (3*86400000); 
+                    if(!v.subExp) db.ref('u/'+id+'/subExp').set(s.sub);
 
                     if(!v.refCode) ref.gen();
                     else {
@@ -461,12 +474,33 @@
                         document.getElementById('my-ref-code').innerText = s.refCode;
                     }
 
-                    if(Date.now() > s.sub) pay.show(true);
+                    // PROFILE DATE & DAYS LEFT (FIXED)
+                    const expD = new Date(s.sub);
+                    const now = Date.now();
+                    const diff = Math.ceil((s.sub - now) / (1000 * 60 * 60 * 24));
+                    const isExp = diff <= 0;
+                    
+                    document.getElementById('prof-exp').innerHTML = 
+                        `Valid till: ${expD.toLocaleDateString()}<br>` +
+                        `<span style="color:${isExp ? '#FF1744' : '#00E5FF'}; font-weight:bold;">` +
+                        `${isExp ? 'Expired' : diff + ' Days Left'}</span>`;
+
+                    if(isExp) {
+                        document.getElementById('pay-wall').style.display = 'flex';
+                        document.getElementById('pay-close-btn').style.display = 'none'; 
+                        const badge = document.getElementById('prof-badge');
+                        if(badge) { badge.innerText="EXPIRED"; badge.style.backgroundColor="#FF1744"; badge.style.color="white"; }
+                    } else {
+                        document.getElementById('pay-wall').style.display = 'none';
+                        const badge = document.getElementById('prof-badge');
+                        if(badge) { badge.innerText="PREMIUM"; badge.style.backgroundColor="#00C853"; badge.style.color="black"; }
+                    }
 
                     document.getElementById('set-cur').value = s.conf.cur || '₹';
                     document.getElementById('set-sal').value = s.conf.sal || '';
                     document.getElementById('set-food').value = s.conf.food || '';
                     document.getElementById('set-otr').value = s.conf.otr || '';
+                    document.getElementById('set-pf').value = s.conf.pf || '';
 
                     cal.render();
                 });
@@ -506,7 +540,6 @@
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
-                
                 const en = s.data[d];
                 if(en) {
                     document.getElementById('inp-ot').value = en.ot||'';
@@ -553,8 +586,6 @@
             openProfile: () => {
                 document.getElementById('page-profile').style.display='flex';
                 document.getElementById('prof-id').innerText = s.uid;
-                const days = Math.ceil((s.sub - Date.now())/86400000);
-                document.getElementById('prof-exp').innerText = days > 0 ? `${days} Days Left` : "EXPIRED";
                 if(s.refCode) document.getElementById('my-ref-code').innerText = s.refCode;
                 document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
                 document.querySelectorAll('.nav-btn')[2].classList.add('active');
@@ -623,9 +654,10 @@
             save: () => {
                 const c = {
                     cur: document.getElementById('set-cur').value,
-                    sal: parseFloat(document.getElementById('set-sal').value) || 0,
-                    otr: parseFloat(document.getElementById('set-otr').value) || 0,
-                    food: parseFloat(document.getElementById('set-food').value) || 0
+                    sal: parseFloat(document.getElementById('set-sal').value)||0,
+                    otr: parseFloat(document.getElementById('set-otr').value)||0,
+                    food: parseFloat(document.getElementById('set-food').value)||0,
+                    pf: parseFloat(document.getElementById('set-pf').value)||0
                 };
                 db.ref(`u/${s.uid}/conf`).set(c).then(()=>ui.toast("Configuration Saved"));
             }
@@ -637,7 +669,7 @@
                 const d2 = new Date(document.getElementById('r-end').value);
                 if(isNaN(d1)) return ui.toast("Select Dates");
                 let dy=0, bs=0, ot=0, fd=0, totalOtHours=0;
-                const SAL = parseFloat(s.conf.sal)||0, OTR = parseFloat(s.conf.otr)||0, FOOD = parseFloat(s.conf.food)||0;
+                const SAL = parseFloat(s.conf.sal)||0, OTR = parseFloat(s.conf.otr)||0, FOOD = parseFloat(s.conf.food)||0, PF = parseFloat(s.conf.pf)||0;
 
                 for(let k in s.data) {
                     const dt = new Date(k);
@@ -650,7 +682,8 @@
                         totalOtHours += o;
                     }
                 }
-                const tot = bs + ot + fd;
+                const gross = bs + ot + fd;
+                const net = gross - PF;
                 
                 document.getElementById('report-out').innerHTML = `
                     <div style="background:var(--card); padding:20px; border-radius:20px; margin-top:20px; border:1px solid var(--border);">
@@ -658,27 +691,31 @@
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Basic</span> <b>${s.conf.cur}${bs.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Food</span> <b>${s.conf.cur}${fd.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>OT Amount</span> <b>${s.conf.cur}${ot.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>PF (Deduction)</span> <b>- ${s.conf.cur}${PF.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; margin-bottom:10px; color:#aaa; font-size:13px;"><span>Total OT Hours</span> <b>${totalOtHours} Hrs</b></p>
                         <hr style="border-color:var(--border); margin:15px 0;">
-                        <h2 style="color:var(--secondary); text-align:right;">Total: ${s.conf.cur}${tot.toFixed(0)}</h2>
+                        <h2 style="color:var(--secondary); text-align:right;">Net Pay: ${s.conf.cur}${net.toFixed(0)}</h2>
                         
-                        <div onclick="pay.show(false)" style="background:linear-gradient(45deg,#FFD600,#FF6D00); color:black; padding:12px; border-radius:12px; text-align:center; margin-top:20px; font-weight:bold; cursor:pointer; animation:pulse 2s infinite;">
+                        <div onclick="pay.show(true)" style="background:linear-gradient(45deg,#FFD600,#FF6D00); color:black; padding:12px; border-radius:12px; text-align:center; margin-top:20px; font-weight:bold; cursor:pointer; animation:pulse 2s infinite;">
                             Premium Only ₹5/Month
                         </div>
 
-                        <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf(${dy},${bs},${ot},${fd},${tot},'${d1.toDateString()}','${d2.toDateString()}')">
+                        <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${PF},${net})">
                             <i class="fas fa-file-pdf"></i> Download PDF
                         </button>
                     </div>`;
             },
-            pdf: (dy,bs,ot,fd,tt,d1,d2) => {
-                db.ref('stats/pdf_downloads').transaction(c => (c||0) + 1);
+            pdf: (d1,d2,dy,bs,ot,fd,pf,net) => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 doc.setFontSize(22); doc.setTextColor(41, 121, 255);
                 doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
                 doc.setFontSize(12); doc.setTextColor(0);
-                doc.text(`Salary Slip (${d1} - ${d2})`, 105, 30, null, null, "center");
+                doc.text(`Salary Slip`, 105, 30, null, null, "center");
+                doc.setFontSize(10);
+                doc.text(`(${d1} - ${d2})`, 105, 36, null, null, "center");
+                
+                doc.setFontSize(12);
                 doc.text(`User ID: ${s.uid}`, 14, 45);
 
                 doc.autoTable({
@@ -688,24 +725,21 @@
                         [`Duty Days (${dy})`, `${s.conf.cur} ${bs}`],
                         ['Food Allowance', `${s.conf.cur} ${fd}`],
                         ['Overtime Pay', `${s.conf.cur} ${ot}`],
-                        [{content:'NET TOTAL', styles:{fillColor:[41,121,255], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${tt}`]
+                        ['PF Deduction', `- ${s.conf.cur} ${pf}`],
+                        [{content:'NET SALARY', styles:{fillColor:[41,121,255], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${net}`]
                     ],
                     theme: 'grid',
                     headStyles: { fillColor: [41, 121, 255] }
                 });
 
-                // DRAW A BUTTON-LIKE SHAPE FOR DOWNLOAD LINK
                 const pageHeight = doc.internal.pageSize.height;
                 const btnX = 60, btnY = pageHeight - 30, btnW = 90, btnH = 12;
-                
                 doc.setFillColor(41, 121, 255); 
                 doc.roundedRect(btnX, btnY, btnW, btnH, 3, 3, 'F');
-                
                 doc.setTextColor(255, 255, 255); 
                 doc.setFontSize(10); 
                 doc.setFont(undefined, 'bold');
                 doc.text("DOWNLOAD APP", 105, btnY + 8, { align: "center" });
-                
                 doc.link(btnX, btnY, btnW, btnH, { url: "https://dutytrackerpro.blogspot.com/?m=1" });
 
                 doc.save('Salary_Slip.pdf');
@@ -713,23 +747,34 @@
         };
 
         const pay = {
-            show: (l) => {
-                document.getElementById('pay-wall').style.display='flex';
-                document.getElementById('pay-close').style.display = l ? 'none' : 'block';
+            buy: (amt, days) => {
+                const options = {
+                    "key": RZP_KEY,
+                    "amount": amt * 100,
+                    "currency": "INR",
+                    "name": "Duty Tracker Pro",
+                    "description": "Premium Subscription",
+                    "handler": function (response){
+                        db.ref(`u/${s.uid}/subExp`).set(Date.now() + (days * 86400000));
+                        window.ui.toast("Subscription Activated!");
+                        setTimeout(() => location.reload(), 1500);
+                    },
+                    "theme": { "color": "#4361ee" }
+                };
+                const rzp1 = new Razorpay(options);
+                rzp1.open();
             },
-            rzp: (a, d) => {
-                const opt = { key: "rzp_live_Rz7kQ4RAloCWGp", amount: a*100, currency: "INR", name: "Duty Tracker", handler: function(r){
-                    db.ref(`u/${s.uid}/subExp`).set(Date.now()+(d*86400000)).then(()=>location.reload());
-                }};
-                new Razorpay(opt).open();
+            show: (canClose) => {
+                document.getElementById('pay-wall').style.display='flex';
+                document.getElementById('pay-close-btn').style.display = canClose ? 'block' : 'none';
             }
         };
 
         const legal = {
             show: (t) => {
-                const longPrivacy = `<h3>Privacy Policy</h3><br><br><strong>1. Information Collection</strong><br>We collect minimal information required to provide our services. This primarily includes your mobile number for authentication purposes via Google Firebase. We do not access your contacts, photos, or location data.<br><br><strong>2. Use of Information</strong><br>The collected information is used solely to maintain your account, sync your duty data across devices, and calculate your salary reports. We do not sell or rent your data to third parties.<br><br><strong>3. Data Security</strong><br>We implement industry-standard security measures including encryption to protect your data stored on Google Firebase Realtime Database.<br><br><strong>4. Cookies</strong><br>We may use local storage to save your preferences such as theme (dark/light mode) to enhance your user experience.<br><br><strong>5. Changes to Policy</strong><br>We reserve the right to update this policy at any time.<br><br><strong>6. Contact</strong><br>Contact support via email for any privacy concerns.`;
-                const longRefund = `<h3>Refund Policy</h3><br><br><strong>1. Digital Goods</strong><br>Duty Tracker Pro Premium subscription is a digital product. Once activated, it is considered consumed.<br><br><strong>2. Non-Refundable</strong><br>Payments are generally non-refundable. Please use the free trial first.<br><br><strong>3. Technical Issues</strong><br>If you were charged but the subscription was not activated due to a technical error, you are eligible for a refund or manual activation. Contact support with Transaction ID.`;
-                const longTerms = `<h3>Terms & Conditions</h3><br><br><strong>1. Acceptance</strong><br>By using this app, you agree to these terms.<br><br><strong>2. Usage</strong><br>This app is a utility tool for tracking. It is not a legal payroll system.<br><br><strong>3. Liability</strong><br>The developer is not responsible for salary discrepancies or data loss due to server failure.<br><br><strong>4. Modifications</strong><br>We reserve the right to modify features or pricing at any time.`;
+                const longPrivacy = `<h3>Privacy Policy (Google Play Compliant)</h3><br><br><strong>1. Data Collection & Usage:</strong><br>We collect your mobile number exclusively for account authentication via Google Firebase. We do not access your contacts, camera, or location. Your duty records and salary configurations are stored securely on Firebase Realtime Database to enable cross-device synchronization.<br><br><strong>2. Data Sharing:</strong><br>We do not sell, trade, or rent your personal identification information to others. Your data is used strictly for the app's functionality.<br><br><strong>3. Data Retention & Deletion:</strong><br>Your data is retained as long as your account is active. You may request full account deletion by contacting support at nitai.grp00@gmail.com. We will process the deletion within 30 days.<br><br><strong>4. Security:</strong><br>We use industry-standard encryption to protect your data both in transit and at rest.`;
+                const longRefund = `<h3>Refund Policy</h3><br><strong>1. Digital Goods:</strong><br>Duty Tracker Pro Premium subscription is a digital product. Once activated, it is considered consumed.<br><br><strong>2. Google Play Refunds:</strong><br>For subscriptions purchased via Google Play, you can request a refund directly through the Play Store within 48 hours if the purchase was accidental or defective.<br><br><strong>3. Developer Refunds:</strong><br>If you encounter technical issues preventing access to premium features after 48 hours, please contact support with your Order ID. We review these on a case-by-case basis.`;
+                const longTerms = `<h3>Terms & Conditions</h3><br><strong>1. Acceptance:</strong><br>By downloading and using Duty Tracker Pro, you agree to these terms.<br><br><strong>2. Usage License:</strong><br>We grant you a personal, non-exclusive license to use the app for tracking personal work hours and salary estimation.<br><br><strong>3. Disclaimer:</strong><br>This app is a utility tool. The calculations are estimates based on your input. The developer is not responsible for financial discrepancies between the app's calculation and your employer's payroll.<br><br><strong>4. Subscription:</strong><br>Subscriptions automatically renew unless canceled 24 hours before the end of the current period via Google Play Settings.`;
 
                 const map = {'privacy':longPrivacy, 'refund':longRefund, 'terms':longTerms};
                 document.getElementById('legal-body').innerHTML = map[t];
