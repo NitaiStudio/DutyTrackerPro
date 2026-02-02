@@ -22,21 +22,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
-    <!-- WEBPUSHR TRACKING CODE --> 
-    <script>
-        (function(w,d, s, id) {
-            if(typeof(w.webpushr)!=='undefined') return;
-            w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
-            var js, fjs = d.getElementsByTagName(s)[0];
-            js = d.createElement(s); js.id = id;js.async=1;
-            js.src = "https://cdn.webpushr.com/app.min.js";
-            fjs.parentNode.appendChild(js);
-        }(window,document, 'script', 'webpushr-jssdk'));
-        
-        webpushr('setup',{'key':'BNwA8Tr6AI0ev1OonW4CUNLBEfBlDZGSJXXzRojKBCjdtWM4KexFUnEfyR3dhF6pU2oTTB-p1vJYNZug24Ge_dc' });
-    </script>
-    <!-- END WEBPUSHR CODE -->
-
     <style>
         :root {
             /* DARK THEME (Default) */
@@ -103,7 +88,7 @@
             width: 100%;
             padding: 12px;
             font-family: 'Outfit', sans-serif;
-            font-size: 14px;
+            font-size: 14px; /* Slightly smaller to fit */
             text-align: center;
             appearance: none;
             -webkit-appearance: none;
@@ -289,19 +274,6 @@
             </div>
         </div>
 
-        <!-- NEW: NOTIFICATIONS SECTION (UPDATED) -->
-        <div class="section-title">Notifications</div>
-        <div class="settings-card" style="padding:0;">
-            <div class="action-item" onclick="enableNotif()">
-                <i class="fas fa-bell" style="color:var(--accent); font-size:20px;"></i>
-                <div style="flex:1;">
-                    <div style="font-weight:600;">Enable Alerts</div>
-                    <div style="font-size:12px; color:var(--text-sub);">Get updates & reminders</div>
-                </div>
-                <div style="background:var(--surface); padding:5px 10px; border-radius:10px; font-size:10px; font-weight:bold;">SETUP</div>
-            </div>
-        </div>
-
         <div class="section-title">Settings</div>
         <div class="settings-card">
             <label style="font-size:12px; color:var(--text-sub);">Currency</label>
@@ -457,16 +429,6 @@
             let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
             ccSelect.appendChild(o);
         });
-
-        // NOTIFICATION TRIGGER FUNCTION
-        function enableNotif() {
-            if(typeof window.webpushr !== 'undefined') {
-                ui.toast("Checking Permission...");
-                window.webpushr('subscribe');
-            } else {
-                alert("Notification system not ready yet. Please check your internet connection or reload the page.");
-            }
-        }
 
         // INIT
         document.addEventListener('DOMContentLoaded', () => {
