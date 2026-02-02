@@ -22,6 +22,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
+    <!-- WEBPUSHR TRACKING CODE (ADDED) --> 
+    <script>
+        (function(w,d, s, id) {
+            if(typeof(w.webpushr)!=='undefined') return;
+            w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
+            var js, fjs = d.getElementsByTagName(s)[0];
+            js = d.createElement(s); js.id = id;js.async=1;
+            js.src = "https://cdn.webpushr.com/app.min.js";
+            fjs.parentNode.appendChild(js);
+        }(window,document, 'script', 'webpushr-jssdk'));
+        
+        webpushr('setup',{'key':'BNwA8Tr6AI0ev1OonW4CUNLBEfBlDZGSJXXzRojKBCjdtWM4KexFUnEfyR3dhF6pU2oTTB-p1vJYNZug24Ge_dc' });
+    </script>
+    <!-- END WEBPUSHR CODE -->
+
     <style>
         :root {
             /* DARK THEME (Default) */
@@ -88,7 +103,7 @@
             width: 100%;
             padding: 12px;
             font-family: 'Outfit', sans-serif;
-            font-size: 14px; /* Slightly smaller to fit */
+            font-size: 14px;
             text-align: center;
             appearance: none;
             -webkit-appearance: none;
@@ -271,6 +286,19 @@
             <div style="display:flex; gap:10px; margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
                 <input type="text" id="friend-code" class="inp" placeholder="ENTER CODE" style="margin:0; text-transform:uppercase;">
                 <button class="btn btn-primary" style="width:auto;" onclick="ref.redeem()">Apply</button>
+            </div>
+        </div>
+
+        <!-- NEW: NOTIFICATIONS SECTION (ADDED) -->
+        <div class="section-title">Notifications</div>
+        <div class="settings-card" style="padding:0;">
+            <div class="action-item" onclick="if(window.webpushr) window.webpushr('subscribe');">
+                <i class="fas fa-bell" style="color:var(--accent); font-size:20px;"></i>
+                <div style="flex:1;">
+                    <div style="font-weight:600;">Enable Alerts</div>
+                    <div style="font-size:12px; color:var(--text-sub);">Get updates & reminders</div>
+                </div>
+                <div style="background:var(--surface); padding:5px 10px; border-radius:10px; font-size:10px; font-weight:bold;">SETUP</div>
             </div>
         </div>
 
