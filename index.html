@@ -64,6 +64,7 @@
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes shine { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
         /* --- COMPONENTS --- */
         .btn { width:100%; padding:15px; border:none; border-radius:14px; font-weight:700; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:10px; transition:0.2s; font-size:15px; letter-spacing:0.5px; }
@@ -83,20 +84,7 @@
         .inp, select { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:12px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
         .inp:focus { border-color:var(--primary); background:var(--card); }
 
-        /* Date Input Fix for Mobile */
-        input[type="date"] {
-            width: 100%;
-            padding: 12px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 14px; /* Slightly smaller to fit */
-            text-align: center;
-            appearance: none;
-            -webkit-appearance: none;
-            background: var(--input);
-            color: var(--text);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
+        input[type="date"] { width: 100%; padding: 12px; font-family: 'Outfit', sans-serif; font-size: 14px; text-align: center; appearance: none; -webkit-appearance: none; background: var(--input); color: var(--text); border-radius: 12px; border: 1px solid var(--border); }
 
         /* --- TOAST --- */
         #toast { visibility: hidden; min-width: 250px; background-color: #222; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 12000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border: 1px solid var(--border); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
@@ -119,6 +107,26 @@
         /* --- AUTH --- */
         #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
         .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:24px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); animation:fadeIn 0.4s ease-out; }
+
+        /* --- PROMO SCREEN (UPDATED) --- */
+        #promo-screen { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; overflow-y: auto; }
+        .promo-video-container { width: 100%; height: 50vh; position: relative; background: #000; overflow: hidden; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; box-shadow: 0 10px 50px rgba(0,0,0,0.8); }
+        
+        /* NO AUTOPLAY in CSS/HTML - Controlled by JS only */
+        .promo-video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
+        
+        .promo-content { flex: 1; padding: 25px; display: flex; flex-direction: column; align-items: center; text-align: center; background: linear-gradient(180deg, #101010 0%, #000 100%); margin-top: -30px; padding-top: 40px; z-index: 2; border-radius: 30px 30px 0 0; }
+        .promo-title { font-size: 26px; font-weight: 800; color: white; margin-bottom: 5px; }
+        .promo-sub { font-size: 13px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
+        .big-price { font-size: 70px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #a06cd5, #e24e97, #4361ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; letter-spacing: -2px; }
+        .btn-promo { background: linear-gradient(90deg, #4361ee, #f72585); color: white; font-size: 18px; text-transform: uppercase; padding: 18px; border-radius: 50px; box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4); width: 100%; border: none; font-weight: 800; cursor: pointer; animation: pulse 2s infinite; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-promo-year { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #ccc; padding: 12px 25px; border-radius: 30px; margin-top: 15px; font-size: 13px; cursor: pointer; transition: 0.3s; }
+        .btn-promo-year:active { background: rgba(255,255,255,0.2); }
+        .skip-btn { background: none; border: none; color: #666; font-weight: 600; margin-top: auto; padding-top: 20px; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .skip-btn:hover { color: white; }
+
+        /* Sound Toggle Icon */
+        .sound-icon { position: absolute; bottom: 50px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; z-index: 5; pointer-events: none; }
 
         /* --- MAIN APP --- */
         #main-app { display:none; flex-direction:column; flex:1; padding-bottom:100px; }
@@ -219,6 +227,42 @@
         </div>
     </div>
 
+    <!-- PROMO / VIDEO SCREEN (UPDATED) -->
+    <div id="promo-screen" onclick="promo.unmute()">
+        <div class="promo-video-container">
+            <!-- IMPORTANT: Removed 'autoplay' attribute -->
+            <video id="promo-vid" playsinline loop muted>
+                <source src="https://res.cloudinary.com/dea0kpjcp/video/upload/v1770059809/kruwgvtxw5iukf5usyfy.mp4" type="video/mp4">
+            </video>
+            
+            <div class="sound-icon" id="snd-msg"><i class="fas fa-volume-up"></i> Sound On</div>
+
+            <div style="position:absolute; top:20px; right:20px; cursor:pointer; background:rgba(0,0,0,0.5); border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; z-index:10;" onclick="event.stopPropagation(); promo.close()">
+                <i class="fas fa-times" style="color:white; font-size:18px;"></i>
+            </div>
+        </div>
+
+        <div class="promo-content">
+            <div style="color:#f72585; font-weight:800; letter-spacing:1px; margin-bottom:5px; font-size:12px;">UNLOCK ALL FEATURES</div>
+            <h2 class="promo-title">Try Premium Now</h2>
+            <p class="promo-sub" style="max-width:280px;">Get unlimited access, PDF exports, and ad-free experience.</p>
+            
+            <div class="big-price">₹5</div>
+            <div style="font-size:14px; color:white; font-weight:bold;">For 1 Month</div>
+            <div style="font-size:12px; color:#666; margin-top:5px;">Or $0.055 USD</div>
+
+            <button class="btn btn-promo" onclick="event.stopPropagation(); pay.buy(5, 30)">
+                START TRIAL <i class="fas fa-arrow-right"></i>
+            </button>
+            
+            <button class="btn-promo-year" onclick="event.stopPropagation(); pay.buy(40, 365)">
+                Get 1 Year for ₹40 ($0.44)
+            </button>
+
+            <button class="skip-btn" onclick="event.stopPropagation(); promo.close()">Skip and explore Home</button>
+        </div>
+    </div>
+
     <!-- MAIN APP -->
     <div id="main-app">
         <nav>
@@ -259,7 +303,6 @@
             <h2 id="prof-id" style="margin-bottom:5px;">...</h2>
             <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold; display:inline-block;" id="prof-badge">PREMIUM</div>
             
-            <!-- FIXED DATE & DAYS LEFT -->
             <p id="prof-exp" style="color:var(--text-sub); font-size:13px; margin-top:8px; line-height:1.5;">Checking...</p>
         </div>
 
@@ -336,7 +379,6 @@
         </div>
         <div style="padding:20px;">
             <div class="settings-card">
-                <!-- FIXED DATE INPUTS UI -->
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
                     <div>
                         <label style="font-size:12px; color:var(--text-sub);">From Date</label>
@@ -433,6 +475,10 @@
         // INIT
         document.addEventListener('DOMContentLoaded', () => {
             document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+            
+            const vid = document.getElementById('promo-vid');
+            if(vid) vid.pause();
+
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
@@ -442,6 +488,34 @@
                     else document.getElementById('auth-screen').style.display='flex';
                 }, 800);
             }, 3000);
+        });
+
+        // --- BACK BUTTON HANDLER (HISTORY API) ---
+        window.addEventListener('popstate', (event) => {
+            // Priority 1: Promo Screen
+            if(document.getElementById('promo-screen').style.display === 'flex') {
+                promo.close();
+                return;
+            }
+            // Priority 2: Modals
+            if(document.getElementById('att-modal').style.display === 'block') {
+                document.getElementById('att-modal').style.display = 'none';
+                return;
+            }
+            if(document.getElementById('pay-wall').style.display === 'flex') {
+                document.getElementById('pay-wall').style.display = 'none';
+                return;
+            }
+            if(document.getElementById('legal-modal').style.display === 'block') {
+                document.getElementById('legal-modal').style.display = 'none';
+                return;
+            }
+            // Priority 3: Pages
+            if(document.getElementById('page-profile').style.display === 'flex' || 
+               document.getElementById('page-reports').style.display === 'flex') {
+                ui.closeAll();
+                return;
+            }
         });
 
         const app = {
@@ -455,12 +529,13 @@
             },
             logout: () => {
                 ui.confirm("Log Out", "Are you sure you want to log out?", () => {
-                    localStorage.removeItem('dt_id'); location.reload();
+                    promo.stop(); // FORCE STOP VIDEO
+                    localStorage.removeItem('dt_id'); 
+                    location.reload();
                 });
             },
             start: (id) => {
                 s.uid = id;
-                document.getElementById('main-app').style.display = 'flex';
                 db.ref('u/'+id).on('value', sn => {
                     const v = sn.val() || {};
                     s.data = v.att || {};
@@ -474,7 +549,7 @@
                         document.getElementById('my-ref-code').innerText = s.refCode;
                     }
 
-                    // PROFILE DATE & DAYS LEFT (FIXED)
+                    // CHECK SUBSCRIPTION
                     const expD = new Date(s.sub);
                     const now = Date.now();
                     const diff = Math.ceil((s.sub - now) / (1000 * 60 * 60 * 24));
@@ -485,15 +560,19 @@
                         `<span style="color:${isExp ? '#FF1744' : '#00E5FF'}; font-weight:bold;">` +
                         `${isExp ? 'Expired' : diff + ' Days Left'}</span>`;
 
+                    // BADGE UPDATE
+                    const badge = document.getElementById('prof-badge');
                     if(isExp) {
-                        document.getElementById('pay-wall').style.display = 'flex';
-                        document.getElementById('pay-close-btn').style.display = 'none'; 
-                        const badge = document.getElementById('prof-badge');
                         if(badge) { badge.innerText="EXPIRED"; badge.style.backgroundColor="#FF1744"; badge.style.color="white"; }
                     } else {
-                        document.getElementById('pay-wall').style.display = 'none';
-                        const badge = document.getElementById('prof-badge');
                         if(badge) { badge.innerText="PREMIUM"; badge.style.backgroundColor="#00C853"; badge.style.color="black"; }
+                    }
+
+                    if(isExp) {
+                        promo.show();
+                    } else {
+                        promo.stop();
+                        document.getElementById('main-app').style.display = 'flex';
                     }
 
                     document.getElementById('set-cur').value = s.conf.cur || '₹';
@@ -504,6 +583,58 @@
 
                     cal.render();
                 });
+            }
+        };
+
+        const promo = {
+            show: () => {
+                // ADD HISTORY STATE WHEN OPENING PROMO
+                history.pushState({v:'promo'}, null, '');
+                
+                document.getElementById('promo-screen').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+                
+                const vid = document.getElementById('promo-vid');
+                const sndMsg = document.getElementById('snd-msg');
+                
+                if(vid) {
+                    vid.currentTime = 0;
+                    vid.muted = false; 
+                    vid.volume = 1.0;
+                    
+                    const promise = vid.play();
+                    if (promise !== undefined) {
+                        promise.then(_ => {
+                            sndMsg.innerHTML = '<i class="fas fa-volume-up"></i> Sound On';
+                        }).catch(error => {
+                            vid.muted = true;
+                            vid.play();
+                            sndMsg.innerHTML = '<i class="fas fa-volume-mute"></i> Tap to Unmute';
+                        });
+                    }
+                }
+            },
+            unmute: () => {
+                const vid = document.getElementById('promo-vid');
+                const sndMsg = document.getElementById('snd-msg');
+                if(vid) {
+                    vid.muted = false;
+                    vid.play();
+                    sndMsg.innerHTML = '<i class="fas fa-volume-up"></i> Sound On';
+                }
+            },
+            stop: () => {
+                const vid = document.getElementById('promo-vid');
+                document.getElementById('promo-screen').style.display = 'none';
+                if(vid) {
+                    vid.pause();         
+                    vid.currentTime = 0; 
+                    vid.muted = true;    
+                }
+            },
+            close: () => {
+                promo.stop();
+                document.getElementById('main-app').style.display = 'flex';
             }
         };
 
@@ -536,6 +667,9 @@
 
         const data = {
             open: (d) => {
+                // ADD HISTORY STATE FOR MODAL
+                history.pushState({v:'modal'}, null, '');
+                
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
@@ -556,6 +690,14 @@
                 if(el) el.classList.add('active');
             },
             save: () => {
+                // --- STRICT SUBSCRIPTION CHECK ---
+                if(s.sub < Date.now()) {
+                    document.getElementById('att-modal').style.display = 'none';
+                    promo.show(); // Redirect to Subscription Page
+                    ui.toast("Subscription Required to Save");
+                    return; // BLOCK SAVING
+                }
+
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
@@ -584,6 +726,9 @@
                 document.querySelectorAll('.nav-btn')[1].classList.add('active');
             },
             openProfile: () => {
+                // ADD HISTORY STATE FOR PROFILE PAGE
+                history.pushState({v:'profile'}, null, '');
+                
                 document.getElementById('page-profile').style.display='flex';
                 document.getElementById('prof-id').innerText = s.uid;
                 if(s.refCode) document.getElementById('my-ref-code').innerText = s.refCode;
@@ -591,6 +736,9 @@
                 document.querySelectorAll('.nav-btn')[2].classList.add('active');
             },
             openReport: () => {
+                // ADD HISTORY STATE FOR REPORT PAGE
+                history.pushState({v:'report'}, null, '');
+                
                 document.getElementById('page-reports').style.display='flex';
                 document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
                 document.querySelectorAll('.nav-btn')[0].classList.add('active');
@@ -750,7 +898,7 @@
             buy: (amt, days) => {
                 const options = {
                     "key": RZP_KEY,
-                    "amount": amt * 100,
+                    "amount": amt * 100, // Amount in paise
                     "currency": "INR",
                     "name": "Duty Tracker Pro",
                     "description": "Premium Subscription",
