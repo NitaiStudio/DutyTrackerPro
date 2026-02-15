@@ -227,7 +227,7 @@
             <div class="confirm-title" id="c-title">Are you sure?</div>
             <div class="confirm-desc" id="c-desc">Action cannot be undone.</div>
             <div class="confirm-actions">
-                <button class="btn btn-sec" style="width:100%" onclick="ui.closeConfirm()">Cancel</button>
+                <button class="btn btn-sec" style="width:100%" onclick="history.back()">Cancel</button>
                 <button class="btn btn-primary" style="width:100%" id="c-yes-btn">Yes</button>
             </div>
         </div>
@@ -344,7 +344,7 @@
     <!-- PAGE: PROFILE -->
     <div id="page-profile" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closeAll()"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>My Profile</h2>
         </div>
         
@@ -423,7 +423,7 @@
     <!-- PAGE: SUBSCRIPTION HISTORY -->
     <div id="page-history" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-history')"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>Subscription History</h2>
         </div>
         <div style="padding:20px;">
@@ -436,7 +436,7 @@
     <!-- PAGE: REFERRAL DETAIL -->
     <div id="page-refer" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-refer')"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>Refer & Earn</h2>
         </div>
         <div style="padding:20px;">
@@ -516,7 +516,7 @@
     <!-- PAGE: LEGAL MENU -->
     <div id="page-legal-menu" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-legal-menu')"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>Legal Policies</h2>
         </div>
         <div style="padding:20px;">
@@ -534,7 +534,7 @@
     <!-- PAGE: HELP / FAQ -->
     <div id="page-help" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-help')"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>Help & FAQ</h2>
         </div>
         <div style="padding:20px;">
@@ -558,7 +558,7 @@
     <!-- PAGE: FEEDBACK -->
     <div id="page-feedback" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-feedback')"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>Feedback</h2>
         </div>
         <div style="padding:20px;">
@@ -573,7 +573,7 @@
     <!-- PAGE: ABOUT & CHANGELOG -->
     <div id="page-about" class="page">
         <div class="page-header">
-            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-about')"></i>
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="history.back()"></i>
             <h2>About Us</h2>
         </div>
         <div style="padding:20px; text-align:center;">
@@ -611,7 +611,7 @@
                 <input type="number" id="set-food" class="inp" placeholder="e.g., 50">
                 <span class="label-text">Overtime Rate (Per Hour)</span>
                 <input type="number" id="set-otr" class="inp" placeholder="e.g., 100">
-                <span class="label-text">PF Deduction (Monthly Total)</span>
+                <span class="label-text">PF Deduction (Fixed Amount)</span>
                 <input type="number" id="set-pf" class="inp" placeholder="e.g., 1500">
                 <button class="btn btn-primary" onclick="settings.save()">Save Configuration</button>
             </div>
@@ -656,7 +656,7 @@
         <button class="btn btn-primary" onclick="data.save()">SAVE ENTRY</button>
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn btn-danger" onclick="data.clear()">DELETE</button>
-            <button class="btn btn-sec" onclick="document.getElementById('att-modal').style.display='none'">CANCEL</button>
+            <button class="btn btn-sec" onclick="history.back()">CANCEL</button>
         </div>
     </div>
 
@@ -681,7 +681,7 @@
         <div style="max-width:800px; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 id="legal-title" style="color:var(--primary);">Policy</h2>
-                <button onclick="document.getElementById('legal-modal').style.display='none'" style="background:none; border:none; color:var(--text); font-size:26px;"><i class="fas fa-times"></i></button>
+                <button onclick="history.back()" style="background:none; border:none; color:var(--text); font-size:26px;"><i class="fas fa-times"></i></button>
             </div>
             <div id="legal-body" class="legal-content"></div>
         </div>
@@ -704,12 +704,12 @@
 
         // --- FULL A-Z COUNTRY LIST ---
         const countries = [
-            {n:"Afghanistan",c:"+93"},{n:"Albania",c:"+355"},{n:"Algeria",c:"+213"},{n:"Andorra",c:"+376"},{n:"Angola",c:"+244"},{n:"Argentina",c:"+54"},{n:"Armenia",c:"+374"},{n:"Australia",c:"+61"},{n:"Austria",c:"+43"},{n:"Azerbaijan",c:"+994"},
+            {n:"India",c:"+91"},{n:"Afghanistan",c:"+93"},{n:"Albania",c:"+355"},{n:"Algeria",c:"+213"},{n:"Andorra",c:"+376"},{n:"Angola",c:"+244"},{n:"Argentina",c:"+54"},{n:"Armenia",c:"+374"},{n:"Australia",c:"+61"},{n:"Austria",c:"+43"},{n:"Azerbaijan",c:"+994"},
             {n:"Bahrain",c:"+973"},{n:"Bangladesh",c:"+880"},{n:"Belarus",c:"+375"},{n:"Belgium",c:"+32"},{n:"Belize",c:"+501"},{n:"Benin",c:"+229"},{n:"Bhutan",c:"+975"},{n:"Bolivia",c:"+591"},{n:"Bosnia",c:"+387"},{n:"Botswana",c:"+267"},{n:"Brazil",c:"+55"},{n:"Brunei",c:"+673"},{n:"Bulgaria",c:"+359"},
             {n:"Cambodia",c:"+855"},{n:"Cameroon",c:"+237"},{n:"Canada",c:"+1"},{n:"Chile",c:"+56"},{n:"China",c:"+86"},{n:"Colombia",c:"+57"},{n:"Comoros",c:"+269"},{n:"Congo",c:"+242"},{n:"Costa Rica",c:"+506"},{n:"Croatia",c:"+385"},{n:"Cuba",c:"+53"},{n:"Cyprus",c:"+357"},{n:"Czech Republic",c:"+420"},
             {n:"Denmark",c:"+45"},{n:"Djibouti",c:"+253"},{n:"Dominica",c:"+1767"},{n:"Dominican Republic",c:"+1809"},{n:"Ecuador",c:"+593"},{n:"Egypt",c:"+20"},{n:"El Salvador",c:"+503"},{n:"Estonia",c:"+372"},{n:"Ethiopia",c:"+251"},
             {n:"Fiji",c:"+679"},{n:"Finland",c:"+358"},{n:"France",c:"+33"},{n:"Gabon",c:"+241"},{n:"Gambia",c:"+220"},{n:"Georgia",c:"+995"},{n:"Germany",c:"+49"},{n:"Ghana",c:"+233"},{n:"Greece",c:"+30"},{n:"Grenada",c:"+1473"},{n:"Guatemala",c:"+502"},{n:"Guinea",c:"+224"},{n:"Guyana",c:"+592"},
-            {n:"Haiti",c:"+509"},{n:"Honduras",c:"+504"},{n:"Hong Kong",c:"+852"},{n:"Hungary",c:"+36"},{n:"Iceland",c:"+354"},{n:"India",c:"+91"},{n:"Indonesia",c:"+62"},{n:"Iran",c:"+98"},{n:"Iraq",c:"+964"},{n:"Ireland",c:"+353"},{n:"Israel",c:"+972"},{n:"Italy",c:"+39"},
+            {n:"Haiti",c:"+509"},{n:"Honduras",c:"+504"},{n:"Hong Kong",c:"+852"},{n:"Hungary",c:"+36"},{n:"Iceland",c:"+354"},{n:"Indonesia",c:"+62"},{n:"Iran",c:"+98"},{n:"Iraq",c:"+964"},{n:"Ireland",c:"+353"},{n:"Israel",c:"+972"},{n:"Italy",c:"+39"},
             {n:"Jamaica",c:"+1876"},{n:"Japan",c:"+81"},{n:"Jordan",c:"+962"},{n:"Kazakhstan",c:"+7"},{n:"Kenya",c:"+254"},{n:"Kiribati",c:"+686"},{n:"Kuwait",c:"+965"},{n:"Kyrgyzstan",c:"+996"},{n:"Laos",c:"+856"},{n:"Latvia",c:"+371"},{n:"Lebanon",c:"+961"},{n:"Lesotho",c:"+266"},{n:"Liberia",c:"+231"},{n:"Libya",c:"+218"},{n:"Liechtenstein",c:"+423"},{n:"Lithuania",c:"+370"},{n:"Luxembourg",c:"+352"},
             {n:"Macedonia",c:"+389"},{n:"Madagascar",c:"+261"},{n:"Malawi",c:"+265"},{n:"Malaysia",c:"+60"},{n:"Maldives",c:"+960"},{n:"Mali",c:"+223"},{n:"Malta",c:"+356"},{n:"Mauritania",c:"+222"},{n:"Mauritius",c:"+230"},{n:"Mexico",c:"+52"},{n:"Moldova",c:"+373"},{n:"Monaco",c:"+377"},{n:"Mongolia",c:"+976"},{n:"Montenegro",c:"+382"},{n:"Morocco",c:"+212"},{n:"Mozambique",c:"+258"},{n:"Myanmar",c:"+95"},
             {n:"Namibia",c:"+264"},{n:"Nauru",c:"+674"},{n:"Nepal",c:"+977"},{n:"Netherlands",c:"+31"},{n:"New Zealand",c:"+64"},{n:"Nicaragua",c:"+505"},{n:"Niger",c:"+227"},{n:"Nigeria",c:"+234"},{n:"North Korea",c:"+850"},{n:"Norway",c:"+47"},{n:"Oman",c:"+968"},
@@ -728,6 +728,9 @@
                 ccSelect.appendChild(o);
             });
             
+            // Set initial state for History API
+            history.replaceState({page: 'home'}, null, '');
+
             document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
             const vid = document.getElementById('promo-vid');
             if(vid) vid.pause();
@@ -757,6 +760,28 @@
             document.getElementById('adv-date').value = new Date().toISOString().split('T')[0];
             reminder.init();
         });
+        
+        // --- HISTORY & BACK BUTTON HANDLER ---
+        window.onpopstate = function(event) {
+            // Close all modals
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById('legal-modal').style.display = 'none';
+            document.getElementById('promo-screen').style.display = 'none';
+            document.getElementById('pay-wall').style.display = 'none';
+            
+            // If state is home or null, show home view
+            if (!event.state || event.state.page === 'home') {
+                document.querySelectorAll('.page').forEach(p => p.style.display='none');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.nav-btn')[2].classList.add('active'); // Activate Home icon
+            } 
+            else if (event.state && event.state.page) {
+                // If popping back to a specific page (though we usually just pop to home)
+                // This block handles edge cases, but for this app, popping usually means going back.
+                // If the previous state was a page, it would be handled by the browser's history stack logic
+                // But since we manually hide/show, we just ensure Home is shown when we run out of history or hit home state.
+            }
+        };
 
         const app = {
             login: () => {
@@ -842,7 +867,7 @@
 
         const promo = {
             show: () => {
-                history.pushState({v:'promo'}, null, '');
+                history.pushState({page:'promo'}, null, '');
                 document.getElementById('promo-screen').style.display = 'flex';
                 document.getElementById('main-app').style.display = 'none';
                 const vid = document.getElementById('promo-vid');
@@ -891,6 +916,8 @@
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
+                history.pushState({page: 'modal'}, null, ''); // PUSH HISTORY FOR MODAL
+                
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 const en = s.data[d];
                 if(en) {
@@ -909,16 +936,16 @@
             },
             set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
             save: () => {
-                if(s.sub < Date.now()) { document.getElementById('att-modal').style.display = 'none'; promo.show(); return; }
+                if(s.sub < Date.now()) { history.back(); promo.show(); return; } // Back first to close modal
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
-                document.getElementById('att-modal').style.display='none';
+                history.back(); // CLOSE MODAL WITH BACK
                 ui.toast("Saved Successfully");
             },
             clear: () => {
-                ui.confirm("Delete Entry", "Delete this record?", () => { db.ref(`u/${s.uid}/att/${selDate}`).remove(); document.getElementById('att-modal').style.display='none'; });
+                ui.confirm("Delete Entry", "Delete this record?", () => { db.ref(`u/${s.uid}/att/${selDate}`).remove(); history.back(); });
             }
         };
 
@@ -1015,13 +1042,20 @@
                 b.setAttribute('data-theme', n); localStorage.setItem('theme', n);
             },
             closeAll: () => { document.querySelectorAll('.page').forEach(p=>p.style.display='none'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.nav-btn')[2].classList.add('active'); }, // Home is index 2 in visual grid (phantom center)
-            openPage: (id) => { document.getElementById(id).style.display='flex'; },
-            closePage: (id) => { document.getElementById(id).style.display='none'; },
-            openProfile: () => { ui.closeAll(); document.getElementById('page-profile').style.display='flex'; },
-            openSettings: () => { ui.closeAll(); document.getElementById('page-settings').style.display='flex'; document.querySelectorAll('.nav-btn')[4].classList.add('active'); },
-            openReport: () => { ui.closeAll(); document.getElementById('page-reports').style.display='flex'; document.querySelectorAll('.nav-btn')[0].classList.add('active'); },
-            openAdvance: () => { ui.closeAll(); document.getElementById('page-advance').style.display='flex'; document.querySelectorAll('.nav-btn')[3].classList.add('active'); },
-            openGraph: () => { ui.closeAll(); document.getElementById('page-graph').style.display='flex'; graph.render(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); },
+            
+            // MODIFIED FOR HISTORY SUPPORT
+            openPage: (id) => { 
+                document.querySelectorAll('.page').forEach(p=>p.style.display='none'); // Hide others
+                document.getElementById(id).style.display='flex'; 
+                history.pushState({page: id}, null, ''); 
+            },
+            
+            openProfile: () => { ui.openPage('page-profile'); },
+            openSettings: () => { ui.openPage('page-settings'); document.querySelectorAll('.nav-btn')[4].classList.add('active'); },
+            openReport: () => { ui.openPage('page-reports'); document.querySelectorAll('.nav-btn')[0].classList.add('active'); },
+            openAdvance: () => { ui.openPage('page-advance'); document.querySelectorAll('.nav-btn')[3].classList.add('active'); },
+            openGraph: () => { ui.openPage('page-graph'); graph.render(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); },
+            
             toast: (msg) => { const x = document.getElementById("toast"); x.innerText = msg; x.className = "show"; setTimeout(()=>x.className="", 3000); },
             confirm: (title, desc, cb) => {
                 document.getElementById('c-title').innerText = title; document.getElementById('c-desc').innerText = desc;
@@ -1080,7 +1114,7 @@
                 // CONFIG RATES (DAILY WAGE LOGIC)
                 const SAL_PER_DAY = parseFloat(s.conf.sal)||0;   // No division by 30
                 const FOOD_PER_DAY = parseFloat(s.conf.food)||0; // No division by 30
-                const PF_MONTHLY = parseFloat(s.conf.pf)||0;    // This is monthly
+                const PF_FIXED = parseFloat(s.conf.pf)||0;       // FIXED AMOUNT (User Requested)
                 const OT_RATE = parseFloat(s.conf.otr)||0;
 
                 let dy=0, bs=0, ot=0, fd=0, totOt=0, totAdv=0;
@@ -1118,17 +1152,9 @@
                     }
                 }
 
-                // 3. Calculate PF Monthly (Strict 30-day Block Logic)
-                const diffTime = Math.abs(d2 - d1);
-                // Total days inclusive (e.g., 1st to 30th = 30 days)
-                const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
-                
-                // Logic: Count how many "months" are in this range.
-                // 1 to 30 days = 1 Month PF
-                // 31 to 60 days = 2 Months PF
-                const monthsCount = Math.max(1, Math.round(totalDays / 30));
-                
-                const pf_deduction = PF_MONTHLY * monthsCount;
+                // 3. PF IS NOW FIXED (User Request: "500 set korle 500 e dekhabe")
+                // No multiplication by months or days. Just flat deduction.
+                const pf_deduction = PF_FIXED;
 
                 const net = (bs + ot + fd) - pf_deduction - totAdv;
                 
@@ -1138,7 +1164,7 @@
                         <p style="display:flex; justify-content:space-between;"><span>Duty (${dy}d)</span><b>${s.conf.cur}${bs.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between;"><span>Food</span><b>${s.conf.cur}${fd.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between;"><span>OT (${totOt}h)</span><b>${s.conf.cur}${ot.toFixed(0)}</b></p>
-                        <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF (Est.)</span><b>-${s.conf.cur}${pf_deduction.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF (Fixed)</span><b>-${s.conf.cur}${pf_deduction.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>Advance</span><b>-${s.conf.cur}${totAdv}</b></p>
                         
                         ${s.sub < Date.now() ? '<div onclick="promo.show()" class="premium-banner">Premium Only ₹5/Month</div>' : ''}
@@ -1199,6 +1225,7 @@
                 };
                 document.getElementById('legal-body').innerHTML = c[t] || "Content not found.";
                 document.getElementById('legal-modal').style.display='block';
+                history.pushState({page: 'legal'}, null, '');
             }
         };
     </script>
