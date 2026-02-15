@@ -224,8 +224,6 @@
         .dev-anim { animation: float 3s ease-in-out infinite; color:#ccc; font-size:12px; margin-top:5px; display:block; }
 
         /* PROMO SCREEN (RESTORED) */
-        /* CSS is integrated in the style block above */
-        
         .premium-banner { background: linear-gradient(45deg, #FFD600, #FF6D00); color: black; padding: 12px; border-radius: 12px; text-align: center; margin-top: 20px; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
 
     </style>
@@ -1084,20 +1082,28 @@
 
         const reports = {
             gen: () => {
-                const d1 = new Date(document.getElementById('r-start').value), d2 = new Date(document.getElementById('r-end').value);
+                // Calculation Fix: Set Hours to avoid Timezone Issues
+                const d1 = new Date(document.getElementById('r-start').value); d1.setHours(0,0,0,0);
+                const d2 = new Date(document.getElementById('r-end').value); d2.setHours(23,59,59,999);
+                
                 if(isNaN(d1)) return ui.toast("Select Dates");
+                if(!s.conf.sal) ui.toast("Warning: Basic Salary is 0 (Check Utility)");
+
                 let dy=0, bs=0, ot=0, fd=0, totOt=0, totAdv=0;
                 const SAL=parseFloat(s.conf.sal)||0, OTR=parseFloat(s.conf.otr)||0, FOOD=parseFloat(s.conf.food)||0, PF=parseFloat(s.conf.pf)||0;
+                
                 for(let k in s.data) {
-                    const dt = new Date(k); if(dt>=d1 && dt<=d2) {
+                    const dt = new Date(k); dt.setHours(12,0,0,0); // Middle of day to be safe
+                    if(dt>=d1 && dt<=d2) {
                         const v = s.data[k]; const o = parseFloat(v.ot||0);
                         if(v.t==='Half Day') { dy+=0.5; bs+=(SAL/30/2); fd+=(FOOD/30/2); }
                         else if(['Present','Holiday','Sick'].includes(v.t)) { dy++; bs+=(SAL/30); fd+=(FOOD/30); }
                         ot += (o * OTR); totOt += o;
                     }
                 }
-                for(let k in s.adv) { const a=s.adv[k]; const adt=new Date(a.date); if(adt>=d1 && adt<=d2) totAdv+=parseFloat(a.amt); }
+                for(let k in s.adv) { const a=s.adv[k]; const adt=new Date(a.date); adt.setHours(12,0,0,0); if(adt>=d1 && adt<=d2) totAdv+=parseFloat(a.amt); }
                 const net = (bs + ot + fd) - PF - totAdv;
+                
                 document.getElementById('report-out').innerHTML = `
                     <div style="background:var(--card); padding:20px; border-radius:20px; margin-top:20px; border:1px solid var(--border);">
                         <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid var(--border);"><h3>Net Pay</h3><h2 style="color:var(--success);">${s.conf.cur}${Math.max(0, net).toFixed(0)}</h2></div>
