@@ -22,6 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -35,11 +36,14 @@
             --secondary: #4cc9f0;
             --accent: #f72585;
             --success: #06d6a0;
+            --warning: #ff9f1c;
+            --danger: #ef233c;
             --border: rgba(255, 255, 255, 0.12);
             --input: #2a2a2a;
             --gradient: linear-gradient(135deg, #4361ee, #4cc9f0);
             --shadow: 0 10px 40px rgba(0,0,0,0.6);
             --glass: rgba(30, 30, 30, 0.85);
+            --nav-height: 80px;
         }
 
         [data-theme="light"] {
@@ -53,95 +57,59 @@
             --secondary: #4895ef;
             --accent: #f72585;
             --success: #06d6a0;
+            --warning: #ff9f1c;
+            --danger: #ef233c;
             --border: rgba(0, 0, 0, 0.08);
             --input: #f1f3f5;
             --gradient: linear-gradient(135deg, #3a0ca3, #4895ef);
             --shadow: 0 10px 40px rgba(0,0,0,0.1);
-            --glass: rgba(255, 255, 255, 0.9);
+            --glass: rgba(255, 255, 255, 0.95);
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow-x:hidden; transition:background 0.3s, color 0.3s; }
+        body { background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow-x:hidden; transition:background 0.3s, color 0.3s; padding-bottom: var(--nav-height); }
 
         /* --- ANIMATIONS --- */
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* --- COMPONENTS --- */
         .btn { width:100%; padding:16px; border:none; border-radius:16px; font-weight:700; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:10px; transition:0.2s; font-size:16px; letter-spacing:0.5px; position: relative; overflow: hidden; }
-        .btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.2); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; }
-        .btn:active::after { width: 300px; height: 300px; }
-        
         .btn-primary { background:var(--gradient); color:white; box-shadow:0 8px 25px rgba(67, 97, 238, 0.3); }
         .btn-primary:active { transform:scale(0.98); }
-        
         .btn-sec { background:var(--input); color:var(--text); border:1px solid var(--border); transition: 0.2s; }
-        .btn-sec.active { 
-            background: rgba(67, 97, 238, 0.15); 
-            border-color: var(--primary); 
-            color: var(--primary); 
-            box-shadow: 0 0 15px rgba(67, 97, 238, 0.2);
-        }
+        .btn-sec.active { background: rgba(67, 97, 238, 0.15); border-color: var(--primary); color: var(--primary); }
+        .btn-danger { background:rgba(239, 35, 60, 0.1); color:var(--danger); border:1px solid var(--danger); }
 
-        .btn-danger { background:rgba(247, 37, 133, 0.1); color:var(--accent); border:1px solid var(--accent); }
-
-        .inp, select { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:14px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
+        .inp, select, textarea { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:14px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
         .inp:focus { border-color:var(--primary); background:var(--card); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         .label-text { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; margin-left: 4px; font-weight: 500; }
 
-        input[type="date"] { width: 100%; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 14px; text-align: center; appearance: none; -webkit-appearance: none; background: var(--input); color: var(--text); border-radius: 12px; border: 1px solid var(--border); }
-
         /* --- TOAST --- */
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 12000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); opacity: 0; transition: opacity 0.3s, bottom 0.3s; backdrop-filter: blur(10px); }
-        #toast.show { visibility: visible; opacity: 1; bottom: 100px; }
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 12000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; backdrop-filter: blur(10px); }
+        #toast.show { visibility: visible; opacity: 1; bottom: 120px; }
 
         /* --- CONFIRM MODAL --- */
         #confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 13000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
-        .confirm-box { background: var(--card); width: 100%; max-width: 320px; padding: 25px; border-radius: 24px; border: 1px solid var(--border); text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .confirm-box { background: var(--card); width: 100%; max-width: 320px; padding: 25px; border-radius: 24px; border: 1px solid var(--border); text-align: center; animation: popIn 0.3s; }
         .confirm-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
         .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
         .confirm-actions { display: flex; gap: 10px; }
 
-        /* --- SPLASH --- */
-        #splash { position:fixed; inset:0; background:linear-gradient(135deg, #020024, #090979, #00d4ff); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity 0.8s; }
-        .splash-logo { font-size:80px; color:white; margin-bottom:20px; animation:float 3s ease-in-out infinite; text-shadow:0 10px 30px rgba(0,0,0,0.5); }
-        .loader { width:50px; height:50px; border:4px solid rgba(255,255,255,0.2); border-top-color:white; border-radius:50%; animation:spin 1s linear infinite; margin:30px 0; }
-        .india-badge { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); padding:8px 16px; border-radius:20px; backdrop-filter:blur(5px); margin-top:20px; animation:fadeIn 1s ease-out; }
-        .india-flag { width:24px; height:16px; box-shadow:0 0 10px rgba(255,165,0,0.5); }
-
-        /* --- AUTH --- */
-        #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
-        .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:28px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); animation:fadeIn 0.5s ease-out; }
-        .phone-row { display:flex; gap:10px; margin-bottom:20px; }
-        .phone-row select { width: 100px; flex-shrink: 0; margin: 0; }
-        .phone-row input { flex: 1; margin: 0; min-width: 0; }
-
-        /* --- PROMO SCREEN --- */
-        #promo-screen { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; overflow-y: auto; }
-        .promo-video-container { width: 100%; height: 50vh; position: relative; background: #000; overflow: hidden; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
-        .promo-video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
-        .promo-content { flex: 1; padding: 25px; display: flex; flex-direction: column; align-items: center; text-align: center; background: linear-gradient(180deg, #101010 0%, #000 100%); margin-top: -35px; padding-top: 45px; z-index: 2; border-radius: 40px 40px 0 0; }
-        .promo-title { font-size: 28px; font-weight: 800; color: white; margin-bottom: 5px; }
-        .promo-sub { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
-        .big-price { font-size: 70px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #a06cd5, #e24e97, #4361ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; letter-spacing: -2px; }
-        .btn-promo { background: linear-gradient(90deg, #4361ee, #f72585); color: white; font-size: 18px; text-transform: uppercase; padding: 18px; border-radius: 50px; box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4); width: 100%; border: none; font-weight: 800; cursor: pointer; animation: pulse 2s infinite; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-promo-year { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #ccc; padding: 12px 25px; border-radius: 30px; margin-top: 15px; font-size: 13px; cursor: pointer; transition: 0.3s; }
-        .skip-btn { background: none; border: none; color: #666; font-weight: 600; margin-top: auto; padding-top: 20px; font-size: 14px; cursor: pointer; transition: 0.3s; }
-        .sound-icon { position: absolute; bottom: 50px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; z-index: 5; pointer-events: none; }
-
         /* --- MAIN APP --- */
-        #main-app { display:none; flex-direction:column; flex:1; padding-bottom:100px; }
+        #main-app { display:none; flex-direction:column; flex:1; }
         nav { padding:15px 20px; background:rgba(var(--bg), 0.85); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; justify-content:space-between; align-items:center; }
         .logo { font-size:24px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .mini-profile { width:35px; height:35px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); cursor:pointer; }
         
         #pwa-install { background:var(--gradient); color:white; padding:6px 14px; border-radius:20px; font-size:11px; font-weight:bold; border:none; display:none; cursor:pointer; }
 
         /* CALENDAR */
         .cal-header { display:flex; justify-content:space-between; align-items:center; padding:20px; }
-        .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; padding:0 12px; }
+        .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; padding:0 12px; padding-bottom: 20px; }
         .day { height:90px; background:var(--card); border-radius:16px; border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; transition:0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .day:active { transform:scale(0.95); }
         .day.today { border:2px solid var(--secondary); background:rgba(76, 201, 240, 0.1); }
@@ -157,37 +125,90 @@
         .bg-Off { background:#6c757d !important; color:white; }
 
         /* BOTTOM NAV */
-        .bottom-nav { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); width:95%; max-width:450px; background: var(--glass); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:24px; padding:12px; display:flex; justify-content:space-between; align-items:center; z-index:900; box-shadow:0 10px 40px rgba(0,0,0,0.4); }
-        .nav-btn { flex: 1; font-size:20px; color:var(--text-sub); background:none; border:none; padding:10px; border-radius:14px; transition:0.3s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-btn i { font-size: 22px; margin-bottom: 2px; }
-        .nav-btn span { font-size: 10px; font-weight: 600; }
-        .nav-btn.active { color:white; background:var(--primary); transform:translateY(-5px); box-shadow:0 5px 15px rgba(67, 97, 238, 0.4); }
+        .bottom-nav { position:fixed; bottom:0; left:0; width:100%; background: var(--glass); backdrop-filter:blur(20px); border-top:1px solid var(--border); height: var(--nav-height); display:grid; grid-template-columns: repeat(5, 1fr); align-items:center; z-index:900; box-shadow:0 -5px 20px rgba(0,0,0,0.2); }
+        .nav-btn { background:none; border:none; color:var(--text-sub); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; height:100%; cursor:pointer; transition:0.3s; }
+        .nav-btn i { font-size: 20px; transition:0.3s; }
+        .nav-btn span { font-size: 10px; font-weight: 500; }
+        .nav-btn.active { color:var(--primary); }
+        .nav-btn.active i { transform: translateY(-3px); }
+        
+        .floating-home { position:relative; top:-25px; background:var(--gradient); width:55px; height:55px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(67, 97, 238, 0.5); border:4px solid var(--bg); transition:0.3s; }
+        .floating-home i { color:white; font-size:22px; }
 
         /* PAGES */
-        .page { position:fixed; inset:0; background:var(--bg); z-index:2000; display:none; flex-direction:column; overflow-y:auto; padding-bottom:160px; animation:fadeIn 0.3s ease-out; }
+        .page { position:fixed; inset:0; background:var(--bg); z-index:2000; display:none; flex-direction:column; overflow-y:auto; padding-bottom:120px; animation:fadeIn 0.3s ease-out; }
         .page-header { padding:20px; display:flex; align-items:center; gap:15px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
 
-        /* PROFILE */
+        /* AUTH */
+        #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
+        .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:28px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); }
+        .phone-row { display:flex; gap:10px; margin-bottom:20px; }
+        .phone-row select { width: 100px; flex-shrink: 0; margin: 0; }
+        .phone-row input { flex: 1; margin: 0; min-width: 0; }
+
+        /* PROFILE STYLES */
         .profile-header { text-align:center; padding:30px 20px; background:linear-gradient(180deg, rgba(67, 97, 238, 0.1), transparent); }
-        .avatar-container { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
+        .avatar-container { position: relative; width: 110px; height: 110px; margin: 0 auto 15px; }
         .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); background: var(--card); }
-        .avatar-edit { position: absolute; bottom: 0; right: 0; background: var(--secondary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .avatar-edit { position: absolute; bottom: 5px; right: 5px; background: var(--secondary); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 5; }
+        #prof-upload { display: none !important; }
         
-        .section-title { font-size:14px; font-weight:700; color:var(--text-sub); margin:25px 20px 10px; text-transform:uppercase; letter-spacing:1px; }
+        /* REFER BANNER FIXED */
+        .ref-banner {
+            margin: 20px;
+            padding: 15px;
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px dashed var(--primary);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .ref-banner:active { transform: scale(0.98); background: rgba(67, 97, 238, 0.2); }
+        .ref-text { font-weight: 700; color: var(--primary); font-size: 16px; }
+
+        /* SUBSCRIPTION HISTORY LIST */
+        .hist-item { background: var(--input); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--success); }
+        .hist-date { font-size: 12px; color: var(--text-sub); }
+        .hist-amt { font-weight: bold; color: var(--success); font-size: 16px; }
+
+        /* SETTINGS & LISTS */
         .settings-card { background:var(--card); border-radius:20px; margin:0 20px; border:1px solid var(--border); padding:20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        
+        .section-title { font-size:14px; font-weight:700; color:var(--text-sub); margin:25px 20px 10px; text-transform:uppercase; letter-spacing:1px; }
         .action-item { display:flex; align-items:center; gap:15px; padding:16px; border-bottom:1px solid var(--border); cursor:pointer; transition: 0.2s; }
         .action-item:last-child { border-bottom:none; }
         .action-item:active { background:var(--surface); }
 
-        /* MODALS */
+        /* GRAPH & ADVANCE */
+        .summary-box { background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--border); margin:20px; text-align:center; }
+        .big-stat { font-size:28px; font-weight:800; margin:5px 0; color:var(--text); }
+        .chart-container { position: relative; height:250px; width:100%; margin:20px 0; padding: 0 10px; }
+        .adv-list { margin: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .adv-item { background: var(--card); padding: 15px; border-radius: 14px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+        /* MODALS & LEGAL */
         .modal { position:fixed; bottom:0; left:0; width:100%; background:var(--surface); border-radius:35px 35px 0 0; padding:35px 25px; z-index:5000; border-top:1px solid var(--border); display:none; box-shadow:0 -10px 50px rgba(0,0,0,0.8); animation:fadeIn 0.3s; }
         .pay-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:8000; display:none; align-items:center; justify-content:center; padding:20px; }
         #legal-modal { position:fixed; inset:0; background:var(--bg); z-index:9000; display:none; overflow-y:auto; padding:20px; }
-        .legal-content { max-width:800px; margin:0 auto; color:var(--text-sub); line-height:1.8; text-align:justify; font-size:14px; }
+        .legal-content { max-width:800px; margin:0 auto; color:var(--text-sub); line-height:1.6; text-align:justify; font-size:13px; }
+        .legal-content h3 { color: var(--primary); margin-top: 20px; margin-bottom: 10px; font-size: 18px; }
+        .legal-content h4 { color: var(--text); margin-top: 15px; margin-bottom: 5px; font-size: 15px; }
 
-        /* Hidden Input for File */
-        #prof-upload { display: none; }
+        /* FAQ Accordion */
+        .faq-item { border-bottom: 1px solid var(--border); padding: 15px 0; }
+        .faq-q { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; color: var(--text); }
+        .faq-a { display: none; margin-top: 10px; color: var(--text-sub); font-size: 13px; line-height: 1.5; }
+
+        /* SPLASH SCREEN */
+        #splash { position:fixed; inset:0; background:linear-gradient(135deg, #020024, #090979, #00d4ff); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity 0.8s; }
+        .splash-logo { font-size:80px; color:white; margin-bottom:20px; animation:pulse 3s ease-in-out infinite; text-shadow:0 10px 30px rgba(0,0,0,0.5); }
+        .loader { width:50px; height:50px; border:4px solid rgba(255,255,255,0.2); border-top-color:white; border-radius:50%; animation:spin 1s linear infinite; margin:30px 0; }
+        .india-badge { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); padding:8px 16px; border-radius:20px; backdrop-filter:blur(5px); margin-top:20px; animation:fadeIn 1s ease-out; }
+        .india-flag { width:24px; height:16px; border-radius:2px; box-shadow:0 0 10px rgba(255,165,0,0.5); display:block; }
+        .dev-anim { animation: float 3s ease-in-out infinite; color:#ccc; font-size:12px; margin-top:5px; display:block; }
 
     </style>
 </head>
@@ -200,7 +221,7 @@
     <div id="confirm-modal">
         <div class="confirm-box">
             <div class="confirm-title" id="c-title">Are you sure?</div>
-            <div class="confirm-desc" id="c-desc">This action cannot be undone.</div>
+            <div class="confirm-desc" id="c-desc">Action cannot be undone.</div>
             <div class="confirm-actions">
                 <button class="btn btn-sec" style="width:100%" onclick="ui.closeConfirm()">Cancel</button>
                 <button class="btn btn-primary" style="width:100%" id="c-yes-btn">Yes</button>
@@ -217,7 +238,9 @@
             <span style="color:#ccc; font-size:12px;">Made in India</span>
             <img src="https://flagcdn.com/w40/in.png" class="india-flag" alt="Indian Flag">
         </div>
-        <div style="position:absolute; bottom:30px; color:#666; font-size:12px;">Developer By <b>Nitai Studio</b></div>
+        <div style="position:absolute; bottom:30px;">
+            <span class="dev-anim">Developer By <b>Nitai Studio</b></span>
+        </div>
     </div>
 
     <!-- AUTH -->
@@ -226,9 +249,7 @@
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
             <h2 style="margin-bottom:10px; color:var(--text);">Welcome</h2>
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Enter your details to login</p>
-            
-            <input type="text" id="auth-name" class="inp" placeholder="Full Name" style="text-transform: capitalize;">
-            
+            <input type="text" id="auth-name" class="inp" placeholder="Full Name">
             <div class="phone-row">
                 <select id="cc" class="inp"></select>
                 <input type="number" id="phone" class="inp" placeholder="Phone Number">
@@ -237,46 +258,17 @@
         </div>
     </div>
 
-    <!-- PROMO / VIDEO SCREEN -->
-    <div id="promo-screen" onclick="promo.unmute()">
-        <div class="promo-video-container">
-            <video id="promo-vid" playsinline loop muted>
-                <source src="https://res.cloudinary.com/dea0kpjcp/video/upload/v1770059809/kruwgvtxw5iukf5usyfy.mp4" type="video/mp4">
-            </video>
-            <div class="sound-icon" id="snd-msg"><i class="fas fa-volume-up"></i> Sound On</div>
-            <div style="position:absolute; top:20px; right:20px; cursor:pointer; background:rgba(0,0,0,0.5); border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; z-index:10;" onclick="event.stopPropagation(); promo.close()">
-                <i class="fas fa-times" style="color:white; font-size:18px;"></i>
-            </div>
-        </div>
-
-        <div class="promo-content">
-            <div style="color:#f72585; font-weight:800; letter-spacing:1px; margin-bottom:5px; font-size:12px;">UNLOCK ALL FEATURES</div>
-            <h2 class="promo-title">Try Premium Now</h2>
-            <p class="promo-sub" style="max-width:280px;">Get unlimited access, PDF exports, and ad-free experience.</p>
-            
-            <div class="big-price">₹5</div>
-            <div style="font-size:14px; color:white; font-weight:bold;">For 1 Month</div>
-            <div style="font-size:12px; color:#666; margin-top:5px;">Or $0.055 USD</div>
-
-            <button class="btn btn-promo" onclick="event.stopPropagation(); pay.buy(5, 30)">
-                START TRIAL <i class="fas fa-arrow-right"></i>
-            </button>
-            
-            <button class="btn-promo-year" onclick="event.stopPropagation(); pay.buy(40, 365)">
-                Get 1 Year for ₹40 ($0.44)
-            </button>
-
-            <button class="skip-btn" onclick="event.stopPropagation(); promo.close()">Skip and explore Home</button>
-        </div>
-    </div>
-
     <!-- MAIN APP -->
     <div id="main-app">
         <nav>
-            <div class="logo">Duty Tracker Pro</div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="logo">Duty Tracker Pro</div>
+            </div>
             <div style="display:flex; align-items:center; gap:15px;">
-                <button id="pwa-install" onclick="pwa.install()">INSTALL APP</button>
-                <i class="fas fa-adjust" style="font-size:22px; cursor:pointer;" onclick="ui.toggleTheme()"></i>
+                <button id="pwa-install" onclick="pwa.install()">INSTALL</button>
+                <i class="fas fa-adjust" style="font-size:20px; cursor:pointer;" onclick="ui.toggleTheme()"></i>
+                <i class="fas fa-bell" style="font-size:20px; cursor:pointer;" onclick="reminder.setup()"></i>
+                <img src="" id="mini-prof-img" class="mini-profile" onclick="ui.openProfile()" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
             </div>
         </nav>
 
@@ -291,11 +283,24 @@
         </div>
         <div id="calendar-grid" class="cal-grid"></div>
 
+        <div style="padding:0 20px 20px 20px; text-align: center;">
+            <p id="today-status" style="color:var(--text-sub); font-size:14px; margin-bottom:10px;">No Entry Today</p>
+            <button class="btn btn-primary" onclick="data.open(new Date().toISOString().split('T')[0])">
+                <i class="fas fa-plus"></i> Add Today's Duty
+            </button>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
         <div class="bottom-nav">
-            <button class="nav-btn" onclick="ui.openReport()"><i class="fas fa-chart-pie"></i><span>Reports</span></button>
-            <button class="nav-btn active" onclick="ui.closeAll()"><i class="fas fa-home"></i><span>Home</span></button>
-            <button class="nav-btn" onclick="ui.openSettings()"><i class="fas fa-sliders-h"></i><span>Rates</span></button>
-            <button class="nav-btn" onclick="ui.openProfile()"><i class="fas fa-user-circle"></i><span>Profile</span></button>
+            <button class="nav-btn" onclick="ui.openReport()"><i class="fas fa-chart-pie"></i><span>Report</span></button>
+            <button class="nav-btn" onclick="ui.openGraph()"><i class="fas fa-chart-line"></i><span>Graph</span></button>
+            <div style="position:relative; display:flex; justify-content:center;">
+                <button class="floating-home" onclick="ui.closeAll()">
+                    <i class="fas fa-home"></i>
+                </button>
+            </div>
+            <button class="nav-btn" onclick="ui.openAdvance()"><i class="fas fa-hand-holding-usd"></i><span>Advance</span></button>
+            <button class="nav-btn" onclick="ui.openSettings()"><i class="fas fa-cog"></i><span>Utility</span></button>
         </div>
     </div>
 
@@ -309,89 +314,269 @@
         <div class="profile-header">
             <div class="avatar-container">
                 <img src="" id="prof-img-el" class="avatar-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
-                <label for="prof-upload" class="avatar-edit"><i class="fas fa-camera"></i></label>
+                <!-- HIDDEN INPUT FIX -->
                 <input type="file" id="prof-upload" accept="image/*" onchange="profile.upload(this)">
+                <label for="prof-upload" class="avatar-edit"><i class="fas fa-camera"></i></label>
             </div>
             <h2 id="prof-name-disp" style="margin-bottom:5px;">User Name</h2>
-            <p id="prof-id" style="color:var(--text-sub); font-size:14px;">+91 0000000000</p>
-            <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold; display:inline-block; margin-top:10px;" id="prof-badge">PREMIUM</div>
+            <p id="prof-id" style="color:var(--text-sub); font-size:14px;">+91...</p>
             
-            <p id="prof-exp" style="color:var(--text-sub); font-size:13px; margin-top:8px; line-height:1.5;">Checking...</p>
-        </div>
-
-        <div class="ref-box" style="background:var(--card); border:1px dashed var(--primary); padding:20px; border-radius:20px; text-align:center; margin:0 20px;">
-            <h3 style="color:var(--primary); margin-bottom:10px;">🎁 Refer & Earn</h3>
-            <p style="font-size:12px; color:var(--text-sub);">You get +30 Days, Friend gets +10 Days.</p>
-            <div id="my-ref-code" style="font-size:32px; font-weight:900; color:var(--secondary); margin:15px 0; letter-spacing:3px;">LOADING</div>
-            <button class="btn btn-sec" onclick="ref.share()"><i class="fas fa-share-alt"></i> Share Code</button>
-            <div style="display:flex; gap:10px; margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">
-                <input type="text" id="friend-code" class="inp" placeholder="ENTER CODE" style="margin:0; text-transform:uppercase;">
-                <button class="btn btn-primary" style="width:auto;" onclick="ref.redeem()">Apply</button>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:5px; margin-top:10px;">
+                <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold;" id="prof-badge">PREMIUM</div>
+                <div id="prof-exp" style="color:var(--text-sub); font-size:12px;">Valid Till: Checking...</div>
             </div>
         </div>
 
-        <div class="section-title">Support & Legal</div>
+        <!-- REFER & EARN (BANNER STYLE AS REQUESTED) -->
+        <div class="ref-banner" onclick="ui.openPage('page-refer')">
+            <i class="fas fa-gift" style="color:#FFD600; font-size:20px;"></i>
+            <div class="ref-text">Refer & Earn Premium</div>
+            <i class="fas fa-chevron-right" style="color:var(--text-sub); margin-left:auto;"></i>
+        </div>
+
+        <div class="section-title">Support & Info</div>
         <div class="settings-card" style="padding:0;">
-            <div class="action-item" onclick="location.href='mailto:nitai.grp00@gmail.com'">
-                <i class="fas fa-envelope" style="color:var(--primary); font-size:20px;"></i>
-                <div style="flex:1;"><div style="font-weight:600;">Contact Support</div><div style="font-size:12px; color:var(--text-sub);">nitai.grp00@gmail.com</div></div>
+            <div class="action-item" onclick="ui.openPage('page-history')">
+                <i class="fas fa-history" style="color:var(--danger); font-size:20px;"></i> 
+                <div style="flex:1; margin-left:5px;">
+                    <div style="font-weight:600;">Subscription History</div>
+                    <div style="font-size:12px; color:var(--text-sub);">View payment records</div>
+                </div> 
                 <i class="fas fa-chevron-right" style="color:var(--text-sub);"></i>
             </div>
-            
+
             <div class="action-item" onclick="window.open('https://buymeacoffee.com/nitaigrp00a','_blank')">
-                <i class="fas fa-coffee" style="color:#FFDD00; font-size:20px;"></i>
-                <div style="flex:1;"><div style="font-weight:600;">Buy Me A Coffee</div><div style="font-size:12px; color:var(--text-sub);">Donate & Support</div></div>
+                <i class="fas fa-coffee" style="color:#FFDD00; font-size:20px;"></i> 
+                <div style="flex:1; margin-left:5px;">
+                    <div style="font-weight:600;">Buy Me A Coffee</div>
+                    <div style="font-size:12px; color:var(--text-sub);">Support Development</div>
+                </div> 
                 <i class="fas fa-external-link-alt" style="color:var(--text-sub);"></i>
             </div>
 
             <div class="action-item" onclick="window.open('https://dutytracker-admin.vercel.app/','_blank')">
-                <i class="fas fa-rocket" style="color:var(--secondary); font-size:20px;"></i>
-                <div style="flex:1;"><div style="font-weight:600;">Check for Updates</div><div style="font-size:12px; color:var(--text-sub);">Download latest version</div></div>
+                <i class="fas fa-rocket" style="color:var(--secondary); font-size:20px;"></i> 
+                <div style="flex:1; margin-left:5px;">
+                    <div style="font-weight:600;">Check for Updates</div>
+                    <div style="font-size:12px; color:var(--text-sub);">Download latest version</div>
+                </div> 
                 <i class="fas fa-download" style="color:var(--text-sub);"></i>
             </div>
 
-            <div class="action-item" onclick="legal.show('privacy')">
-                <i class="fas fa-shield-alt" style="color:var(--text-sub);"></i> <span style="flex:1;">Privacy Policy</span>
+            <div class="action-item" onclick="ui.openPage('page-help')">
+                <i class="fas fa-question-circle" style="color:var(--primary); font-size:20px;"></i> <span style="flex:1; margin-left:5px;">Help / FAQ</span> <i class="fas fa-chevron-right"></i>
             </div>
-            <div class="action-item" onclick="legal.show('refund')">
-                <i class="fas fa-undo" style="color:var(--text-sub);"></i> <span style="flex:1;">Refund Policy</span>
+            <div class="action-item" onclick="ui.openPage('page-feedback')">
+                <i class="fas fa-comment-dots" style="color:var(--text); font-size:20px;"></i> <span style="flex:1; margin-left:5px;">Feedback</span> <i class="fas fa-chevron-right"></i>
             </div>
-            <div class="action-item" onclick="legal.show('terms')">
-                <i class="fas fa-file-contract" style="color:var(--text-sub);"></i> <span style="flex:1;">Terms & Conditions</span>
+            <div class="action-item" onclick="ui.openPage('page-about')">
+                <i class="fas fa-info-circle" style="color:var(--success); font-size:20px;"></i> <span style="flex:1; margin-left:5px;">About Us</span> <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="action-item" onclick="ui.openPage('page-legal-menu')">
+                <i class="fas fa-file-contract" style="color:var(--warning); font-size:20px;"></i> <span style="flex:1; margin-left:5px;">Legal Policies</span> <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="action-item" onclick="location.href='mailto:nitai.grp00@gmail.com'">
+                <i class="fas fa-envelope" style="color:var(--text-sub); font-size:20px;"></i> <span style="flex:1; margin-left:5px;">Contact Support</span>
             </div>
         </div>
-
-        <!-- Log Out Button Centered and Spaced Correctly -->
-        <button class="btn btn-danger" style="margin: 25px auto 40px auto; width: 60%; padding: 12px; font-size: 14px; display: flex; justify-content: center;" onclick="app.logout()">Log Out</button>
+        
+        <button class="btn btn-danger" style="margin: 25px auto 40px auto; width: 60%; padding: 12px; font-size: 14px;" onclick="app.logout()">Log Out</button>
     </div>
 
-    <!-- PAGE: SETTINGS (RATES) -->
-    <div id="page-settings" class="page">
+    <!-- PAGE: SUBSCRIPTION HISTORY -->
+    <div id="page-history" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-history')"></i>
+            <h2>Subscription History</h2>
+        </div>
+        <div style="padding:20px;">
+            <div id="hist-list">
+                <div style="text-align:center; color:var(--text-sub); margin-top:50px;">Loading payments...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: REFERRAL DETAIL -->
+    <div id="page-refer" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-refer')"></i>
+            <h2>Refer & Earn</h2>
+        </div>
+        <div style="padding:20px;">
+            <div style="text-align:center; padding:30px; background:var(--card); border-radius:20px; border:1px solid var(--border);">
+                <i class="fas fa-gift" style="font-size:50px; color:#FFD600; margin-bottom:15px;"></i>
+                <h3 style="margin-bottom:10px;">Invite Friends</h3>
+                <p style="color:var(--text-sub); font-size:14px;">Share your code. When they use it, you both get +10 Days Premium!</p>
+                
+                <div style="background:var(--input); padding:15px; border-radius:12px; margin:20px 0; font-size:24px; font-weight:bold; letter-spacing:2px; border:1px dashed var(--primary);" id="my-ref-code">...</div>
+                
+                <button class="btn btn-primary" onclick="ref.share()">Share Code</button>
+                
+                <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
+                    <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;">Have a code?</p>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="friend-code" class="inp" placeholder="ENTER CODE" style="margin:0; text-transform:uppercase;">
+                        <button class="btn btn-sec" style="width:auto;" onclick="ref.redeem()">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: ADVANCE MONEY -->
+    <div id="page-advance" class="page">
         <div class="page-header">
             <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closeAll()"></i>
-            <h2>Rates Configuration</h2>
+            <h2>Advance Money</h2>
         </div>
         <div style="padding:20px;">
             <div class="settings-card">
-                <span class="label-text">Currency Symbol</span>
-                <select id="set-cur" class="inp"><option value="₹">₹ INR</option><option value="৳">৳ BDT</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="SAR">SAR</option><option value="AED">AED</option></select>
-                
-                <span class="label-text">Basic Salary (Monthly)</span>
-                <input type="number" id="set-sal" class="inp" placeholder="e.g., 20000">
-                
-                <span class="label-text">Food Allowance (Monthly)</span>
-                <input type="number" id="set-food" class="inp" placeholder="e.g., 2000">
-                
-                <span class="label-text">Overtime Rate (Per Hour)</span>
-                <input type="number" id="set-otr" class="inp" placeholder="e.g., 100">
-
-                <span class="label-text">Provident Fund (Monthly Deduction)</span>
-                <input type="number" id="set-pf" class="inp" placeholder="e.g., 1500" style="margin-bottom:25px;">
-                
-                <button class="btn btn-primary" onclick="settings.save()">Save Configuration</button>
+                <h3 style="margin-bottom:15px; color:var(--primary);">Add New Advance</h3>
+                <input type="number" id="adv-amt" class="inp" placeholder="Enter Amount">
+                <input type="date" id="adv-date" class="inp">
+                <input type="text" id="adv-by" class="inp" placeholder="Contractor/Company Name">
+                <input type="text" id="adv-note" class="inp" placeholder="Reason (Optional)">
+                <button class="btn btn-primary" onclick="advance.add()">Save Advance</button>
             </div>
-            <div style="margin-top:20px; text-align:center; color:var(--text-sub); font-size:12px;">
-                These values are used to calculate your estimated salary slip.
+            <div style="margin:20px 0; display:flex; justify-content:space-between; align-items:center;">
+                <h3>History</h3>
+                <span id="total-adv-disp" style="color:var(--danger); font-weight:bold;">Total: 0</span>
+            </div>
+            <div id="adv-list-container" class="adv-list" style="margin:0;"></div>
+        </div>
+    </div>
+
+    <!-- PAGE: PROGRESS GRAPH -->
+    <div id="page-graph" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closeAll()"></i>
+            <h2>Progress Monitor</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="summary-box">
+                <div style="font-size:14px; color:var(--text-sub);">Today's Effort</div>
+                <div id="graph-today-hours" class="big-stat">0 Hours</div>
+                <div style="font-size:12px; color:var(--success);">Keep pushing!</div>
+            </div>
+            <div class="chart-container"><canvas id="dutyChart"></canvas></div>
+            <div class="settings-card" style="margin-top:20px;">
+                <h3 style="margin-bottom:10px;">Monthly Goal</h3>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span style="font-size:12px; color:var(--text-sub);">Target: <span id="target-val-disp">0</span></span>
+                    <span style="font-size:12px; color:var(--primary);" id="target-pct">0%</span>
+                </div>
+                <div style="width:100%; height:8px; background:var(--input); border-radius:4px; overflow:hidden;">
+                    <div id="target-bar" style="width:0%; height:100%; background:var(--gradient);"></div>
+                </div>
+                <div style="margin-top:15px; display:flex; gap:10px;">
+                    <input type="number" id="set-target" class="inp" placeholder="Set Goal" style="margin:0;">
+                    <button class="btn btn-sec" style="width:auto;" onclick="graph.setTarget()">Set</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: LEGAL MENU -->
+    <div id="page-legal-menu" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-legal-menu')"></i>
+            <h2>Legal Policies</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="settings-card" style="padding:0;">
+                <div class="action-item" onclick="legal.show('privacy')"><span>Privacy Policy</span> <i class="fas fa-chevron-right"></i></div>
+                <div class="action-item" onclick="legal.show('terms')"><span>Terms & Conditions</span> <i class="fas fa-chevron-right"></i></div>
+                <div class="action-item" onclick="legal.show('refund')"><span>Refund Policy</span> <i class="fas fa-chevron-right"></i></div>
+                <div class="action-item" onclick="legal.show('subscription')"><span>Subscription Policy</span> <i class="fas fa-chevron-right"></i></div>
+                <div class="action-item" onclick="legal.show('deletion')"><span>Data Deletion</span> <i class="fas fa-chevron-right"></i></div>
+                <div class="action-item" onclick="legal.show('disclaimer')"><span>Disclaimer</span> <i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: HELP / FAQ -->
+    <div id="page-help" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-help')"></i>
+            <h2>Help & FAQ</h2>
+        </div>
+        <div style="padding:20px;">
+            <h3 style="margin-bottom:15px; color:var(--primary);">How to use?</h3>
+            <div class="settings-card">
+                <ul style="padding-left:20px; line-height:1.6; color:var(--text-sub); font-size:14px;">
+                    <li><b>Add Duty:</b> Click the big "Add Today" button on Home or tap any date on the calendar.</li>
+                    <li><b>Edit/Delete:</b> Tap a date with an entry to open the menu, then change details or click Delete.</li>
+                    <li><b>Advance:</b> Go to Advance tab to record money taken. It will be deducted in reports.</li>
+                    <li><b>PDF:</b> Go to Reports, select dates, and click Download PDF.</li>
+                </ul>
+            </div>
+            
+            <h3 style="margin:20px 0 15px; color:var(--primary);">Common Questions</h3>
+            <div class="settings-card" id="faq-list">
+                <!-- FAQs injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: FEEDBACK -->
+    <div id="page-feedback" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-feedback')"></i>
+            <h2>Feedback</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="settings-card">
+                <p style="color:var(--text-sub); font-size:14px; margin-bottom:15px;">Tap the button below to email us directly. We value your suggestions.</p>
+                <textarea id="fb-text" rows="5" class="inp" placeholder="Type your suggestion here..."></textarea>
+                <button class="btn btn-primary" onclick="ui.sendFeedback()">Send via Email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE: ABOUT & CHANGELOG -->
+    <div id="page-about" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closePage('page-about')"></i>
+            <h2>About Us</h2>
+        </div>
+        <div style="padding:20px; text-align:center;">
+            <i class="fas fa-shield-alt" style="font-size:60px; color:var(--primary); margin:20px 0;"></i>
+            <h3>Duty Tracker Pro</h3>
+            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.3.0 (Stable)</p>
+            <div class="settings-card" style="text-align:left;">
+                <h4 style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">Changelog</h4>
+                <div style="margin-bottom:15px;">
+                    <div style="font-weight:bold; color:var(--secondary);">v2.3.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Added Subscription History, Feedback via Email, Improved UI.</div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <div style="font-weight:bold; color:var(--secondary);">v2.2.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Profile UI Fixes, Advance Money Module.</div>
+                </div>
+            </div>
+            <p style="font-size:12px; color:var(--text-sub); margin-top:20px;">Developed by Nitai Studio</p>
+        </div>
+    </div>
+
+    <!-- PAGE: SETTINGS (UTILITY) -->
+    <div id="page-settings" class="page">
+        <div class="page-header">
+            <i class="fas fa-arrow-left" style="font-size:24px; cursor:pointer;" onclick="ui.closeAll()"></i>
+            <h2>Utility & Rates</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="settings-card">
+                <span class="label-text">Currency</span>
+                <select id="set-cur" class="inp"><option value="₹">₹ INR</option><option value="৳">৳ BDT</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="SAR">SAR</option><option value="AED">AED</option></select>
+                <span class="label-text">Basic Salary</span>
+                <input type="number" id="set-sal" class="inp" placeholder="e.g., 20000">
+                <span class="label-text">Food Allowance</span>
+                <input type="number" id="set-food" class="inp" placeholder="e.g., 2000">
+                <span class="label-text">Overtime Rate (Hour)</span>
+                <input type="number" id="set-otr" class="inp" placeholder="e.g., 100">
+                <span class="label-text">PF Deduction</span>
+                <input type="number" id="set-pf" class="inp" placeholder="e.g., 1500">
+                <button class="btn btn-primary" onclick="settings.save()">Save Configuration</button>
             </div>
         </div>
     </div>
@@ -405,14 +590,8 @@
         <div style="padding:20px;">
             <div class="settings-card">
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
-                    <div>
-                        <span class="label-text">Start Date</span>
-                        <input type="date" id="r-start" class="inp" style="margin:0;">
-                    </div>
-                    <div>
-                        <span class="label-text">End Date</span>
-                        <input type="date" id="r-end" class="inp" style="margin:0;">
-                    </div>
+                    <div><span class="label-text">Start Date</span><input type="date" id="r-start" class="inp" style="margin:0;"></div>
+                    <div><span class="label-text">End Date</span><input type="date" id="r-end" class="inp" style="margin:0;"></div>
                 </div>
                 <button class="btn btn-primary" onclick="reports.gen()">Generate Report</button>
             </div>
@@ -422,8 +601,8 @@
 
     <!-- ATTENDANCE MODAL -->
     <div id="att-modal" class="modal">
-        <h3 id="modal-date" style="text-align:center; margin-bottom:25px; font-weight:800; font-size:22px;">...</h3>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:25px;">
+        <h3 id="modal-date" style="text-align:center; margin-bottom:15px; font-weight:800; font-size:22px;">...</h3>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:15px;">
             <button class="btn btn-sec" onclick="data.set('Present', this)">Present</button>
             <button class="btn btn-sec" onclick="data.set('Half Day', this)">Half Day</button>
             <button class="btn btn-sec" onclick="data.set('Leave', this)">Leave</button>
@@ -431,15 +610,11 @@
             <button class="btn btn-sec" onclick="data.set('Holiday', this)">Holiday</button>
             <button class="btn btn-sec" onclick="data.set('Off', this)">Off</button>
         </div>
+        <span class="label-text">Shift Selection</span>
+        <select id="inp-shift" class="inp"><option value="Morning">Morning Shift</option><option value="Evening">Evening Shift</option><option value="Night">Night Shift</option></select>
         <div style="display:flex; gap:12px; margin-bottom:25px;">
-            <div style="flex:1;">
-                <span class="label-text">OT (Hours)</span>
-                <input type="number" id="inp-ot" class="inp" placeholder="0" style="margin:0;">
-            </div>
-            <div style="flex:1;">
-                <span class="label-text">Late (Mins)</span>
-                <input type="number" id="inp-late" class="inp" placeholder="0" style="margin:0;">
-            </div>
+            <div style="flex:1;"><span class="label-text">Duty/OT (Hours)</span><input type="number" id="inp-ot" class="inp" placeholder="0" style="margin:0;"></div>
+            <div style="flex:1;"><span class="label-text">Late (Mins)</span><input type="number" id="inp-late" class="inp" placeholder="0" style="margin:0;"></div>
         </div>
         <button class="btn btn-primary" onclick="data.save()">SAVE ENTRY</button>
         <div style="display:flex; gap:10px; margin-top:15px;">
@@ -455,7 +630,6 @@
             <i class="fas fa-crown" style="font-size:50px; color:var(--accent); margin-bottom:20px;"></i>
             <h2>Premium Expired</h2>
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Renew subscription to continue usage.</p>
-            
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <b>1 Month</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(5, 30)">₹5</button>
             </div>
@@ -465,7 +639,7 @@
         </div>
     </div>
 
-    <!-- LEGAL MODAL -->
+    <!-- LEGAL TEXT MODAL -->
     <div id="legal-modal">
         <div style="max-width:800px; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -482,102 +656,66 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
-        const IMG_API_KEY = "c762b5315ee9263c36ed04156b0ff758"; // Updated ImgBB API Key
+        const IMG_API_KEY = "c762b5315ee9263c36ed04156b0ff758"; 
 
-        let s = { uid: null, data: {}, sub: 0, conf: {cur:'₹', sal:0, otr:0, food:0, pf:0}, refCode: '', profile: {name:'', img:''}, profBase64: null };
+        let s = { uid: null, data: {}, adv: {}, sub: 0, conf: {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0}, profile: {name:'', img:''}, profBase64: null, refCode: '', history: {} };
         let curDate = new Date();
         let selDate = null;
         let selType = null;
+        let chartInstance = null;
         let deferredPrompt;
 
-        // WORLD COUNTRY LIST
+        // --- FULL A-Z COUNTRY LIST ---
         const countries = [
-            {n:"Afghanistan",c:"+93"},{n:"Albania",c:"+355"},{n:"Algeria",c:"+213"},{n:"American Samoa",c:"+1-684"},{n:"Andorra",c:"+376"},
-            {n:"Angola",c:"+244"},{n:"Anguilla",c:"+1-264"},{n:"Antarctica",c:"+672"},{n:"Antigua and Barbuda",c:"+1-268"},{n:"Argentina",c:"+54"},
-            {n:"Armenia",c:"+374"},{n:"Aruba",c:"+297"},{n:"Australia",c:"+61"},{n:"Austria",c:"+43"},{n:"Azerbaijan",c:"+994"},
-            {n:"Bahamas",c:"+1-242"},{n:"Bahrain",c:"+973"},{n:"Bangladesh",c:"+880"},{n:"Barbados",c:"+1-246"},{n:"Belarus",c:"+375"},
-            {n:"Belgium",c:"+32"},{n:"Belize",c:"+501"},{n:"Benin",c:"+229"},{n:"Bermuda",c:"+1-441"},{n:"Bhutan",c:"+975"},
-            {n:"Bolivia",c:"+591"},{n:"Bosnia and Herzegovina",c:"+387"},{n:"Botswana",c:"+267"},{n:"Brazil",c:"+55"},{n:"British Indian Ocean Territory",c:"+246"},
-            {n:"British Virgin Islands",c:"+1-284"},{n:"Brunei",c:"+673"},{n:"Bulgaria",c:"+359"},{n:"Burkina Faso",c:"+226"},{n:"Burundi",c:"+257"},
-            {n:"Cambodia",c:"+855"},{n:"Cameroon",c:"+237"},{n:"Canada",c:"+1"},{n:"Cape Verde",c:"+238"},{n:"Cayman Islands",c:"+1-345"},
-            {n:"Central African Republic",c:"+236"},{n:"Chad",c:"+235"},{n:"Chile",c:"+56"},{n:"China",c:"+86"},{n:"Christmas Island",c:"+61"},
-            {n:"Cocos Islands",c:"+61"},{n:"Colombia",c:"+57"},{n:"Comoros",c:"+269"},{n:"Cook Islands",c:"+682"},{n:"Costa Rica",c:"+506"},
-            {n:"Croatia",c:"+385"},{n:"Cuba",c:"+53"},{n:"Curacao",c:"+599"},{n:"Cyprus",c:"+357"},{n:"Czech Republic",c:"+420"},
-            {n:"Democratic Republic of the Congo",c:"+243"},{n:"Denmark",c:"+45"},{n:"Djibouti",c:"+253"},{n:"Dominica",c:"+1-767"},{n:"Dominican Republic",c:"+1-809"},
-            {n:"East Timor",c:"+670"},{n:"Ecuador",c:"+593"},{n:"Egypt",c:"+20"},{n:"El Salvador",c:"+503"},{n:"Equatorial Guinea",c:"+240"},
-            {n:"Eritrea",c:"+291"},{n:"Estonia",c:"+372"},{n:"Ethiopia",c:"+251"},{n:"Falkland Islands",c:"+500"},{n:"Faroe Islands",c:"+298"},
-            {n:"Fiji",c:"+679"},{n:"Finland",c:"+358"},{n:"France",c:"+33"},{n:"French Polynesia",c:"+689"},{n:"Gabon",c:"+241"},
-            {n:"Gambia",c:"+220"},{n:"Georgia",c:"+995"},{n:"Germany",c:"+49"},{n:"Ghana",c:"+233"},{n:"Gibraltar",c:"+350"},
-            {n:"Greece",c:"+30"},{n:"Greenland",c:"+299"},{n:"Grenada",c:"+1-473"},{n:"Guam",c:"+1-671"},{n:"Guatemala",c:"+502"},
-            {n:"Guernsey",c:"+44-1481"},{n:"Guinea",c:"+224"},{n:"Guinea-Bissau",c:"+245"},{n:"Guyana",c:"+592"},{n:"Haiti",c:"+509"},
-            {n:"Honduras",c:"+504"},{n:"Hong Kong",c:"+852"},{n:"Hungary",c:"+36"},{n:"Iceland",c:"+354"},{n:"India",c:"+91"},
-            {n:"Indonesia",c:"+62"},{n:"Iran",c:"+98"},{n:"Iraq",c:"+964"},{n:"Ireland",c:"+353"},{n:"Isle of Man",c:"+44-1624"},
-            {n:"Israel",c:"+972"},{n:"Italy",c:"+39"},{n:"Ivory Coast",c:"+225"},{n:"Jamaica",c:"+1-876"},{n:"Japan",c:"+81"},
-            {n:"Jersey",c:"+44-1534"},{n:"Jordan",c:"+962"},{n:"Kazakhstan",c:"+7"},{n:"Kenya",c:"+254"},{n:"Kiribati",c:"+686"},
-            {n:"Kosovo",c:"+383"},{n:"Kuwait",c:"+965"},{n:"Kyrgyzstan",c:"+996"},{n:"Laos",c:"+856"},{n:"Latvia",c:"+371"},
-            {n:"Lebanon",c:"+961"},{n:"Lesotho",c:"+266"},{n:"Liberia",c:"+231"},{n:"Libya",c:"+218"},{n:"Liechtenstein",c:"+423"},
-            {n:"Lithuania",c:"+370"},{n:"Luxembourg",c:"+352"},{n:"Macau",c:"+853"},{n:"Macedonia",c:"+389"},{n:"Madagascar",c:"+261"},
-            {n:"Malawi",c:"+265"},{n:"Malaysia",c:"+60"},{n:"Maldives",c:"+960"},{n:"Mali",c:"+223"},{n:"Malta",c:"+356"},
-            {n:"Marshall Islands",c:"+692"},{n:"Mauritania",c:"+222"},{n:"Mauritius",c:"+230"},{n:"Mayotte",c:"+262"},{n:"Mexico",c:"+52"},
-            {n:"Micronesia",c:"+691"},{n:"Moldova",c:"+373"},{n:"Monaco",c:"+377"},{n:"Mongolia",c:"+976"},{n:"Montenegro",c:"+382"},
-            {n:"Montserrat",c:"+1-664"},{n:"Morocco",c:"+212"},{n:"Mozambique",c:"+258"},{n:"Myanmar",c:"+95"},{n:"Namibia",c:"+264"},
-            {n:"Nauru",c:"+674"},{n:"Nepal",c:"+977"},{n:"Netherlands",c:"+31"},{n:"Netherlands Antilles",c:"+599"},{n:"New Caledonia",c:"+687"},
-            {n:"New Zealand",c:"+64"},{n:"Nicaragua",c:"+505"},{n:"Niger",c:"+227"},{n:"Nigeria",c:"+234"},{n:"Niue",c:"+683"},
-            {n:"North Korea",c:"+850"},{n:"Northern Mariana Islands",c:"+1-670"},{n:"Norway",c:"+47"},{n:"Oman",c:"+968"},{n:"Pakistan",c:"+92"},
-            {n:"Palau",c:"+680"},{n:"Palestine",c:"+970"},{n:"Panama",c:"+507"},{n:"Papua New Guinea",c:"+675"},{n:"Paraguay",c:"+595"},
-            {n:"Peru",c:"+51"},{n:"Philippines",c:"+63"},{n:"Pitcairn",c:"+64"},{n:"Poland",c:"+48"},{n:"Portugal",c:"+351"},
-            {n:"Puerto Rico",c:"+1-787"},{n:"Qatar",c:"+974"},{n:"Republic of the Congo",c:"+242"},{n:"Reunion",c:"+262"},{n:"Romania",c:"+40"},
-            {n:"Russia",c:"+7"},{n:"Rwanda",c:"+250"},{n:"Saint Barthelemy",c:"+590"},{n:"Saint Helena",c:"+290"},{n:"Saint Kitts and Nevis",c:"+1-869"},
-            {n:"Saint Lucia",c:"+1-758"},{n:"Saint Martin",c:"+590"},{n:"Saint Pierre and Miquelon",c:"+508"},{n:"Saint Vincent and the Grenadines",c:"+1-784"},{n:"Samoa",c:"+685"},
-            {n:"San Marino",c:"+378"},{n:"Sao Tome and Principe",c:"+239"},{n:"Saudi Arabia",c:"+966"},{n:"Senegal",c:"+221"},{n:"Serbia",c:"+381"},
-            {n:"Seychelles",c:"+248"},{n:"Sierra Leone",c:"+232"},{n:"Singapore",c:"+65"},{n:"Sint Maarten",c:"+1-721"},{n:"Slovakia",c:"+421"},
-            {n:"Slovenia",c:"+386"},{n:"Solomon Islands",c:"+677"},{n:"Somalia",c:"+252"},{n:"South Africa",c:"+27"},{n:"South Korea",c:"+82"},
-            {n:"South Sudan",c:"+211"},{n:"Spain",c:"+34"},{n:"Sri Lanka",c:"+94"},{n:"Sudan",c:"+249"},{n:"Suriname",c:"+597"},
-            {n:"Svalbard and Jan Mayen",c:"+47"},{n:"Swaziland",c:"+268"},{n:"Sweden",c:"+46"},{n:"Switzerland",c:"+41"},{n:"Syria",c:"+963"},
-            {n:"Taiwan",c:"+886"},{n:"Tajikistan",c:"+992"},{n:"Tanzania",c:"+255"},{n:"Thailand",c:"+66"},{n:"Togo",c:"+228"},
-            {n:"Tokelau",c:"+690"},{n:"Tonga",c:"+676"},{n:"Trinidad and Tobago",c:"+1-868"},{n:"Tunisia",c:"+216"},{n:"Turkey",c:"+90"},
-            {n:"Turkmenistan",c:"+993"},{n:"Turks and Caicos Islands",c:"+1-649"},{n:"Tuvalu",c:"+688"},{n:"U.S. Virgin Islands",c:"+1-340"},{n:"Uganda",c:"+256"},
-            {n:"Ukraine",c:"+380"},{n:"United Arab Emirates",c:"+971"},{n:"United Kingdom",c:"+44"},{n:"United States",c:"+1"},{n:"Uruguay",c:"+598"},
-            {n:"Uzbekistan",c:"+998"},{n:"Vanuatu",c:"+678"},{n:"Vatican",c:"+379"},{n:"Venezuela",c:"+58"},{n:"Vietnam",c:"+84"},
-            {n:"Wallis and Futuna",c:"+681"},{n:"Western Sahara",c:"+212"},{n:"Yemen",c:"+967"},{n:"Zambia",c:"+260"},{n:"Zimbabwe",c:"+263"}
+            {n:"Afghanistan",c:"+93"},{n:"Albania",c:"+355"},{n:"Algeria",c:"+213"},{n:"Andorra",c:"+376"},{n:"Angola",c:"+244"},{n:"Argentina",c:"+54"},{n:"Armenia",c:"+374"},{n:"Australia",c:"+61"},{n:"Austria",c:"+43"},{n:"Azerbaijan",c:"+994"},
+            {n:"Bahrain",c:"+973"},{n:"Bangladesh",c:"+880"},{n:"Belarus",c:"+375"},{n:"Belgium",c:"+32"},{n:"Belize",c:"+501"},{n:"Benin",c:"+229"},{n:"Bhutan",c:"+975"},{n:"Bolivia",c:"+591"},{n:"Bosnia",c:"+387"},{n:"Botswana",c:"+267"},{n:"Brazil",c:"+55"},{n:"Brunei",c:"+673"},{n:"Bulgaria",c:"+359"},
+            {n:"Cambodia",c:"+855"},{n:"Cameroon",c:"+237"},{n:"Canada",c:"+1"},{n:"Chile",c:"+56"},{n:"China",c:"+86"},{n:"Colombia",c:"+57"},{n:"Comoros",c:"+269"},{n:"Congo",c:"+242"},{n:"Costa Rica",c:"+506"},{n:"Croatia",c:"+385"},{n:"Cuba",c:"+53"},{n:"Cyprus",c:"+357"},{n:"Czech Republic",c:"+420"},
+            {n:"Denmark",c:"+45"},{n:"Djibouti",c:"+253"},{n:"Dominica",c:"+1767"},{n:"Dominican Republic",c:"+1809"},{n:"Ecuador",c:"+593"},{n:"Egypt",c:"+20"},{n:"El Salvador",c:"+503"},{n:"Estonia",c:"+372"},{n:"Ethiopia",c:"+251"},
+            {n:"Fiji",c:"+679"},{n:"Finland",c:"+358"},{n:"France",c:"+33"},{n:"Gabon",c:"+241"},{n:"Gambia",c:"+220"},{n:"Georgia",c:"+995"},{n:"Germany",c:"+49"},{n:"Ghana",c:"+233"},{n:"Greece",c:"+30"},{n:"Grenada",c:"+1473"},{n:"Guatemala",c:"+502"},{n:"Guinea",c:"+224"},{n:"Guyana",c:"+592"},
+            {n:"Haiti",c:"+509"},{n:"Honduras",c:"+504"},{n:"Hong Kong",c:"+852"},{n:"Hungary",c:"+36"},{n:"Iceland",c:"+354"},{n:"India",c:"+91"},{n:"Indonesia",c:"+62"},{n:"Iran",c:"+98"},{n:"Iraq",c:"+964"},{n:"Ireland",c:"+353"},{n:"Israel",c:"+972"},{n:"Italy",c:"+39"},
+            {n:"Jamaica",c:"+1876"},{n:"Japan",c:"+81"},{n:"Jordan",c:"+962"},{n:"Kazakhstan",c:"+7"},{n:"Kenya",c:"+254"},{n:"Kiribati",c:"+686"},{n:"Kuwait",c:"+965"},{n:"Kyrgyzstan",c:"+996"},{n:"Laos",c:"+856"},{n:"Latvia",c:"+371"},{n:"Lebanon",c:"+961"},{n:"Lesotho",c:"+266"},{n:"Liberia",c:"+231"},{n:"Libya",c:"+218"},{n:"Liechtenstein",c:"+423"},{n:"Lithuania",c:"+370"},{n:"Luxembourg",c:"+352"},
+            {n:"Macedonia",c:"+389"},{n:"Madagascar",c:"+261"},{n:"Malawi",c:"+265"},{n:"Malaysia",c:"+60"},{n:"Maldives",c:"+960"},{n:"Mali",c:"+223"},{n:"Malta",c:"+356"},{n:"Mauritania",c:"+222"},{n:"Mauritius",c:"+230"},{n:"Mexico",c:"+52"},{n:"Moldova",c:"+373"},{n:"Monaco",c:"+377"},{n:"Mongolia",c:"+976"},{n:"Montenegro",c:"+382"},{n:"Morocco",c:"+212"},{n:"Mozambique",c:"+258"},{n:"Myanmar",c:"+95"},
+            {n:"Namibia",c:"+264"},{n:"Nauru",c:"+674"},{n:"Nepal",c:"+977"},{n:"Netherlands",c:"+31"},{n:"New Zealand",c:"+64"},{n:"Nicaragua",c:"+505"},{n:"Niger",c:"+227"},{n:"Nigeria",c:"+234"},{n:"North Korea",c:"+850"},{n:"Norway",c:"+47"},{n:"Oman",c:"+968"},
+            {n:"Pakistan",c:"+92"},{n:"Palau",c:"+680"},{n:"Panama",c:"+507"},{n:"Papua New Guinea",c:"+675"},{n:"Paraguay",c:"+595"},{n:"Peru",c:"+51"},{n:"Philippines",c:"+63"},{n:"Poland",c:"+48"},{n:"Portugal",c:"+351"},{n:"Qatar",c:"+974"},
+            {n:"Romania",c:"+40"},{n:"Russia",c:"+7"},{n:"Rwanda",c:"+250"},{n:"Samoa",c:"+685"},{n:"San Marino",c:"+378"},{n:"Saudi Arabia",c:"+966"},{n:"Senegal",c:"+221"},{n:"Serbia",c:"+381"},{n:"Seychelles",c:"+248"},{n:"Sierra Leone",c:"+232"},{n:"Singapore",c:"+65"},{n:"Slovakia",c:"+421"},{n:"Slovenia",c:"+386"},{n:"Solomon Islands",c:"+677"},{n:"Somalia",c:"+252"},{n:"South Africa",c:"+27"},{n:"South Korea",c:"+82"},{n:"Spain",c:"+34"},{n:"Sri Lanka",c:"+94"},{n:"Sudan",c:"+249"},{n:"Suriname",c:"+597"},{n:"Sweden",c:"+46"},{n:"Switzerland",c:"+41"},{n:"Syria",c:"+963"},
+            {n:"Taiwan",c:"+886"},{n:"Tajikistan",c:"+992"},{n:"Tanzania",c:"+255"},{n:"Thailand",c:"+66"},{n:"Togo",c:"+228"},{n:"Tonga",c:"+676"},{n:"Trinidad & Tobago",c:"+1868"},{n:"Tunisia",c:"+216"},{n:"Turkey",c:"+90"},{n:"Turkmenistan",c:"+993"},{n:"Tuvalu",c:"+688"},
+            {n:"Uganda",c:"+256"},{n:"Ukraine",c:"+380"},{n:"UAE",c:"+971"},{n:"UK",c:"+44"},{n:"USA",c:"+1"},{n:"Uruguay",c:"+598"},{n:"Uzbekistan",c:"+998"},{n:"Vanuatu",c:"+678"},{n:"Venezuela",c:"+58"},{n:"Vietnam",c:"+84"},{n:"Yemen",c:"+967"},{n:"Zambia",c:"+260"},{n:"Zimbabwe",c:"+263"}
         ];
-        
-        const ccSelect = document.getElementById('cc');
-        countries.forEach(c => {
-            let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
-            if(c.n === "India") o.selected = true; // Default to India
-            ccSelect.appendChild(o);
-        });
 
         // INIT
         document.addEventListener('DOMContentLoaded', () => {
+            const ccSelect = document.getElementById('cc');
+            countries.forEach(c => {
+                let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
+                if(c.n === "India") o.selected = true; 
+                ccSelect.appendChild(o);
+            });
+            
             document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
-            const vid = document.getElementById('promo-vid');
-            if(vid) vid.pause();
-
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').style.display='none';
                     const id = localStorage.getItem('dt_id');
-                    if(id) app.start(id);
-                    else document.getElementById('auth-screen').style.display='flex';
+                    if(id) app.start(id); else document.getElementById('auth-screen').style.display='flex';
                 }, 800);
-            }, 3000);
-        });
+            }, 2500);
 
-        // HISTORY API
-        window.addEventListener('popstate', (event) => {
-            if(document.getElementById('promo-screen').style.display === 'flex') { promo.close(); return; }
-            if(document.getElementById('att-modal').style.display === 'block') { document.getElementById('att-modal').style.display = 'none'; return; }
-            if(document.getElementById('pay-wall').style.display === 'flex') { document.getElementById('pay-wall').style.display = 'none'; return; }
-            if(document.getElementById('legal-modal').style.display === 'block') { document.getElementById('legal-modal').style.display = 'none'; return; }
-            if(document.getElementById('page-profile').style.display === 'flex' || 
-               document.getElementById('page-reports').style.display === 'flex' || 
-               document.getElementById('page-settings').style.display === 'flex') {
-                ui.closeAll();
-                return;
-            }
+            // Populate FAQ
+            const faqs = [
+                {q:"How to add a duty?", a:"Tap on 'Add Today's Duty' on the home screen, or tap any date on the calendar. Select 'Present' or other status, enter OT hours if any, and click Save."},
+                {q:"How to delete an entry?", a:"Tap on the date you want to delete. In the modal that appears, click the Red 'Delete' button."},
+                {q:"How does Advance work?", a:"Go to 'Advance' tab. Enter amount and date. This amount will be automatically deducted from your final Net Payable in the Reports section."},
+                {q:"Is my data safe?", a:"Yes, your data is stored securely on Google Firebase servers. We do not sell your personal data."},
+                {q:"How to change currency?", a:"Go to Utility/Settings tab, select your currency symbol and save configuration."},
+            ];
+            const fl = document.getElementById('faq-list');
+            faqs.forEach(f => {
+                fl.innerHTML += `<div class="faq-item"><div class="faq-q" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display=='block'?'none':'block'">${f.q} <i class="fas fa-chevron-down"></i></div><div class="faq-a">${f.a}</div></div>`;
+            });
+
+            document.getElementById('adv-date').value = new Date().toISOString().split('T')[0];
+            reminder.init();
         });
 
         const app = {
@@ -586,7 +724,6 @@
                 const phone = document.getElementById('phone').value;
                 const cc = document.getElementById('cc').value;
                 const id = cc + phone;
-
                 if(name.length < 2) return ui.toast("Enter Valid Name");
                 if(phone.length > 5) {
                     localStorage.setItem('dt_id', id);
@@ -596,20 +733,18 @@
                 } else ui.toast("Invalid Number");
             },
             logout: () => {
-                ui.confirm("Log Out", "Are you sure you want to log out?", () => {
-                    promo.stop();
-                    localStorage.removeItem('dt_id'); 
-                    location.reload();
-                });
+                ui.confirm("Log Out", "Are you sure?", () => { localStorage.removeItem('dt_id'); location.reload(); });
             },
             start: (id) => {
                 s.uid = id;
                 db.ref('u/'+id).on('value', sn => {
                     const v = sn.val() || {};
                     s.data = v.att || {};
-                    s.conf = v.conf || {cur:'₹', sal:0, otr:0, food:0, pf:0};
+                    s.adv = v.adv || {};
+                    s.conf = v.conf || {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0};
                     s.profile = v.profile || {name: 'User', img: ''};
                     s.sub = v.subExp || Date.now() + (3*86400000); 
+                    s.history = v.history || {};
                     
                     if(!v.subExp) db.ref('u/'+id+'/subExp').set(s.sub);
                     if(!v.refCode) ref.gen();
@@ -619,69 +754,45 @@
                     document.getElementById('prof-id').innerText = id;
                     if(s.profile.img) {
                         document.getElementById('prof-img-el').src = s.profile.img;
+                        document.getElementById('mini-prof-img').src = s.profile.img;
                         toDataURL(s.profile.img, (res) => { s.profBase64 = res; });
                     }
-
-                    const expD = new Date(s.sub);
-                    const now = Date.now();
-                    const diff = Math.ceil((s.sub - now) / (1000 * 60 * 60 * 24));
-                    const isExp = diff <= 0;
                     
-                    document.getElementById('prof-exp').innerHTML = 
-                        `Valid till: ${expD.toLocaleDateString()}<br>` +
-                        `<span style="color:${isExp ? '#FF1744' : '#00E5FF'}; font-weight:bold;">` +
-                        `${isExp ? 'Expired' : diff + ' Days Left'}</span>`;
-
-                    const badge = document.getElementById('prof-badge');
-                    if(isExp) {
-                        if(badge) { badge.innerText="EXPIRED"; badge.style.backgroundColor="#FF1744"; badge.style.color="white"; }
-                        promo.show();
+                    const exD = new Date(s.sub);
+                    const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
+                    if(s.sub < Date.now()) { 
+                        document.getElementById('prof-badge').innerText="EXPIRED"; 
+                        document.getElementById('prof-badge').style.background="red"; 
+                        document.getElementById('prof-exp').innerText = "Expired: "+exD.toLocaleDateString();
                     } else {
-                        if(badge) { badge.innerText="PREMIUM"; badge.style.backgroundColor="#00C853"; badge.style.color="black"; }
-                        promo.stop();
-                        document.getElementById('main-app').style.display = 'flex';
+                        document.getElementById('prof-badge').innerText="PREMIUM"; 
+                        document.getElementById('prof-badge').style.background="var(--accent)";
+                        document.getElementById('prof-exp').innerText = `Valid till: ${exD.toLocaleDateString()} (${daysLeft} Days)`;
                     }
-
+                    
                     document.getElementById('set-cur').value = s.conf.cur || '₹';
                     document.getElementById('set-sal').value = s.conf.sal || '';
                     document.getElementById('set-food').value = s.conf.food || '';
                     document.getElementById('set-otr').value = s.conf.otr || '';
                     document.getElementById('set-pf').value = s.conf.pf || '';
+                    document.getElementById('set-target').value = s.conf.target || '';
+                    document.getElementById('target-val-disp').innerText = s.conf.target || 0;
 
                     cal.render();
-                });
-            }
-        };
+                    advance.renderList();
+                    graph.updateTodayText();
+                    
+                    // Render History
+                    const hl = document.getElementById('hist-list'); hl.innerHTML = '';
+                    const hArr = []; for(let k in s.history) hArr.push(s.history[k]);
+                    hArr.reverse();
+                    if(hArr.length === 0) hl.innerHTML = '<div style="text-align:center;color:var(--text-sub);">No payment history found.</div>';
+                    hArr.forEach(h => {
+                        hl.innerHTML += `<div class="hist-item"><div><div style="font-weight:bold;">Premium Subscription</div><div class="hist-date">${new Date(h.date).toLocaleString()}</div><div class="hist-date">Via ${h.method}</div></div><div class="hist-amt">₹${h.amount}</div></div>`;
+                    });
 
-        const promo = {
-            show: () => {
-                history.pushState({v:'promo'}, null, '');
-                document.getElementById('promo-screen').style.display = 'flex';
-                document.getElementById('main-app').style.display = 'none';
-                
-                const vid = document.getElementById('promo-vid');
-                const sndMsg = document.getElementById('snd-msg');
-                if(vid) {
-                    vid.currentTime = 0; vid.muted = false; vid.volume = 1.0;
-                    const promise = vid.play();
-                    if (promise !== undefined) {
-                        promise.then(_ => { sndMsg.innerHTML = '<i class="fas fa-volume-up"></i> Sound On'; })
-                        .catch(error => { vid.muted = true; vid.play(); sndMsg.innerHTML = '<i class="fas fa-volume-mute"></i> Tap to Unmute'; });
-                    }
-                }
-            },
-            unmute: () => {
-                const vid = document.getElementById('promo-vid');
-                if(vid) { vid.muted = false; vid.play(); document.getElementById('snd-msg').innerHTML = '<i class="fas fa-volume-up"></i> Sound On'; }
-            },
-            stop: () => {
-                const vid = document.getElementById('promo-vid');
-                document.getElementById('promo-screen').style.display = 'none';
-                if(vid) { vid.pause(); vid.currentTime = 0; vid.muted = true; }
-            },
-            close: () => {
-                promo.stop();
-                document.getElementById('main-app').style.display = 'flex';
+                    document.getElementById('main-app').style.display = 'flex';
+                });
             }
         };
 
@@ -692,7 +803,6 @@
                 const g = document.getElementById('calendar-grid'); g.innerHTML='';
                 const fd = new Date(y,m,1).getDay(), ld = new Date(y,m+1,0).getDate();
                 const today = new Date().toISOString().split('T')[0];
-
                 for(let i=0; i<fd; i++) g.innerHTML += '<div></div>';
                 for(let i=1; i<=ld; i++) {
                     const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
@@ -701,10 +811,7 @@
                     const el = document.createElement('div');
                     el.className = `day ${cls} ${iso===today?'today':''}`;
                     el.innerHTML = `<span class="day-num">${i}</span>`;
-                    if(d) {
-                        el.innerHTML += `<span class="day-tag">${d.t}</span>`;
-                        if(d.ot) el.innerHTML += `<div class="ot-badge">OT: ${d.ot}</div>`;
-                    }
+                    if(d) { el.innerHTML += `<span class="day-tag">${d.t}</span>`; if(d.ot) el.innerHTML += `<div class="ot-badge">${d.ot}h</div>`; }
                     el.onclick = () => data.open(iso);
                     g.appendChild(el);
                 }
@@ -714,7 +821,6 @@
 
         const data = {
             open: (d) => {
-                history.pushState({v:'modal'}, null, '');
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
@@ -723,218 +829,86 @@
                 if(en) {
                     document.getElementById('inp-ot').value = en.ot||'';
                     document.getElementById('inp-late').value = en.lt||'';
+                    document.getElementById('inp-shift').value = en.shift || 'Morning';
+                    selType = en.t;
+                    const btns = document.querySelectorAll('#att-modal .btn-sec');
+                    btns.forEach(btn => { if(btn.innerText === en.t) btn.classList.add('active'); });
                 } else {
                     document.getElementById('inp-ot').value = '';
                     document.getElementById('inp-late').value = '';
+                    document.getElementById('inp-shift').value = 'Morning';
                     selType = null;
                 }
             },
-            set: (t, el) => {
-                selType = t;
-                document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
-                if(el) el.classList.add('active');
-            },
+            set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
             save: () => {
-                if(s.sub < Date.now()) {
-                    document.getElementById('att-modal').style.display = 'none';
-                    promo.show(); 
-                    ui.toast("Subscription Required to Save");
-                    return;
-                }
+                if(s.sub < Date.now()) { document.getElementById('att-modal').style.display = 'none'; pay.show(); return; }
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
-                const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value };
+                const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
                 document.getElementById('att-modal').style.display='none';
                 ui.toast("Saved Successfully");
             },
             clear: () => {
-                ui.confirm("Delete Entry", "Are you sure you want to delete this duty record?", () => {
-                    db.ref(`u/${s.uid}/att/${selDate}`).remove();
-                    document.getElementById('att-modal').style.display='none';
-                    ui.toast("Entry Deleted");
+                ui.confirm("Delete Entry", "Delete this record?", () => { db.ref(`u/${s.uid}/att/${selDate}`).remove(); document.getElementById('att-modal').style.display='none'; });
+            }
+        };
+
+        const advance = {
+            add: () => {
+                const amt = parseFloat(document.getElementById('adv-amt').value);
+                const dt = document.getElementById('adv-date').value;
+                if(!amt || !dt) return ui.toast("Enter Amount & Date");
+                db.ref(`u/${s.uid}/adv`).push({ amt: amt, date: dt, by: document.getElementById('adv-by').value, note: document.getElementById('adv-note').value });
+                ui.toast("Advance Added");
+                document.getElementById('adv-amt').value = '';
+            },
+            delete: (key) => { ui.confirm("Delete Advance", "Sure?", () => db.ref(`u/${s.uid}/adv/${key}`).remove()); },
+            renderList: () => {
+                const list = document.getElementById('adv-list-container'); list.innerHTML = '';
+                let total = 0;
+                const arr = []; for(let k in s.adv) { arr.push({...s.adv[k], key: k}); }
+                arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+                arr.forEach(a => {
+                    total += parseFloat(a.amt);
+                    list.innerHTML += `<div class="adv-item"><div><div style="font-weight:bold;">${s.conf.cur}${a.amt}</div><div style="font-size:12px; color:var(--text-sub);">${a.date} ${a.by?'• '+a.by:''}</div></div><button style="background:none;border:none;color:var(--danger);" onclick="advance.delete('${a.key}')"><i class="fas fa-trash"></i></button></div>`;
                 });
+                document.getElementById('total-adv-disp').innerText = `Total: ${s.conf.cur}${total}`;
             }
         };
 
-        const ui = {
-            toggleTheme: () => {
-                const b = document.body;
-                const n = b.getAttribute('data-theme')==='light'?'dark':'light';
-                b.setAttribute('data-theme', n); localStorage.setItem('theme', n);
-            },
-            closeAll: () => {
-                document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-                document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[1].classList.add('active');
-            },
-            openProfile: () => {
-                history.pushState({v:'profile'}, null, '');
-                document.getElementById('page-profile').style.display='flex';
-                document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[3].classList.add('active');
-            },
-            openSettings: () => {
-                history.pushState({v:'settings'}, null, '');
-                document.getElementById('page-settings').style.display='flex';
-                document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[2].classList.add('active');
-            },
-            openReport: () => {
-                history.pushState({v:'report'}, null, '');
-                document.getElementById('page-reports').style.display='flex';
-                document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[0].classList.add('active');
-            },
-            toast: (msg) => {
-                const x = document.getElementById("toast");
-                x.innerText = msg;
-                x.className = "show";
-                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-            },
-            confirm: (title, desc, callback) => {
-                document.getElementById('c-title').innerText = title;
-                document.getElementById('c-desc').innerText = desc;
-                const modal = document.getElementById('confirm-modal');
-                modal.style.display = "flex";
-                const yesBtn = document.getElementById('c-yes-btn');
-                const newBtn = yesBtn.cloneNode(true);
-                yesBtn.parentNode.replaceChild(newBtn, yesBtn);
-                newBtn.onclick = () => { callback(); modal.style.display = "none"; };
-            },
-            closeConfirm: () => { document.getElementById('confirm-modal').style.display = "none"; }
-        };
-
-        const profile = {
-            upload: async (input) => {
-                if (input.files && input.files[0]) {
-                    const file = input.files[0];
-                    ui.toast("Uploading Image...");
-                    
-                    const fd = new FormData();
-                    fd.append('key', IMG_API_KEY);
-                    fd.append('image', file); // ImgBB uses 'image' key
-
-                    try {
-                        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd });
-                        const json = await res.json();
-                        if(json.success) {
-                            const url = json.data.url;
-                            db.ref('u/'+s.uid+'/profile/img').set(url);
-                            ui.toast("Upload Successful");
-                        } else {
-                            ui.toast("Upload Failed");
-                        }
-                    } catch(e) {
-                        ui.toast("Error Uploading");
-                    }
+        const graph = {
+            render: () => {
+                const ctx = document.getElementById('dutyChart'); if(!ctx) return;
+                const labels = [], dataPoints = [];
+                for(let i=29; i>=0; i--) {
+                    const d = new Date(); d.setDate(new Date().getDate() - i);
+                    const iso = d.toISOString().split('T')[0];
+                    labels.push(d.getDate());
+                    const entry = s.data[iso];
+                    let h = 0;
+                    if(entry) { if(entry.t === 'Present') h = 8; else if(entry.t === 'Half Day') h = 4; if(entry.ot) h += parseFloat(entry.ot); }
+                    dataPoints.push(h);
                 }
-            }
-        };
-
-        const settings = {
-            save: () => {
-                const c = {
-                    cur: document.getElementById('set-cur').value,
-                    sal: parseFloat(document.getElementById('set-sal').value)||0,
-                    otr: parseFloat(document.getElementById('set-otr').value)||0,
-                    food: parseFloat(document.getElementById('set-food').value)||0,
-                    pf: parseFloat(document.getElementById('set-pf').value)||0
-                };
-                db.ref(`u/${s.uid}/conf`).set(c).then(()=>ui.toast("Rates Saved"));
-            }
-        };
-
-        const reports = {
-            gen: () => {
-                const d1 = new Date(document.getElementById('r-start').value);
-                const d2 = new Date(document.getElementById('r-end').value);
-                if(isNaN(d1)) return ui.toast("Select Dates");
-                let dy=0, bs=0, ot=0, fd=0, totalOtHours=0;
-                const SAL = parseFloat(s.conf.sal)||0, OTR = parseFloat(s.conf.otr)||0, FOOD = parseFloat(s.conf.food)||0, PF = parseFloat(s.conf.pf)||0;
-
-                for(let k in s.data) {
-                    const dt = new Date(k);
-                    if(dt >= d1 && dt <= d2) {
-                        const v = s.data[k];
-                        const o = parseFloat(v.ot||0);
-                        if(v.t==='Half Day') { dy+=0.5; bs+=(SAL/2); fd+=(FOOD/2); }
-                        else if(['Present','Holiday','Sick'].includes(v.t)) { dy++; bs+=SAL; fd+=FOOD; }
-                        ot += (o * OTR);
-                        totalOtHours += o;
-                    }
-                }
-                const gross = bs + ot + fd;
-                const net = gross - PF;
-                
-                document.getElementById('report-out').innerHTML = `
-                    <div style="background:var(--card); padding:20px; border-radius:20px; margin-top:20px; border:1px solid var(--border);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-                             <h3 style="color:var(--text);">Net Pay</h3>
-                             <h2 style="color:var(--success);">${s.conf.cur}${net.toFixed(0)}</h2>
-                        </div>
-                        <p style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;"><span>Duty Days</span> <b>${dy}</b></p>
-                        <p style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;"><span>Basic</span> <b>${s.conf.cur}${bs.toFixed(0)}</b></p>
-                        <p style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;"><span>Food</span> <b>${s.conf.cur}${fd.toFixed(0)}</b></p>
-                        <p style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px;"><span>OT (${totalOtHours}h)</span> <b>${s.conf.cur}${ot.toFixed(0)}</b></p>
-                        <p style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; color:#ff5252;"><span>PF Deduction</span> <b>- ${s.conf.cur}${PF.toFixed(0)}</b></p>
-                        
-                        <div onclick="pay.show(true)" style="background:linear-gradient(45deg,#FFD600,#FF6D00); color:black; padding:12px; border-radius:12px; text-align:center; margin-top:20px; font-weight:bold; cursor:pointer; animation:pulse 2s infinite;">
-                            Premium Only ₹5/Month
-                        </div>
-
-                        <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${PF},${net})">
-                            <i class="fas fa-file-pdf"></i> Download PDF
-                        </button>
-                    </div>`;
-            },
-            pdf: (d1,d2,dy,bs,ot,fd,pf,net) => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                if(s.profBase64) {
-                    try { doc.addImage(s.profBase64, 'JPEG', 15, 15, 25, 25); } catch(e) {}
-                }
-
-                doc.setFontSize(22); doc.setTextColor(67, 97, 238);
-                doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
-                
-                doc.setFontSize(14); doc.setTextColor(0);
-                doc.text("SALARY SLIP", 105, 30, null, null, "center");
-                
-                doc.setFontSize(10); doc.setTextColor(100);
-                doc.text(`Period: ${d1} to ${d2}`, 105, 36, null, null, "center");
-                
-                doc.setFontSize(12); doc.setTextColor(0);
-                doc.text(`Name: ${s.profile.name || 'Employee'}`, 15, 50);
-                doc.text(`Phone: ${s.uid}`, 15, 56);
-
-                doc.autoTable({
-                    startY: 65,
-                    head: [['Description', 'Amount']],
-                    body: [
-                        [`Duty Days (${dy})`, `${s.conf.cur} ${bs}`],
-                        ['Food Allowance', `${s.conf.cur} ${fd}`],
-                        ['Overtime Pay', `${s.conf.cur} ${ot}`],
-                        ['PF Deduction', `- ${s.conf.cur} ${pf}`],
-                        [{content:'NET SALARY', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${net}`]
-                    ],
-                    theme: 'grid',
-                    headStyles: { fillColor: [67, 97, 238] }
+                if(chartInstance) chartInstance.destroy();
+                chartInstance = new Chart(ctx, {
+                    type: 'line', data: { labels: labels, datasets: [{ label: 'Hours', data: dataPoints, borderColor: '#4361ee', backgroundColor: 'rgba(67, 97, 238, 0.1)', fill: true, tension: 0.4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display:false }, y: { beginAtZero: true } } }
                 });
-
-                // DOWNLOAD APP BUTTON AT BOTTOM
-                const pageHeight = doc.internal.pageSize.height;
-                const btnX = 60, btnY = pageHeight - 30, btnW = 90, btnH = 12;
-                doc.setFillColor(67, 97, 238);
-                doc.roundedRect(btnX, btnY, btnW, btnH, 3, 3, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFontSize(10);
-                doc.setFont(undefined, 'bold');
-                doc.text("DOWNLOAD APP", 105, btnY + 8, { align: "center" });
-                doc.link(btnX, btnY, btnW, btnH, { url: "https://dutytrackerpro.blogspot.com/?m=1" });
-
-                doc.save(`Salary_${s.profile.name}_${Date.now()}.pdf`);
+                const target = parseFloat(s.conf.target) || 1;
+                let earned = 0, SAL = parseFloat(s.conf.sal)||0;
+                const m = new Date().getMonth();
+                for(let k in s.data) { if(new Date(k).getMonth()===m && ['Present','Holiday','Sick'].includes(s.data[k].t)) earned += (SAL/30); }
+                const pct = Math.min(100, (earned / target) * 100).toFixed(1);
+                document.getElementById('target-pct').innerText = pct + '%';
+                document.getElementById('target-bar').style.width = pct + '%';
+            },
+            setTarget: () => { db.ref(`u/${s.uid}/conf/target`).set(parseFloat(document.getElementById('set-target').value)); ui.toast("Goal Updated"); },
+            updateTodayText: () => {
+                const t = s.data[new Date().toISOString().split('T')[0]];
+                document.getElementById('graph-today-hours').innerText = t ? (t.t==='Present'?8:4) + (parseFloat(t.ot)||0) + " Hours" : "0 Hours";
+                document.getElementById('today-status').innerText = t ? `Marked: ${t.t}` : "No Entry Today";
             }
         };
 
@@ -959,7 +933,7 @@
                         db.ref(`u/${s.uid}/subExp`).set(Math.max(s.sub, Date.now()) + (10*86400000));
                         db.ref(`u/${s.uid}/redeemed`).set(true);
                         db.ref(`u/${rid}/subExp`).once('value', os => {
-                            db.ref(`u/${rid}/subExp`).set(Math.max(os.val()||Date.now(), Date.now()) + (30*86400000));
+                            db.ref(`u/${rid}/subExp`).set(Math.max(os.val()||Date.now(), Date.now()) + (10*86400000));
                         });
                         ui.toast("Success! +10 Days Added");
                     });
@@ -967,159 +941,146 @@
             }
         };
 
+        const ui = {
+            toggleTheme: () => {
+                const b = document.body;
+                const n = b.getAttribute('data-theme')==='light'?'dark':'light';
+                b.setAttribute('data-theme', n); localStorage.setItem('theme', n);
+            },
+            closeAll: () => { document.querySelectorAll('.page').forEach(p=>p.style.display='none'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.nav-btn')[2].classList.add('active'); }, // Home is index 2 in visual grid (phantom center)
+            openPage: (id) => { document.getElementById(id).style.display='flex'; },
+            closePage: (id) => { document.getElementById(id).style.display='none'; },
+            openProfile: () => { ui.closeAll(); document.getElementById('page-profile').style.display='flex'; },
+            openSettings: () => { ui.closeAll(); document.getElementById('page-settings').style.display='flex'; document.querySelectorAll('.nav-btn')[4].classList.add('active'); },
+            openReport: () => { ui.closeAll(); document.getElementById('page-reports').style.display='flex'; document.querySelectorAll('.nav-btn')[0].classList.add('active'); },
+            openAdvance: () => { ui.closeAll(); document.getElementById('page-advance').style.display='flex'; document.querySelectorAll('.nav-btn')[3].classList.add('active'); },
+            openGraph: () => { ui.closeAll(); document.getElementById('page-graph').style.display='flex'; graph.render(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); },
+            toast: (msg) => { const x = document.getElementById("toast"); x.innerText = msg; x.className = "show"; setTimeout(()=>x.className="", 3000); },
+            confirm: (title, desc, cb) => {
+                document.getElementById('c-title').innerText = title; document.getElementById('c-desc').innerText = desc;
+                const m = document.getElementById('confirm-modal'); m.style.display="flex";
+                document.getElementById('c-yes-btn').onclick = () => { cb(); m.style.display="none"; };
+            },
+            closeConfirm: () => { document.getElementById('confirm-modal').style.display="none"; },
+            sendFeedback: () => {
+                const txt = document.getElementById('fb-text').value;
+                if(txt.length > 5) {
+                    window.location.href = `mailto:nitai.grp00@gmail.com?subject=Duty Tracker Pro Feedback&body=${encodeURIComponent(txt)}`;
+                } else ui.toast("Please write more details");
+            }
+        };
+
+        const profile = {
+            upload: async (input) => {
+                if (input.files && input.files[0]) {
+                    ui.toast("Uploading...");
+                    const fd = new FormData(); fd.append('key', IMG_API_KEY); fd.append('image', input.files[0]);
+                    try {
+                        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd });
+                        const json = await res.json();
+                        if(json.success) { db.ref('u/'+s.uid+'/profile/img').set(json.data.url); ui.toast("Upload Successful"); }
+                    } catch(e) { ui.toast("Error Uploading"); }
+                }
+            }
+        };
+
+        const settings = { save: () => {
+            db.ref(`u/${s.uid}/conf`).set({
+                cur: document.getElementById('set-cur').value,
+                sal: parseFloat(document.getElementById('set-sal').value)||0,
+                otr: parseFloat(document.getElementById('set-otr').value)||0,
+                food: parseFloat(document.getElementById('set-food').value)||0,
+                pf: parseFloat(document.getElementById('set-pf').value)||0,
+                target: parseFloat(document.getElementById('set-target').value)||0
+            }).then(()=>ui.toast("Saved"));
+        }};
+
+        const reminder = {
+            init: () => { setInterval(() => { const n = new Date(); if(n.getHours()===19 && n.getMinutes()%5===0 && !s.data[n.toISOString().split('T')[0]]) reminder.notify(); }, 60000); },
+            notify: () => { if(Notification.permission==="granted") new Notification("Duty Reminder", {body:"Mark your duty today!"}); },
+            setup: () => { Notification.requestPermission().then(p => ui.toast(p==="granted"?"Reminder Set (7 PM)":"Permission Denied")); }
+        };
+
+        const reports = {
+            gen: () => {
+                const d1 = new Date(document.getElementById('r-start').value), d2 = new Date(document.getElementById('r-end').value);
+                if(isNaN(d1)) return ui.toast("Select Dates");
+                let dy=0, bs=0, ot=0, fd=0, totOt=0, totAdv=0;
+                const SAL=parseFloat(s.conf.sal)||0, OTR=parseFloat(s.conf.otr)||0, FOOD=parseFloat(s.conf.food)||0, PF=parseFloat(s.conf.pf)||0;
+                for(let k in s.data) {
+                    const dt = new Date(k); if(dt>=d1 && dt<=d2) {
+                        const v = s.data[k]; const o = parseFloat(v.ot||0);
+                        if(v.t==='Half Day') { dy+=0.5; bs+=(SAL/30/2); fd+=(FOOD/30/2); }
+                        else if(['Present','Holiday','Sick'].includes(v.t)) { dy++; bs+=(SAL/30); fd+=(FOOD/30); }
+                        ot += (o * OTR); totOt += o;
+                    }
+                }
+                for(let k in s.adv) { const a=s.adv[k]; const adt=new Date(a.date); if(adt>=d1 && adt<=d2) totAdv+=parseFloat(a.amt); }
+                const net = (bs + ot + fd) - PF - totAdv;
+                document.getElementById('report-out').innerHTML = `
+                    <div style="background:var(--card); padding:20px; border-radius:20px; margin-top:20px; border:1px solid var(--border);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid var(--border);"><h3>Net Pay</h3><h2 style="color:var(--success);">${s.conf.cur}${Math.max(0, net).toFixed(0)}</h2></div>
+                        <p style="display:flex; justify-content:space-between;"><span>Duty (${dy}d)</span><b>${s.conf.cur}${bs.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between;"><span>Food</span><b>${s.conf.cur}${fd.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between;"><span>OT (${totOt}h)</span><b>${s.conf.cur}${ot.toFixed(0)}</b></p>
+                        <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF</span><b>-${s.conf.cur}${PF}</b></p>
+                        <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>Advance</span><b>-${s.conf.cur}${totAdv}</b></p>
+                        
+                        ${s.sub < Date.now() ? '<div onclick="pay.show(true)" class="premium-banner">Premium Only ₹5/Month</div>' : ''}
+                        
+                        <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${PF},${totAdv},${net})">Download PDF</button>
+                    </div>`;
+            },
+            pdf: (d1,d2,dy,bs,ot,fd,pf,adv,net) => {
+                const { jsPDF } = window.jspdf; const doc = new jsPDF();
+                if(s.profBase64) try { doc.addImage(s.profBase64, 'JPEG', 15, 15, 25, 25); } catch(e){}
+                doc.setFontSize(22); doc.setTextColor(67, 97, 238); doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
+                doc.setFontSize(14); doc.setTextColor(0); doc.text("SALARY SLIP", 105, 30, null, null, "center");
+                doc.setFontSize(10); doc.setTextColor(100); doc.text(`Period: ${d1} to ${d2}`, 105, 36, null, null, "center");
+                doc.setFontSize(12); doc.setTextColor(0); doc.text(`Name: ${s.profile.name}`, 15, 50);
+                doc.autoTable({ startY: 65, head: [['Description', 'Amount']], body: [ [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], ['PF Deduction', `- ${s.conf.cur} ${pf}`], ['Advance', `- ${s.conf.cur} ${adv}`], [{content:'NET PAYABLE', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${Math.round(net)}`] ] });
+                doc.save(`Salary_${Date.now()}.pdf`);
+            }
+        };
+
         const pay = {
             buy: (amt, days) => {
-                promo.stop();
-                const vid = document.getElementById('promo-vid');
-                if(vid) { vid.pause(); vid.muted = true; }
-
-                const options = {
-                    "key": RZP_KEY,
-                    "amount": amt * 100,
-                    "currency": "INR",
-                    "name": "Duty Tracker Pro",
-                    "description": "Premium Subscription",
-                    "handler": function (response){
-                        db.ref(`u/${s.uid}/subExp`).set(Date.now() + (days * 86400000));
-                        window.ui.toast("Subscription Activated!");
-                        setTimeout(() => location.reload(), 1500);
-                    },
-                    "theme": { "color": "#4361ee" },
-                    "modal": { "ondismiss": function(){} }
+                const options = { 
+                    "key": RZP_KEY, "amount": amt * 100, "currency": "INR", "name": "Duty Tracker Pro", 
+                    "handler": function (r){ 
+                        const now = Date.now();
+                        db.ref(`u/${s.uid}/subExp`).set(now + (days * 86400000)); 
+                        // Save History
+                        db.ref(`u/${s.uid}/history`).push({
+                            amount: amt, date: now, method: 'Razorpay', orderId: r.razorpay_payment_id
+                        });
+                        location.reload(); 
+                    }, 
+                    "theme": { "color": "#4361ee" } 
                 };
-                const rzp1 = new Razorpay(options);
-                rzp1.open();
+                new Razorpay(options).open();
             },
-            show: (canClose) => {
-                document.getElementById('pay-wall').style.display='flex';
-                document.getElementById('pay-close-btn').style.display = canClose ? 'block' : 'none';
-            }
+            show: () => document.getElementById('pay-wall').style.display='flex'
         };
 
+        function toDataURL(url, callback) { var xhr = new XMLHttpRequest(); xhr.onload = function() { var reader = new FileReader(); reader.onloadend = function() { callback(reader.result); }; reader.readAsDataURL(xhr.response); }; xhr.open('GET', url); xhr.responseType = 'blob'; xhr.send(); }
+        
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install').style.display = 'block'; });
+        const pwa = { install: () => { if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { if(c.outcome==='accepted') document.getElementById('pwa-install').style.display='none'; deferredPrompt = null; }); } } };
+
+        // --- LEGAL TEXT CONTENT ---
         const legal = {
             show: (t) => {
-                const longPrivacy = `
-                    <h3>Privacy Policy</h3>
-                    <p><strong>Effective Date:</strong> January 01, 2024</p>
-                    <p>Thank you for using Duty Tracker Pro ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice or our practices with regards to your personal information, please contact us at <strong>nitai.grp00@gmail.com</strong>.</p>
-                    
-                    <h4>1. Information We Collect</h4>
-                    <p>We collect personal information that you voluntarily provide to us when you register on the Application. This includes:</p>
-                    <ul>
-                        <li><strong>Name and Phone Number:</strong> Used for account creation, authentication, and cross-device synchronization.</li>
-                        <li><strong>Profile Image:</strong> Uploaded securely to third-party storage to personalize your profile.</li>
-                        <li><strong>Duty & Financial Data:</strong> Your work attendance (Present, Leave, OT hours) and salary configuration (Basic Pay, OT Rate) are stored in our Firebase Realtime Database to provide the app's core functionality.</li>
-                    </ul>
-
-                    <h4>2. How We Use Your Information</h4>
-                    <p>We use the information we collect or receive:</p>
-                    <ul>
-                        <li>To facilitate account creation and logon processes.</li>
-                        <li>To calculate your estimated salary slips based on the data you input.</li>
-                        <li>To enforce our terms, conditions, and policies for business purposes, to comply with legal and regulatory requirements or in connection with our contract.</li>
-                    </ul>
-
-                    <h4>3. Sharing Your Information</h4>
-                    <p>We <strong>do not</strong> sell, trade, rent, or otherwise share your personal information with third parties for marketing purposes. Your data is shared only with:</p>
-                    <ul>
-                        <li><strong>Google Firebase:</strong> For secure data hosting and authentication.</li>
-                        <li><strong>Razorpay:</strong> To process secure payments for Premium subscriptions. We do not store your credit card or bank details on our servers.</li>
-                    </ul>
-
-                    <h4>4. Data Retention & Deletion</h4>
-                    <p>We keep your information for as long as necessary to fulfill the purposes outlined in this privacy notice unless otherwise required by law. You may request the deletion of your account and all associated data at any time by contacting our support team. Upon request, we will delete your data from our active databases within 30 days.</p>
-                    
-                    <h4>5. Security of Your Information</h4>
-                    <p>We use administrative, technical, and physical security measures to help protect your personal information. All data transmission is encrypted via SSL (Secure Socket Layer) technology.</p>
-                `;
-
-                const longRefund = `
-                    <h3>Refund & Cancellation Policy</h3>
-                    <p><strong>Last Updated:</strong> January 01, 2024</p>
-                    
-                    <h4>1. Nature of Goods</h4>
-                    <p>Duty Tracker Pro offers "Premium" subscriptions as digital services. These are intangible goods that are instantly activated upon successful payment via our payment gateway (Razorpay).</p>
-
-                    <h4>2. Refund Eligibility</h4>
-                    <p>Due to the nature of digital goods, we generally <strong>do not offer refunds</strong> once the subscription has been activated and the premium features (Unlimited Access, PDF Export) have been delivered to your account.</p>
-                    <p>However, we may consider a refund under the following exceptional circumstances:</p>
-                    <ul>
-                        <li><strong>Technical Failure:</strong> If a transaction was successful, money was deducted, but the Premium features were not activated within 24 hours, and our support team failed to rectify the issue manually.</li>
-                        <li><strong>Duplicate Payment:</strong> If you were charged twice for the same subscription period due to a technical glitch.</li>
-                    </ul>
-
-                    <h4>3. Requesting a Refund</h4>
-                    <p>If you believe you are eligible for a refund based on the criteria above, please contact us at <strong>nitai.grp00@gmail.com</strong> within 48 hours of the transaction. You must include:</p>
-                    <ul>
-                        <li>Your Registered Phone Number</li>
-                        <li>Transaction ID / Order ID</li>
-                        <li>A screenshot of the payment receipt</li>
-                        <li>Description of the issue</li>
-                    </ul>
-                    <p>We will review your request and notify you of the approval or rejection of your refund within 3-5 business days. If approved, the refund will be processed to your original method of payment within 7-10 business days.</p>
-
-                    <h4>4. Cancellation</h4>
-                    <p>Since this is a prepaid service (1 Month or 1 Year), there is no need to "cancel" a subscription to stop future payments. We do not support auto-debit. Your subscription simply expires at the end of the term, and you will not be charged again unless you manually choose to renew.</p>
-                `;
-
-                const longTerms = `
-                    <h3>Terms and Conditions</h3>
-                    <p><strong>Last Updated:</strong> January 01, 2024</p>
-                    <p>Welcome to Duty Tracker Pro. By downloading, accessing, or using this mobile application, you agree to be bound by these Terms and Conditions.</p>
-
-                    <h4>1. License</h4>
-                    <p>Duty Tracker Pro grants you a revocable, non-exclusive, non-transferable, limited license to download, install, and use the Application strictly in accordance with the terms of this Agreement.</p>
-
-                    <h4>2. User Accounts</h4>
-                    <p>You are responsible for maintaining the confidentiality of your account credentials (Login Phone Number). You agree to accept responsibility for all activities that occur under your account. We reserve the right to terminate accounts, remove or edit content, or cancel orders in our sole discretion.</p>
-
-                    <h4>3. Accuracy of Calculations</h4>
-                    <p>This Application is designed to assist you in tracking your work hours and estimating your salary. While we strive for accuracy, the calculations provided by the App are <strong>estimates only</strong>. We are not responsible for any discrepancies between the App's calculations and the actual payroll provided by your employer. Users should verify all figures independently.</p>
-
-                    <h4>4. Intellectual Property</h4>
-                    <p>The Application, including its code, graphics, and user interface, is the proprietary property of Nitai Studio and is protected by copyright and intellectual property laws.</p>
-
-                    <h4>5. Limitation of Liability</h4>
-                    <p>In no event shall Duty Tracker Pro or its developers be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.</p>
-
-                    <h4>6. Governing Law</h4>
-                    <p>These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.</p>
-                    
-                    <h4>7. Changes to Terms</h4>
-                    <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms.</p>
-                `;
-
-                const map = {'privacy':longPrivacy, 'refund':longRefund, 'terms':longTerms};
-                document.getElementById('legal-body').innerHTML = map[t] || "Loading...";
+                const c = {
+                    'privacy': `<h3>Privacy Policy</h3><p><strong>Effective Date:</strong> January 1, 2024</p><p>Duty Tracker Pro ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by Duty Tracker Pro.</p><h4>1. Information We Collect</h4><p>We collect information to provide better services to all our users. The types of information we collect include:</p><ul><li><strong>Personal Information:</strong> When you register, we collect your Name and Phone Number to create a unique user identity.</li><li><strong>Usage Data:</strong> We collect data on how you interact with our services, such as duty hours recorded, attendance types (Present, Leave, etc.), and salary configurations.</li><li><strong>Device Information:</strong> We may collect information about the device you use to access the app, including the hardware model and operating system version, to ensure compatibility.</li><li><strong>Media:</strong> If you upload a profile picture, we store this image to personalize your experience. We require camera/gallery permissions for this purpose.</li></ul><h4>2. How We Use Your Information</h4><p>We use the information we collect in various ways, including to:</p><ul><li>Provide, operate, and maintain our application.</li><li>Improve, personalize, and expand our application features.</li><li>Calculate your estimated salary based on the data you input.</li><li>Send you notifications (reminders) if you opt-in.</li><li>Process payments securely via third-party gateways (Razorpay).</li></ul><h4>3. Third-Party Services</h4><p>We use third-party services for specific functionalities:</p><ul><li><strong>Firebase (Google):</strong> Used for secure authentication and real-time database storage.</li><li><strong>Razorpay:</strong> Used for processing premium subscription payments. We do not store your credit card or bank details on our servers.</li><li><strong>ImgBB:</strong> Used for hosting user profile images.</li></ul><h4>4. Data Security</h4><p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p><h4>5. Children's Privacy</h4><p>Our Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we discover that a child under 13 has provided us with personal information, we immediately delete this from our servers.</p><h4>6. Contact Us</h4><p>If you have any questions about this Privacy Policy, please contact us at: nitai.grp00@gmail.com</p>`,
+                    'terms': `<h3>Terms & Conditions</h3><p><strong>Last Updated:</strong> January 1, 2024</p><p>By downloading or using the app, these terms will automatically apply to you – you should make sure therefore that you read them carefully before using the app.</p><h4>1. Usage License</h4><p>Duty Tracker Pro grants you a personal, non-exclusive, non-transferable, limited privilege to enter and use the app. You are not allowed to copy, or modify the app, any part of the app, or our trademarks in any way.</p><h4>2. User Responsibilities</h4><p>You are responsible for keeping your phone and access to the app secure. You are also responsible for the accuracy of the data (attendance, salary rates) you input into the application. The app calculates salary based solely on your inputs.</p><h4>3. Service Availability</h4><p>The app is provided "as is" and "as available". We do not warrant that the app will be uninterrupted or error-free. We reserve the right to withdraw or amend the service we provide without notice.</p><h4>4. Limitations of Liability</h4><p>In no event shall Duty Tracker Pro or its developers be liable for any direct, indirect, incidental, special, consequential or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data or other intangible losses resulting from the use of or inability to use the service.</p><h4>5. Governing Law</h4><p>These terms and conditions are governed by and construed in accordance with the laws of India and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>`,
+                    'refund': `<h3>Refund Policy</h3><p><strong>Last Updated:</strong> January 1, 2024</p><p>Thank you for buying a subscription to Duty Tracker Pro.</p><h4>1. Digital Goods</h4><p>Since the Service offers non-tangible, irrevocable digital goods (Premium Subscription), we generally do not provide refunds after the product is purchased, which you acknowledge prior to purchasing any product on the Website/App.</p><h4>2. Exceptional Circumstances</h4><p>We may honor requests for the refund on the following reasons:</p><ul><li><strong>Non-delivery of the product:</strong> If for some reason the premium features were not unlocked after a successful transaction. In this case, we recommend contacting us for assistance.</li><li><strong>Major defects:</strong> Although all the products are thoroughly tested before release, unexpected errors may occur. You should contact our Support Team for such issues.</li></ul><h4>3. Contact for Refunds</h4><p>If you believe you are eligible for a refund, please contact us within 48 hours of purchase at nitai.grp00@gmail.com with your Transaction ID and Registered Phone Number.</p>`,
+                    'subscription': `<h3>Subscription Policy</h3><p>Duty Tracker Pro offers premium features via paid subscriptions.</p><h4>1. Billing Cycle</h4><p>The subscription fee for the Premium Service will be charged as a one-time payment for the specific period selected (e.g., 1 Month or 1 Year). <strong>We do not support auto-debit or automatic renewal.</strong> Your subscription will automatically expire at the end of the term unless you manually choose to renew it.</p><h4>2. Pricing</h4><p>Prices are listed within the application and are subject to change. The current rates are ₹5 for 1 Month and ₹40 for 1 Year (subject to currency conversion).</p><h4>3. Termination</h4><p>Since payments are one-time and non-recurring, there is no need to cancel a subscription. Access to premium features will simply cease once the prepaid period ends.</p>`,
+                    'deletion': `<h3>Data Deletion</h3><p>We respect your right to be forgotten. You have the right to request the deletion of your account and all associated personal data.</p><h4>How to Request Deletion</h4><p>To request data deletion, please follow these steps:</p><ol><li>Send an email to <strong>nitai.grp00@gmail.com</strong>.</li><li>Subject Line: "Request for Account Deletion".</li><li>Include your registered Phone Number in the email body.</li></ol><p>Upon receiving your request, we will verify your identity and delete all your data (Profile, Attendance Records, Images) from our Firebase servers within 30 days. This action is irreversible.</p>`,
+                    'disclaimer': `<h3>Disclaimer</h3><p>The information provided by Duty Tracker Pro is for general informational purposes only. All calculations (Salary, Overtime, Deductions) are estimates based on the data entered by the user.</p><p>This application is not an official payroll system and should not be used as the sole basis for financial or legal decisions. We do not guarantee the accuracy, relevance, timeliness, or completeness of any information on the app. We are not responsible for any discrepancies between the app's calculations and your actual salary slip provided by your employer.</p>`
+                };
+                document.getElementById('legal-body').innerHTML = c[t] || "Content not found.";
                 document.getElementById('legal-modal').style.display='block';
-            }
-        };
-
-        function toDataURL(url, callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.onload = function() {
-                var reader = new FileReader();
-                reader.onloadend = function() { callback(reader.result); }
-                reader.readAsDataURL(xhr.response);
-            };
-            xhr.open('GET', url);
-            xhr.responseType = 'blob';
-            xhr.send();
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            document.getElementById('pwa-install').style.display = 'block';
-        });
-        const pwa = {
-            install: () => {
-                if(deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((c) => {
-                        if(c.outcome==='accepted') document.getElementById('pwa-install').style.display='none';
-                        deferredPrompt = null;
-                    });
-                }
             }
         };
     </script>
