@@ -99,6 +99,19 @@
         .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
         .confirm-actions { display: flex; gap: 10px; }
 
+        /* --- PROMO SCREEN (RESTORED) --- */
+        #promo-screen { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; overflow-y: auto; }
+        .promo-video-container { width: 100%; height: 55vh; position: relative; background: #000; overflow: hidden; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
+        .promo-video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
+        .promo-content { flex: 1; padding: 25px; display: flex; flex-direction: column; align-items: center; text-align: center; background: linear-gradient(180deg, #101010 0%, #000 100%); margin-top: -35px; padding-top: 45px; z-index: 2; border-radius: 40px 40px 0 0; }
+        .promo-title { font-size: 28px; font-weight: 800; color: white; margin-bottom: 5px; }
+        .promo-sub { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
+        .big-price { font-size: 70px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #a06cd5, #e24e97, #4361ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; letter-spacing: -2px; }
+        .btn-promo { background: linear-gradient(90deg, #4361ee, #f72585); color: white; font-size: 18px; text-transform: uppercase; padding: 18px; border-radius: 50px; box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4); width: 100%; border: none; font-weight: 800; cursor: pointer; animation: pulse 2s infinite; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-promo-year { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #ccc; padding: 12px 25px; border-radius: 30px; margin-top: 15px; font-size: 13px; cursor: pointer; transition: 0.3s; }
+        .skip-btn { background: none; border: none; color: #666; font-weight: 600; margin-top: auto; padding-top: 20px; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .sound-icon { position: absolute; bottom: 50px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; z-index: 5; pointer-events: none; }
+
         /* --- MAIN APP --- */
         #main-app { display:none; flex-direction:column; flex:1; }
         nav { padding:15px 20px; background:rgba(var(--bg), 0.85); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; justify-content:space-between; align-items:center; }
@@ -210,6 +223,11 @@
         .india-flag { width:24px; height:16px; border-radius:2px; box-shadow:0 0 10px rgba(255,165,0,0.5); display:block; }
         .dev-anim { animation: float 3s ease-in-out infinite; color:#ccc; font-size:12px; margin-top:5px; display:block; }
 
+        /* PROMO SCREEN (RESTORED) */
+        /* CSS is integrated in the style block above */
+        
+        .premium-banner { background: linear-gradient(45deg, #FFD600, #FF6D00); color: black; padding: 12px; border-radius: 12px; text-align: center; margin-top: 20px; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
+
     </style>
 </head>
 <body>
@@ -229,7 +247,7 @@
         </div>
     </div>
 
-    <!-- SPLASH -->
+    <!-- SPLASH (FIXED) -->
     <div id="splash">
         <i class="fas fa-shield-alt splash-logo"></i>
         <h1 style="color:white; font-weight:300;">Duty Tracker <b style="font-weight:800;">Pro</b></h1>
@@ -255,6 +273,39 @@
                 <input type="number" id="phone" class="inp" placeholder="Phone Number">
             </div>
             <button class="btn btn-primary" onclick="app.login()">Verify & Continue</button>
+        </div>
+    </div>
+
+    <!-- PROMO / VIDEO SCREEN (RESTORED) -->
+    <div id="promo-screen" onclick="promo.unmute()">
+        <div class="promo-video-container">
+            <video id="promo-vid" playsinline loop muted>
+                <source src="https://res.cloudinary.com/dea0kpjcp/video/upload/v1770059809/kruwgvtxw5iukf5usyfy.mp4" type="video/mp4">
+            </video>
+            <div class="sound-icon" id="snd-msg"><i class="fas fa-volume-up"></i> Sound On</div>
+            <div style="position:absolute; top:20px; right:20px; cursor:pointer; background:rgba(0,0,0,0.5); border-radius:50%; width:35px; height:35px; display:flex; align-items:center; justify-content:center; z-index:10;" onclick="event.stopPropagation(); promo.close()">
+                <i class="fas fa-times" style="color:white; font-size:18px;"></i>
+            </div>
+        </div>
+
+        <div class="promo-content">
+            <div style="color:#f72585; font-weight:800; letter-spacing:1px; margin-bottom:5px; font-size:12px;">UNLOCK ALL FEATURES</div>
+            <h2 class="promo-title">Try Premium Now</h2>
+            <p class="promo-sub" style="max-width:280px;">Get unlimited access, PDF exports, and ad-free experience.</p>
+            
+            <div class="big-price">₹5</div>
+            <div style="font-size:14px; color:white; font-weight:bold;">For 1 Month</div>
+            <div style="font-size:12px; color:#666; margin-top:5px;">Or $0.055 USD</div>
+
+            <button class="btn btn-promo" onclick="event.stopPropagation(); pay.buy(5, 30)">
+                START TRIAL <i class="fas fa-arrow-right"></i>
+            </button>
+            
+            <button class="btn-promo-year" onclick="event.stopPropagation(); pay.buy(40, 365)">
+                Get 1 Year for ₹40 ($0.44)
+            </button>
+
+            <button class="skip-btn" onclick="event.stopPropagation(); promo.close()">Skip and explore Home</button>
         </div>
     </div>
 
@@ -327,7 +378,7 @@
             </div>
         </div>
 
-        <!-- REFER & EARN (BANNER STYLE AS REQUESTED) -->
+        <!-- REFER & EARN (BANNER STYLE) -->
         <div class="ref-banner" onclick="ui.openPage('page-refer')">
             <i class="fas fa-gift" style="color:#FFD600; font-size:20px;"></i>
             <div class="ref-text">Refer & Earn Premium</div>
@@ -692,6 +743,9 @@
             });
             
             document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+            const vid = document.getElementById('promo-vid');
+            if(vid) vid.pause();
+
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
@@ -760,14 +814,18 @@
                     
                     const exD = new Date(s.sub);
                     const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
-                    if(s.sub < Date.now()) { 
+                    const isExp = s.sub < Date.now();
+
+                    if(isExp) { 
                         document.getElementById('prof-badge').innerText="EXPIRED"; 
                         document.getElementById('prof-badge').style.background="red"; 
                         document.getElementById('prof-exp').innerText = "Expired: "+exD.toLocaleDateString();
+                        promo.show(); // Auto show promo if expired
                     } else {
                         document.getElementById('prof-badge').innerText="PREMIUM"; 
                         document.getElementById('prof-badge').style.background="var(--accent)";
                         document.getElementById('prof-exp').innerText = `Valid till: ${exD.toLocaleDateString()} (${daysLeft} Days)`;
+                        promo.stop();
                     }
                     
                     document.getElementById('set-cur').value = s.conf.cur || '₹';
@@ -793,6 +851,29 @@
 
                     document.getElementById('main-app').style.display = 'flex';
                 });
+            }
+        };
+
+        const promo = {
+            show: () => {
+                history.pushState({v:'promo'}, null, '');
+                document.getElementById('promo-screen').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+                const vid = document.getElementById('promo-vid');
+                if(vid) { vid.currentTime = 0; vid.muted = false; vid.volume = 1.0; vid.play().catch(e=>console.log(e)); }
+            },
+            unmute: () => {
+                const vid = document.getElementById('promo-vid');
+                if(vid) { vid.muted = false; vid.play(); document.getElementById('snd-msg').innerHTML = '<i class="fas fa-volume-up"></i> Sound On'; }
+            },
+            stop: () => {
+                const vid = document.getElementById('promo-vid');
+                document.getElementById('promo-screen').style.display = 'none';
+                if(vid) { vid.pause(); vid.currentTime = 0; vid.muted = true; }
+            },
+            close: () => {
+                promo.stop();
+                document.getElementById('main-app').style.display = 'flex';
             }
         };
 
@@ -842,7 +923,7 @@
             },
             set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
             save: () => {
-                if(s.sub < Date.now()) { document.getElementById('att-modal').style.display = 'none'; pay.show(); return; }
+                if(s.sub < Date.now()) { document.getElementById('att-modal').style.display = 'none'; promo.show(); return; }
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
@@ -1026,12 +1107,13 @@
                         <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF</span><b>-${s.conf.cur}${PF}</b></p>
                         <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>Advance</span><b>-${s.conf.cur}${totAdv}</b></p>
                         
-                        ${s.sub < Date.now() ? '<div onclick="pay.show(true)" class="premium-banner">Premium Only ₹5/Month</div>' : ''}
+                        ${s.sub < Date.now() ? '<div onclick="promo.show()" class="premium-banner">Premium Only ₹5/Month</div>' : ''}
                         
                         <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${PF},${totAdv},${net})">Download PDF</button>
                     </div>`;
             },
             pdf: (d1,d2,dy,bs,ot,fd,pf,adv,net) => {
+                if(s.sub < Date.now()) { promo.show(); return; } // Check Premium before PDF
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 if(s.profBase64) try { doc.addImage(s.profBase64, 'JPEG', 15, 15, 25, 25); } catch(e){}
                 doc.setFontSize(22); doc.setTextColor(67, 97, 238); doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
@@ -1045,6 +1127,7 @@
 
         const pay = {
             buy: (amt, days) => {
+                promo.stop(); // Hide promo screen first
                 const options = { 
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR", "name": "Duty Tracker Pro", 
                     "handler": function (r){ 
@@ -1054,7 +1137,8 @@
                         db.ref(`u/${s.uid}/history`).push({
                             amount: amt, date: now, method: 'Razorpay', orderId: r.razorpay_payment_id
                         });
-                        location.reload(); 
+                        ui.toast("Subscription Activated!");
+                        setTimeout(() => location.reload(), 1500); 
                     }, 
                     "theme": { "color": "#4361ee" } 
                 };
