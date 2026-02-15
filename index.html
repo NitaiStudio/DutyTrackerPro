@@ -75,6 +75,7 @@
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes zoomIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         /* --- COMPONENTS --- */
         .btn { width:100%; padding:16px; border:none; border-radius:16px; font-weight:700; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:10px; transition:0.2s; font-size:16px; letter-spacing:0.5px; position: relative; overflow: hidden; }
@@ -99,7 +100,7 @@
         .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
         .confirm-actions { display: flex; gap: 10px; }
 
-        /* --- PROMO SCREEN (RESTORED) --- */
+        /* --- PROMO SCREEN --- */
         #promo-screen { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; overflow-y: auto; }
         .promo-video-container { width: 100%; height: 55vh; position: relative; background: #000; overflow: hidden; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
         .promo-video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
@@ -167,19 +168,7 @@
         #prof-upload { display: none !important; }
         
         /* REFER BANNER FIXED */
-        .ref-banner {
-            margin: 20px;
-            padding: 15px;
-            background: rgba(67, 97, 238, 0.1);
-            border: 1px dashed var(--primary);
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+        .ref-banner { margin: 20px; padding: 15px; background: rgba(67, 97, 238, 0.1); border: 1px dashed var(--primary); border-radius: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.3s; }
         .ref-banner:active { transform: scale(0.98); background: rgba(67, 97, 238, 0.2); }
         .ref-text { font-weight: 700; color: var(--primary); font-size: 16px; }
 
@@ -217,15 +206,14 @@
 
         /* SPLASH SCREEN */
         #splash { position:fixed; inset:0; background:linear-gradient(135deg, #020024, #090979, #00d4ff); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity 0.8s; }
-        .splash-logo { font-size:80px; color:white; margin-bottom:20px; animation:pulse 3s ease-in-out infinite; text-shadow:0 10px 30px rgba(0,0,0,0.5); }
+        .splash-logo { font-size:80px; color:white; margin-bottom:20px; animation:zoomIn 0.8s ease-out, pulse 3s infinite; text-shadow:0 10px 30px rgba(0,0,0,0.5); }
         .loader { width:50px; height:50px; border:4px solid rgba(255,255,255,0.2); border-top-color:white; border-radius:50%; animation:spin 1s linear infinite; margin:30px 0; }
         .india-badge { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); padding:8px 16px; border-radius:20px; backdrop-filter:blur(5px); margin-top:20px; animation:fadeIn 1s ease-out; }
         .india-flag { width:24px; height:16px; border-radius:2px; box-shadow:0 0 10px rgba(255,165,0,0.5); display:block; }
         .dev-anim { animation: float 3s ease-in-out infinite; color:#ccc; font-size:12px; margin-top:5px; display:block; }
 
-        /* PROMO SCREEN (RESTORED) */
+        /* PROMO SCREEN */
         .premium-banner { background: linear-gradient(45deg, #FFD600, #FF6D00); color: black; padding: 12px; border-radius: 12px; text-align: center; margin-top: 20px; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
-
     </style>
 </head>
 <body>
@@ -245,7 +233,7 @@
         </div>
     </div>
 
-    <!-- SPLASH (FIXED) -->
+    <!-- SPLASH -->
     <div id="splash">
         <i class="fas fa-shield-alt splash-logo"></i>
         <h1 style="color:white; font-weight:300;">Duty Tracker <b style="font-weight:800;">Pro</b></h1>
@@ -274,7 +262,7 @@
         </div>
     </div>
 
-    <!-- PROMO / VIDEO SCREEN (RESTORED) -->
+    <!-- PROMO / VIDEO SCREEN -->
     <div id="promo-screen" onclick="promo.unmute()">
         <div class="promo-video-container">
             <video id="promo-vid" playsinline loop muted>
@@ -617,13 +605,13 @@
             <div class="settings-card">
                 <span class="label-text">Currency</span>
                 <select id="set-cur" class="inp"><option value="₹">₹ INR</option><option value="৳">৳ BDT</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="SAR">SAR</option><option value="AED">AED</option></select>
-                <span class="label-text">Basic Salary</span>
-                <input type="number" id="set-sal" class="inp" placeholder="e.g., 20000">
-                <span class="label-text">Food Allowance</span>
-                <input type="number" id="set-food" class="inp" placeholder="e.g., 2000">
-                <span class="label-text">Overtime Rate (Hour)</span>
+                <span class="label-text">Daily Salary (Hajira)</span>
+                <input type="number" id="set-sal" class="inp" placeholder="e.g., 500">
+                <span class="label-text">Daily Food Allowance</span>
+                <input type="number" id="set-food" class="inp" placeholder="e.g., 50">
+                <span class="label-text">Overtime Rate (Per Hour)</span>
                 <input type="number" id="set-otr" class="inp" placeholder="e.g., 100">
-                <span class="label-text">PF Deduction</span>
+                <span class="label-text">PF Deduction (Monthly Total)</span>
                 <input type="number" id="set-pf" class="inp" placeholder="e.g., 1500">
                 <button class="btn btn-primary" onclick="settings.save()">Save Configuration</button>
             </div>
@@ -978,7 +966,7 @@
                 const target = parseFloat(s.conf.target) || 1;
                 let earned = 0, SAL = parseFloat(s.conf.sal)||0;
                 const m = new Date().getMonth();
-                for(let k in s.data) { if(new Date(k).getMonth()===m && ['Present','Holiday','Sick'].includes(s.data[k].t)) earned += (SAL/30); }
+                for(let k in s.data) { if(new Date(k).getMonth()===m && ['Present','Holiday','Sick'].includes(s.data[k].t)) earned += SAL; } // Corrected to use daily salary directly
                 const pct = Math.min(100, (earned / target) * 100).toFixed(1);
                 document.getElementById('target-pct').innerText = pct + '%';
                 document.getElementById('target-bar').style.width = pct + '%';
@@ -1082,27 +1070,67 @@
 
         const reports = {
             gen: () => {
-                // Calculation Fix: Set Hours to avoid Timezone Issues
+                // FIXED LOGIC: Strict Calculation based on Date Range
                 const d1 = new Date(document.getElementById('r-start').value); d1.setHours(0,0,0,0);
                 const d2 = new Date(document.getElementById('r-end').value); d2.setHours(23,59,59,999);
                 
                 if(isNaN(d1)) return ui.toast("Select Dates");
-                if(!s.conf.sal) ui.toast("Warning: Basic Salary is 0 (Check Utility)");
+                if(!s.conf.sal) ui.toast("Warning: Daily Salary is 0 (Check Utility)");
+
+                // CONFIG RATES (DAILY WAGE LOGIC)
+                const SAL_PER_DAY = parseFloat(s.conf.sal)||0;   // No division by 30
+                const FOOD_PER_DAY = parseFloat(s.conf.food)||0; // No division by 30
+                const PF_MONTHLY = parseFloat(s.conf.pf)||0;    // This is monthly
+                const OT_RATE = parseFloat(s.conf.otr)||0;
 
                 let dy=0, bs=0, ot=0, fd=0, totOt=0, totAdv=0;
-                const SAL=parseFloat(s.conf.sal)||0, OTR=parseFloat(s.conf.otr)||0, FOOD=parseFloat(s.conf.food)||0, PF=parseFloat(s.conf.pf)||0;
                 
+                // 1. Loop through ALL saved data to find entries strictly within range
                 for(let k in s.data) {
-                    const dt = new Date(k); dt.setHours(12,0,0,0); // Middle of day to be safe
-                    if(dt>=d1 && dt<=d2) {
-                        const v = s.data[k]; const o = parseFloat(v.ot||0);
-                        if(v.t==='Half Day') { dy+=0.5; bs+=(SAL/30/2); fd+=(FOOD/30/2); }
-                        else if(['Present','Holiday','Sick'].includes(v.t)) { dy++; bs+=(SAL/30); fd+=(FOOD/30); }
-                        ot += (o * OTR); totOt += o;
+                    const dt = new Date(k); dt.setHours(12,0,0,0); // set to noon to avoid timezone flip
+                    if(dt >= d1 && dt <= d2) {
+                        const v = s.data[k]; 
+                        const o = parseFloat(v.ot||0);
+                        
+                        // Add Salary & Food based on presence
+                        if(v.t==='Half Day') { 
+                            dy+=0.5; 
+                            bs += (SAL_PER_DAY / 2); 
+                            fd += (FOOD_PER_DAY / 2); 
+                        }
+                        else if(['Present','Holiday','Sick'].includes(v.t)) { 
+                            dy++; 
+                            bs += SAL_PER_DAY; 
+                            fd += FOOD_PER_DAY; 
+                        }
+                        // Add OT
+                        ot += (o * OT_RATE); 
+                        totOt += o;
                     }
                 }
-                for(let k in s.adv) { const a=s.adv[k]; const adt=new Date(a.date); adt.setHours(12,0,0,0); if(adt>=d1 && adt<=d2) totAdv+=parseFloat(a.amt); }
-                const net = (bs + ot + fd) - PF - totAdv;
+
+                // 2. Loop through Advance History
+                for(let k in s.adv) { 
+                    const a = s.adv[k]; 
+                    const adt = new Date(a.date); adt.setHours(12,0,0,0); 
+                    if(adt >= d1 && adt <= d2) {
+                        totAdv += parseFloat(a.amt);
+                    }
+                }
+
+                // 3. Calculate PF Monthly (Strict 30-day Block Logic)
+                const diffTime = Math.abs(d2 - d1);
+                // Total days inclusive (e.g., 1st to 30th = 30 days)
+                const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+                
+                // Logic: Count how many "months" are in this range.
+                // 1 to 30 days = 1 Month PF
+                // 31 to 60 days = 2 Months PF
+                const monthsCount = Math.max(1, Math.round(totalDays / 30));
+                
+                const pf_deduction = PF_MONTHLY * monthsCount;
+
+                const net = (bs + ot + fd) - pf_deduction - totAdv;
                 
                 document.getElementById('report-out').innerHTML = `
                     <div style="background:var(--card); padding:20px; border-radius:20px; margin-top:20px; border:1px solid var(--border);">
@@ -1110,12 +1138,12 @@
                         <p style="display:flex; justify-content:space-between;"><span>Duty (${dy}d)</span><b>${s.conf.cur}${bs.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between;"><span>Food</span><b>${s.conf.cur}${fd.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between;"><span>OT (${totOt}h)</span><b>${s.conf.cur}${ot.toFixed(0)}</b></p>
-                        <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF</span><b>-${s.conf.cur}${PF}</b></p>
+                        <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF (Est.)</span><b>-${s.conf.cur}${pf_deduction.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>Advance</span><b>-${s.conf.cur}${totAdv}</b></p>
                         
                         ${s.sub < Date.now() ? '<div onclick="promo.show()" class="premium-banner">Premium Only ₹5/Month</div>' : ''}
                         
-                        <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${PF},${totAdv},${net})">Download PDF</button>
+                        <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${pf_deduction},${totAdv},${net})">Download PDF</button>
                     </div>`;
             },
             pdf: (d1,d2,dy,bs,ot,fd,pf,adv,net) => {
@@ -1126,7 +1154,7 @@
                 doc.setFontSize(14); doc.setTextColor(0); doc.text("SALARY SLIP", 105, 30, null, null, "center");
                 doc.setFontSize(10); doc.setTextColor(100); doc.text(`Period: ${d1} to ${d2}`, 105, 36, null, null, "center");
                 doc.setFontSize(12); doc.setTextColor(0); doc.text(`Name: ${s.profile.name}`, 15, 50);
-                doc.autoTable({ startY: 65, head: [['Description', 'Amount']], body: [ [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], ['PF Deduction', `- ${s.conf.cur} ${pf}`], ['Advance', `- ${s.conf.cur} ${adv}`], [{content:'NET PAYABLE', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${Math.round(net)}`] ] });
+                doc.autoTable({ startY: 65, head: [['Description', 'Amount']], body: [ [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], ['PF Deduction', `- ${s.conf.cur} ${Math.round(pf)}`], ['Advance', `- ${s.conf.cur} ${adv}`], [{content:'NET PAYABLE', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${Math.round(net)}`] ] });
                 doc.save(`Salary_${Date.now()}.pdf`);
             }
         };
