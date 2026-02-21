@@ -141,6 +141,7 @@
         .btn-sec { background:var(--input); color:var(--text); border:1px solid var(--border); transition: 0.2s; }
         .btn-sec.active { background: rgba(67, 97, 238, 0.15); border-color: var(--primary); color: var(--primary); }
         .btn-danger { background:rgba(239, 35, 60, 0.1); color:var(--danger); border:1px solid var(--danger); }
+        .btn-success { background:var(--success); color:white; }
 
         .inp, select, textarea { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:14px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
         .inp:focus { border-color:var(--primary); background:var(--card); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
@@ -272,7 +273,7 @@
         /* PROMO SCREEN */
         .premium-banner { background: linear-gradient(45deg, #FFD600, #FF6D00); color: black; padding: 12px; border-radius: 12px; text-align: center; margin-top: 20px; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
         
-        /* Telegram Support Badge - শুধুমাত্র Profile পৃষ্ঠায় দেখাবে */
+        /* Telegram Support Badge */
         .telegram-support-badge {
             display: flex;
             align-items: center;
@@ -294,6 +295,103 @@
             transform: scale(1.02);
             box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
         }
+
+        /* REWARD POPUP STYLES */
+        #reward-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 15000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        
+        .reward-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid var(--accent);
+            animation: zoomIn 0.5s;
+            box-shadow: 0 20px 60px rgba(247, 37, 133, 0.3);
+        }
+        
+        .reward-content i.fa-gift {
+            font-size: 70px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        #reward-title {
+            color: var(--text);
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        
+        #reward-message {
+            color: var(--text-sub);
+            margin-bottom: 25px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .btn-telegram {
+            background: #0088cc;
+            color: white;
+            flex: 1;
+        }
+        .btn-telegram:hover {
+            background: #0077b5;
+            transform: translateY(-2px);
+        }
+        
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            flex: 1;
+        }
+        .btn-whatsapp:hover {
+            background: #20bd5a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-claim {
+            background: var(--success);
+            color: white;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn-claim:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(6, 214, 160, 0.3);
+        }
+        
+        #reward-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--success);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            z-index: 16000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: fadeIn 0.3s, pulse 2s infinite;
+        }
+        #reward-toast i {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -308,6 +406,37 @@
                 <i class="fas fa-clock"></i> Expected completion: <span id="maintenance-time">Approximately 30 minutes</span>
             </div>
         </div>
+    </div>
+
+    <!-- REWARD POPUP -->
+    <div id="reward-popup">
+        <div class="reward-content">
+            <i class="fas fa-gift"></i>
+            <h2 id="reward-title">Unlock 7 Days Free Premium!</h2>
+            <p id="reward-message">Join BOTH our official channels to activate your reward.</p>
+            
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+                <button onclick="reward.joinTelegram()" class="btn btn-telegram">
+                    <i class="fab fa-telegram"></i> Telegram
+                </button>
+                <button onclick="reward.joinWhatsApp()" class="btn btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+            </div>
+            
+            <button onclick="reward.claimReward()" class="btn btn-claim">
+                <i class="fas fa-check-circle"></i> I Joined – Claim Reward
+            </button>
+            
+            <button onclick="reward.closePopup()" class="btn btn-sec">
+                <i class="fas fa-times"></i> Maybe Later
+            </button>
+        </div>
+    </div>
+
+    <!-- REWARD SUCCESS TOAST -->
+    <div id="reward-toast">
+        <i class="fas fa-crown"></i> 7 Days Premium Activated!
     </div>
 
     <!-- TOAST -->
@@ -443,7 +572,6 @@
         <div class="profile-header">
             <div class="avatar-container">
                 <img src="" id="prof-img-el" class="avatar-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
-                <!-- HIDDEN INPUT FIX -->
                 <input type="file" id="prof-upload" accept="image/*" onchange="profile.upload(this)">
                 <label for="prof-upload" class="avatar-edit"><i class="fas fa-camera"></i></label>
             </div>
@@ -456,10 +584,10 @@
             </div>
         </div>
 
-        <!-- Telegram Support Badge (শুধুমাত্র Profile পৃষ্ঠায়) -->
-        <a href="https://telegram.me/DutyTrackerPro" target="_blank" class="telegram-support-badge">
+        <!-- Telegram Support Badge -->
+        <a href="https://telegram.me/DutyTrackerProapp" target="_blank" class="telegram-support-badge">
             <i class="fab fa-telegram"></i>
-            <div style="flex:1;">Telegram Support</div>
+            <div style="flex:1;">Join Telegram Channel</div>
             <i class="fas fa-external-link-alt"></i>
         </a>
 
@@ -644,12 +772,13 @@
                     <li><b>Edit/Delete:</b> Tap a date with an entry to open the menu, then change details or click Delete.</li>
                     <li><b>Advance:</b> Go to Advance tab to record money taken. It will be deducted in reports.</li>
                     <li><b>PDF:</b> Go to Reports, select dates, and click Download PDF.</li>
+                    <li><b>Free Premium:</b> Join our Telegram and WhatsApp channels to get 7 days free premium!</li>
                 </ul>
             </div>
             
             <h3 style="margin:20px 0 15px; color:var(--primary);">Common Questions</h3>
             <div class="settings-card" id="faq-list">
-                <!-- FAQs injected by JS -->
+                <!-- FAQs will be injected by JS -->
             </div>
         </div>
     </div>
@@ -678,9 +807,13 @@
         <div style="padding:20px; text-align:center;">
             <i class="fas fa-shield-alt" style="font-size:60px; color:var(--primary); margin:20px 0;"></i>
             <h3>Duty Tracker Pro</h3>
-            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.3.0 (Stable)</p>
+            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.5.0 (Stable)</p>
             <div class="settings-card" style="text-align:left;">
                 <h4 style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">Changelog</h4>
+                <div style="margin-bottom:15px;">
+                    <div style="font-weight:bold; color:var(--secondary);">v2.5.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Added Reward Popup System - Join Telegram & WhatsApp for 7 Days Free Premium!</div>
+                </div>
                 <div style="margin-bottom:15px;">
                     <div style="font-weight:bold; color:var(--secondary);">v2.3.0</div>
                     <div style="font-size:13px; color:var(--text-sub);">Added Subscription History, Feedback via Email, Improved UI.</div>
@@ -703,7 +836,14 @@
         <div style="padding:20px;">
             <div class="settings-card">
                 <span class="label-text">Currency</span>
-                <select id="set-cur" class="inp"><option value="₹">₹ INR</option><option value="৳">৳ BDT</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="SAR">SAR</option><option value="AED">AED</option></select>
+                <select id="set-cur" class="inp">
+                    <option value="₹">₹ INR</option>
+                    <option value="৳">৳ BDT</option>
+                    <option value="$">$ USD</option>
+                    <option value="€">€ EUR</option>
+                    <option value="SAR">SAR</option>
+                    <option value="AED">AED</option>
+                </select>
                 <span class="label-text">Daily Salary (Hajira)</span>
                 <input type="number" id="set-sal" class="inp" placeholder="e.g., 500">
                 <span class="label-text">Daily Food Allowance</span>
@@ -747,7 +887,11 @@
             <button class="btn btn-sec" onclick="data.set('Off', this)">Off</button>
         </div>
         <span class="label-text">Shift Selection</span>
-        <select id="inp-shift" class="inp"><option value="Morning">Morning Shift</option><option value="Evening">Evening Shift</option><option value="Night">Night Shift</option></select>
+        <select id="inp-shift" class="inp">
+            <option value="Morning">Morning Shift</option>
+            <option value="Evening">Evening Shift</option>
+            <option value="Night">Night Shift</option>
+        </select>
         <div style="display:flex; gap:12px; margin-bottom:25px;">
             <div style="flex:1;"><span class="label-text">Duty/OT (Hours)</span><input type="number" id="inp-ot" class="inp" placeholder="0" style="margin:0;"></div>
             <div style="flex:1;"><span class="label-text">Late (Mins)</span><input type="number" id="inp-late" class="inp" placeholder="0" style="margin:0;"></div>
@@ -787,20 +931,56 @@
     </div>
 
     <script>
-        // CONFIG
-        const firebaseConfig = { apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk", authDomain: "duty-tracker-pro.firebaseapp.com", databaseURL: "https://duty-tracker-pro-default-rtdb.firebaseio.com", projectId: "duty-tracker-pro", storageBucket: "duty-tracker-pro.firebasestorage.app", messagingSenderId: "716525293622", appId: "1:716525293622:web:880f39084c86180fbb0897" };
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk", 
+            authDomain: "duty-tracker-pro.firebaseapp.com", 
+            databaseURL: "https://duty-tracker-pro-default-rtdb.firebaseio.com", 
+            projectId: "duty-tracker-pro", 
+            storageBucket: "duty-tracker-pro.firebasestorage.app", 
+            messagingSenderId: "716525293622", 
+            appId: "1:716525293622:web:880f39084c86180fbb0897" 
+        };
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
         const IMG_API_KEY = "c762b5315ee9263c36ed04156b0ff758"; 
         const ONESIGNAL_APP_ID = "757c2d8a-b121-4498-bc66-5d71d68a9009";
 
-        let s = { uid: null, data: {}, adv: {}, sub: 0, conf: {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0}, profile: {name:'', img:''}, profBase64: null, refCode: '', history: {} };
+        let s = { 
+            uid: null, 
+            data: {}, 
+            adv: {}, 
+            sub: 0, 
+            conf: {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0}, 
+            profile: {name:'', img:''}, 
+            profBase64: null, 
+            refCode: '', 
+            history: {},
+            reward: {
+                telegram_joined: 0,
+                whatsapp_joined: 0,
+                reward_claimed: 0,
+                reward_expiry_date: null
+            }
+        };
+        
         let curDate = new Date();
         let selDate = null;
         let selType = null;
         let chartInstance = null;
         let deferredPrompt;
+        let rewardConfig = {
+            status: false,
+            title: "Unlock 7 Days Free Premium!",
+            message: "Join BOTH our official channels to activate your reward.",
+            reward_days: 7,
+            telegram_link: "https://telegram.me/DutyTrackerProapp",
+            whatsapp_link: "https://whatsapp.com/channel/0029Vb6SlL01dAw9flibc12I"
+        };
 
         // --- FULL A-Z COUNTRY LIST ---
         const countries = [
@@ -819,7 +999,106 @@
             {n:"Uganda",c:"+256"},{n:"Ukraine",c:"+380"},{n:"UAE",c:"+971"},{n:"UK",c:"+44"},{n:"USA",c:"+1"},{n:"Uruguay",c:"+598"},{n:"Uzbekistan",c:"+998"},{n:"Vanuatu",c:"+678"},{n:"Venezuela",c:"+58"},{n:"Vietnam",c:"+84"},{n:"Yemen",c:"+967"},{n:"Zambia",c:"+260"},{n:"Zimbabwe",c:"+263"}
         ];
 
+        // ============================================
+        // REWARD SYSTEM
+        // ============================================
+        const reward = {
+            loadConfig: () => {
+                db.ref('config/reward').on('value', (snap) => {
+                    const config = snap.val() || {};
+                    rewardConfig = {
+                        status: config.status || false,
+                        title: config.title || "Unlock 7 Days Free Premium!",
+                        message: config.message || "Join BOTH our official channels to activate your reward.",
+                        reward_days: config.reward_days || 7,
+                        telegram_link: config.telegram_link || "https://telegram.me/DutyTrackerProapp",
+                        whatsapp_link: config.whatsapp_link || "https://whatsapp.com/channel/0029Vb6SlL01dAw9flibc12I"
+                    };
+                    
+                    document.getElementById('reward-title').innerText = rewardConfig.title;
+                    document.getElementById('reward-message').innerText = rewardConfig.message;
+                });
+            },
+            
+            checkAndShow: () => {
+                if (!s.uid) return;
+                
+                db.ref(`u/${s.uid}/reward`).once('value', (snap) => {
+                    const userReward = snap.val() || {
+                        telegram_joined: 0,
+                        whatsapp_joined: 0,
+                        reward_claimed: 0,
+                        reward_expiry_date: null
+                    };
+                    
+                    s.reward = userReward;
+                    
+                    if (rewardConfig.status && userReward.reward_claimed === 0) {
+                        setTimeout(() => {
+                            document.getElementById('reward-popup').style.display = 'flex';
+                        }, 2000);
+                    }
+                });
+            },
+            
+            joinTelegram: () => {
+                window.open(rewardConfig.telegram_link, '_blank');
+                ui.toast("✅ Please join and click 'I Joined'");
+            },
+            
+            joinWhatsApp: () => {
+                window.open(rewardConfig.whatsapp_link, '_blank');
+                ui.toast("✅ Please join and click 'I Joined'");
+            },
+            
+            claimReward: () => {
+                if (s.reward.reward_claimed === 1) {
+                    reward.closePopup();
+                    ui.toast("You already claimed your reward!");
+                    return;
+                }
+                
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + rewardConfig.reward_days);
+                const expiryTimestamp = expiryDate.getTime();
+                
+                db.ref(`u/${s.uid}/subExp`).once('value', (subSnap) => {
+                    let currentExp = subSnap.val() || Date.now();
+                    if (currentExp < Date.now()) currentExp = Date.now();
+                    
+                    const newExp = currentExp + (rewardConfig.reward_days * 24 * 60 * 60 * 1000);
+                    
+                    const updates = {};
+                    updates[`u/${s.uid}/subExp`] = newExp;
+                    updates[`u/${s.uid}/reward`] = {
+                        telegram_joined: 1,
+                        whatsapp_joined: 1,
+                        reward_claimed: 1,
+                        reward_expiry_date: expiryTimestamp,
+                        claimed_at: Date.now()
+                    };
+                    
+                    db.ref().update(updates).then(() => {
+                        document.getElementById('reward-toast').style.display = 'block';
+                        setTimeout(() => {
+                            document.getElementById('reward-toast').style.display = 'none';
+                        }, 3000);
+                        
+                        reward.closePopup();
+                        s.reward.reward_claimed = 1;
+                        ui.toast(`🎉 ${rewardConfig.reward_days} Days Premium Activated!`);
+                    });
+                });
+            },
+            
+            closePopup: () => {
+                document.getElementById('reward-popup').style.display = 'none';
+            }
+        };
+
+        // ============================================
         // INIT
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             const ccSelect = document.getElementById('cc');
             countries.forEach(c => {
@@ -828,22 +1107,22 @@
                 ccSelect.appendChild(o);
             });
             
-            // Set initial state for History API
             history.replaceState({page: 'home'}, null, '');
-
             document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
             const vid = document.getElementById('promo-vid');
             if(vid) vid.pause();
 
-            // Initialize OneSignal
             window.OneSignalDeferred = window.OneSignalDeferred || [];
             OneSignalDeferred.push(async function(OneSignal) {
                 await OneSignal.init({
                     appId: ONESIGNAL_APP_ID,
+                    allowLocalhostAsSecureOrigin: true,
+                    welcomeNotification: { disable: true }
                 });
             });
 
-            // Check Maintenance Mode
+            reward.loadConfig();
+
             db.ref('config/maintenance').on('value', (snap) => {
                 const isMaintenance = snap.val() || false;
                 if (isMaintenance) {
@@ -853,7 +1132,6 @@
                     document.getElementById('splash').style.display = 'none';
                 } else {
                     document.getElementById('maintenance-mode').style.display = 'none';
-                    // Show splash and then proceed normally
                     setTimeout(() => {
                         document.getElementById('splash').style.opacity = '0';
                         setTimeout(() => {
@@ -865,7 +1143,6 @@
                 }
             });
 
-            // Fetch dynamic subscription prices
             db.ref('config/prices').on('value', (snap) => {
                 const prices = snap.val() || { monthly: 5, yearly: 40 };
                 document.getElementById('dynamic-month-price').innerText = prices.monthly;
@@ -873,13 +1150,13 @@
                 document.getElementById('promo-price').innerText = `₹${prices.monthly}`;
             });
 
-            // Populate FAQ
             const faqs = [
                 {q:"How to add a duty?", a:"Tap on 'Add Today's Duty' on the home screen, or tap any date on the calendar. Select 'Present' or other status, enter OT hours if any, and click Save."},
                 {q:"How to delete an entry?", a:"Tap on the date you want to delete. In the modal that appears, click the Red 'Delete' button."},
                 {q:"How does Advance work?", a:"Go to 'Advance' tab. Enter amount and date. This amount will be automatically deducted from your final Net Payable in the Reports section."},
                 {q:"Is my data safe?", a:"Yes, your data is stored securely on Google Firebase servers. We do not sell your personal data."},
                 {q:"How to change currency?", a:"Go to Utility/Settings tab, select your currency symbol and save configuration."},
+                {q:"How to get free premium?", a:"Join our Telegram and WhatsApp channels from the popup after login to get 7 days free premium!"}
             ];
             const fl = document.getElementById('faq-list');
             faqs.forEach(f => {
@@ -890,25 +1167,17 @@
             reminder.init();
         });
         
-        // --- HISTORY & BACK BUTTON HANDLER ---
         window.onpopstate = function(event) {
-            // Close all modals
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             document.getElementById('legal-modal').style.display = 'none';
             document.getElementById('promo-screen').style.display = 'none';
             document.getElementById('pay-wall').style.display = 'none';
+            document.getElementById('reward-popup').style.display = 'none';
             
-            // If state is home or null, show home view
             if (!event.state || event.state.page === 'home') {
                 document.querySelectorAll('.page').forEach(p => p.style.display='none');
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[2].classList.add('active'); // Activate Home icon
-            } 
-            else if (event.state && event.state.page) {
-                // If popping back to a specific page (though we usually just pop to home)
-                // This block handles edge cases, but for this app, popping usually means going back.
-                // If the previous state was a page, it would be handled by the browser's history stack logic
-                // But since we manually hide/show, we just ensure Home is shown when we run out of history or hit home state.
+                document.querySelectorAll('.nav-btn')[2].classList.add('active');
             }
         };
 
@@ -939,12 +1208,17 @@
                     s.profile = v.profile || {name: 'User', img: ''};
                     s.sub = v.subExp || Date.now() + (3*86400000); 
                     s.history = v.history || {};
+                    s.reward = v.reward || {
+                        telegram_joined: 0,
+                        whatsapp_joined: 0,
+                        reward_claimed: 0,
+                        reward_expiry_date: null
+                    };
                     
                     if(!v.subExp) db.ref('u/'+id+'/subExp').set(s.sub);
                     if(!v.refCode) ref.gen();
                     else { s.refCode = v.refCode; document.getElementById('my-ref-code').innerText = s.refCode; }
 
-                    // Check for user-specific offer
                     db.ref('offers/'+id).once('value', (offerSnap) => {
                         const offer = offerSnap.val();
                         if (offer && offer.active) {
@@ -969,7 +1243,7 @@
                         document.getElementById('prof-badge').innerText="EXPIRED"; 
                         document.getElementById('prof-badge').style.background="red"; 
                         document.getElementById('prof-exp').innerText = "Expired: "+exD.toLocaleDateString();
-                        promo.show(); // Auto show promo if expired
+                        promo.show();
                     } else {
                         document.getElementById('prof-badge').innerText="PREMIUM"; 
                         document.getElementById('prof-badge').style.background="var(--accent)";
@@ -989,7 +1263,6 @@
                     advance.renderList();
                     graph.updateTodayText();
                     
-                    // Render History
                     const hl = document.getElementById('hist-list'); hl.innerHTML = '';
                     const hArr = []; for(let k in s.history) hArr.push(s.history[k]);
                     hArr.reverse();
@@ -999,6 +1272,8 @@
                     });
 
                     document.getElementById('main-app').style.display = 'flex';
+                    
+                    reward.checkAndShow();
                 });
             }
         };
@@ -1054,7 +1329,7 @@
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
-                history.pushState({page: 'modal'}, null, ''); // PUSH HISTORY FOR MODAL
+                history.pushState({page: 'modal'}, null, '');
                 
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 const en = s.data[d];
@@ -1074,12 +1349,12 @@
             },
             set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
             save: () => {
-                if(s.sub < Date.now()) { history.back(); promo.show(); return; } // Back first to close modal
+                if(s.sub < Date.now()) { history.back(); promo.show(); return; }
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
-                history.back(); // CLOSE MODAL WITH BACK
+                history.back();
                 ui.toast("Saved Successfully");
             },
             clear: () => {
@@ -1131,7 +1406,7 @@
                 const target = parseFloat(s.conf.target) || 1;
                 let earned = 0, SAL = parseFloat(s.conf.sal)||0;
                 const m = new Date().getMonth();
-                for(let k in s.data) { if(new Date(k).getMonth()===m && ['Present','Holiday','Sick'].includes(s.data[k].t)) earned += SAL; } // Corrected to use daily salary directly
+                for(let k in s.data) { if(new Date(k).getMonth()===m && ['Present','Holiday','Sick'].includes(s.data[k].t)) earned += SAL; }
                 const pct = Math.min(100, (earned / target) * 100).toFixed(1);
                 document.getElementById('target-pct').innerText = pct + '%';
                 document.getElementById('target-bar').style.width = pct + '%';
@@ -1179,21 +1454,17 @@
                 const n = b.getAttribute('data-theme')==='light'?'dark':'light';
                 b.setAttribute('data-theme', n); localStorage.setItem('theme', n);
             },
-            closeAll: () => { document.querySelectorAll('.page').forEach(p=>p.style.display='none'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.nav-btn')[2].classList.add('active'); }, // Home is index 2 in visual grid (phantom center)
-            
-            // MODIFIED FOR HISTORY SUPPORT
+            closeAll: () => { document.querySelectorAll('.page').forEach(p=>p.style.display='none'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.nav-btn')[2].classList.add('active'); },
             openPage: (id) => { 
-                document.querySelectorAll('.page').forEach(p=>p.style.display='none'); // Hide others
+                document.querySelectorAll('.page').forEach(p=>p.style.display='none');
                 document.getElementById(id).style.display='flex'; 
                 history.pushState({page: id}, null, ''); 
             },
-            
             openProfile: () => { ui.openPage('page-profile'); },
             openSettings: () => { ui.openPage('page-settings'); document.querySelectorAll('.nav-btn')[4].classList.add('active'); },
             openReport: () => { ui.openPage('page-reports'); document.querySelectorAll('.nav-btn')[0].classList.add('active'); },
             openAdvance: () => { ui.openPage('page-advance'); document.querySelectorAll('.nav-btn')[3].classList.add('active'); },
             openGraph: () => { ui.openPage('page-graph'); graph.render(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); },
-            
             toast: (msg) => { const x = document.getElementById("toast"); x.innerText = msg; x.className = "show"; setTimeout(()=>x.className="", 3000); },
             confirm: (title, desc, cb) => {
                 document.getElementById('c-title').innerText = title; document.getElementById('c-desc').innerText = desc;
@@ -1238,10 +1509,8 @@
             init: () => { 
                 setInterval(() => { 
                     const n = new Date(); 
-                    // Check if it's 7 PM (19:00) and minutes are 0, 5, 10, etc. for multiple reminders
                     if(n.getHours() === 19 && n.getMinutes() % 5 === 0 && !s.data[n.toISOString().split('T')[0]]) {
                         reminder.notify();
-                        // Also send OneSignal notification
                         if (window.OneSignal) {
                             OneSignal.Notifications.create({
                                 content: "Mark your duty for today!",
@@ -1260,7 +1529,6 @@
                         vibrate: [200, 100, 200]
                     });
                     
-                    // Play sound
                     const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
                     audio.play().catch(e => console.log('Audio play failed:', e));
                 }
@@ -1278,29 +1546,25 @@
 
         const reports = {
             gen: () => {
-                // FIXED LOGIC: Strict Calculation based on Date Range
                 const d1 = new Date(document.getElementById('r-start').value); d1.setHours(0,0,0,0);
                 const d2 = new Date(document.getElementById('r-end').value); d2.setHours(23,59,59,999);
                 
                 if(isNaN(d1)) return ui.toast("Select Dates");
                 if(!s.conf.sal) ui.toast("Warning: Daily Salary is 0 (Check Utility)");
 
-                // CONFIG RATES (DAILY WAGE LOGIC)
-                const SAL_PER_DAY = parseFloat(s.conf.sal)||0;   // No division by 30
-                const FOOD_PER_DAY = parseFloat(s.conf.food)||0; // No division by 30
-                const PF_FIXED = parseFloat(s.conf.pf)||0;       // FIXED AMOUNT (User Requested)
+                const SAL_PER_DAY = parseFloat(s.conf.sal)||0;
+                const FOOD_PER_DAY = parseFloat(s.conf.food)||0;
+                const PF_FIXED = parseFloat(s.conf.pf)||0;
                 const OT_RATE = parseFloat(s.conf.otr)||0;
 
                 let dy=0, bs=0, ot=0, fd=0, totOt=0, totAdv=0;
                 
-                // 1. Loop through ALL saved data to find entries strictly within range
                 for(let k in s.data) {
-                    const dt = new Date(k); dt.setHours(12,0,0,0); // set to noon to avoid timezone flip
+                    const dt = new Date(k); dt.setHours(12,0,0,0);
                     if(dt >= d1 && dt <= d2) {
                         const v = s.data[k]; 
                         const o = parseFloat(v.ot||0);
                         
-                        // Add Salary & Food based on presence
                         if(v.t==='Half Day') { 
                             dy+=0.5; 
                             bs += (SAL_PER_DAY / 2); 
@@ -1311,13 +1575,11 @@
                             bs += SAL_PER_DAY; 
                             fd += FOOD_PER_DAY; 
                         }
-                        // Add OT
                         ot += (o * OT_RATE); 
                         totOt += o;
                     }
                 }
 
-                // 2. Loop through Advance History
                 for(let k in s.adv) { 
                     const a = s.adv[k]; 
                     const adt = new Date(a.date); adt.setHours(12,0,0,0); 
@@ -1326,10 +1588,7 @@
                     }
                 }
 
-                // 3. PF IS NOW FIXED (User Request: "500 set korle 500 e dekhabe")
-                // No multiplication by months or days. Just flat deduction.
                 const pf_deduction = PF_FIXED;
-
                 const net = (bs + ot + fd) - pf_deduction - totAdv;
                 
                 document.getElementById('report-out').innerHTML = `
@@ -1346,12 +1605,11 @@
                         <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${pf_deduction},${totAdv},${net})">Download PDF</button>
                     </div>`;
                     
-                // Update banner price
                 const monthlyPrice = document.getElementById('dynamic-month-price')?.innerText || '5';
                 document.getElementById('dynamic-month-price-banner') && (document.getElementById('dynamic-month-price-banner').innerText = monthlyPrice);
             },
             pdf: (d1,d2,dy,bs,ot,fd,pf,adv,net) => {
-                if(s.sub < Date.now()) { promo.show(); return; } // Check Premium before PDF
+                if(s.sub < Date.now()) { promo.show(); return; }
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 if(s.profBase64) try { doc.addImage(s.profBase64, 'JPEG', 15, 15, 25, 25); } catch(e){}
                 doc.setFontSize(22); doc.setTextColor(67, 97, 238); doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
@@ -1361,20 +1619,18 @@
                 doc.autoTable({ startY: 65, head: [['Description', 'Amount']], body: [ [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], ['PF Deduction', `- ${s.conf.cur} ${Math.round(pf)}`], ['Advance', `- ${s.conf.cur} ${adv}`], [{content:'NET PAYABLE', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${Math.round(net)}`] ] });
                 doc.save(`Salary_${Date.now()}.pdf`);
                 
-                // Track PDF download
                 db.ref('stats/pdf_downloads').transaction(current => (current || 0) + 1);
             }
         };
 
         const pay = {
             buy: (amt, days) => {
-                promo.stop(); // Hide promo screen first
+                promo.stop();
                 const options = { 
                     "key": RZP_KEY, "amount": amt * 100, "currency": "INR", "name": "Duty Tracker Pro", 
                     "handler": function (r){ 
                         const now = Date.now();
                         db.ref(`u/${s.uid}/subExp`).set(now + (days * 86400000)); 
-                        // Save History
                         db.ref(`u/${s.uid}/history`).push({
                             amount: amt, date: now, method: 'Razorpay', orderId: r.razorpay_payment_id
                         });
@@ -1393,7 +1649,6 @@
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install').style.display = 'block'; });
         const pwa = { install: () => { if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { if(c.outcome==='accepted') document.getElementById('pwa-install').style.display='none'; deferredPrompt = null; }); } } };
 
-        // --- LEGAL TEXT CONTENT ---
         const legal = {
             show: (t) => {
                 const c = {
