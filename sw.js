@@ -1,4 +1,4 @@
-const CACHE_NAME = 'duty-tracker-v12';
+const CACHE_NAME = 'duty-tracker-v13';
 const ASSETS = [
     './',
     './index.html',
