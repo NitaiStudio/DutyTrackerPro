@@ -23,6 +23,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <style>
         :root {
@@ -69,7 +72,61 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; -webkit-tap-highlight-color:transparent; }
         body { background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow-x:hidden; transition:background 0.3s, color 0.3s; padding-bottom: var(--nav-height); }
 
-        /* --- ANIMATIONS --- */
+        /* MAINTENANCE MODE STYLES */
+        #maintenance-mode {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .maintenance-content {
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: zoomIn 0.5s ease-out;
+        }
+        
+        .maintenance-content i {
+            font-size: 80px;
+            color: white;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        .maintenance-content h1 {
+            font-size: 36px;
+            color: white;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        
+        .maintenance-content p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+        
+        .maintenance-timer {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            font-size: 18px;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* ANIMATIONS */
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
@@ -77,7 +134,7 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes zoomIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* --- COMPONENTS --- */
+        /* COMPONENTS */
         .btn { width:100%; padding:16px; border:none; border-radius:16px; font-weight:700; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:10px; transition:0.2s; font-size:16px; letter-spacing:0.5px; position: relative; overflow: hidden; }
         .btn-primary { background:var(--gradient); color:white; box-shadow:0 8px 25px rgba(67, 97, 238, 0.3); }
         .btn-primary:active { transform:scale(0.98); }
@@ -89,18 +146,18 @@
         .inp:focus { border-color:var(--primary); background:var(--card); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         .label-text { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; display: block; margin-left: 4px; font-weight: 500; }
 
-        /* --- TOAST --- */
+        /* TOAST */
         #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 12000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s, bottom 0.3s; backdrop-filter: blur(10px); }
         #toast.show { visibility: visible; opacity: 1; bottom: 120px; }
 
-        /* --- CONFIRM MODAL --- */
+        /* CONFIRM MODAL */
         #confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 13000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
         .confirm-box { background: var(--card); width: 100%; max-width: 320px; padding: 25px; border-radius: 24px; border: 1px solid var(--border); text-align: center; animation: popIn 0.3s; }
         .confirm-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
         .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
         .confirm-actions { display: flex; gap: 10px; }
 
-        /* --- PROMO SCREEN --- */
+        /* PROMO SCREEN */
         #promo-screen { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; overflow-y: auto; }
         .promo-video-container { width: 100%; height: 55vh; position: relative; background: #000; overflow: hidden; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
         .promo-video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
@@ -113,7 +170,7 @@
         .skip-btn { background: none; border: none; color: #666; font-weight: 600; margin-top: auto; padding-top: 20px; font-size: 14px; cursor: pointer; transition: 0.3s; }
         .sound-icon { position: absolute; bottom: 50px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; z-index: 5; pointer-events: none; }
 
-        /* --- MAIN APP --- */
+        /* MAIN APP */
         #main-app { display:none; flex-direction:column; flex:1; }
         nav { padding:15px 20px; background:rgba(var(--bg), 0.85); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; justify-content:space-between; align-items:center; }
         .logo { font-size:24px; font-weight:800; background:var(--gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
@@ -214,9 +271,44 @@
 
         /* PROMO SCREEN */
         .premium-banner { background: linear-gradient(45deg, #FFD600, #FF6D00); color: black; padding: 12px; border-radius: 12px; text-align: center; margin-top: 20px; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
+        
+        /* Telegram Support Badge - শুধুমাত্র Profile পৃষ্ঠায় দেখাবে */
+        .telegram-support-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #0088cc 0%, #229ED9 100%);
+            padding: 12px 20px;
+            border-radius: 50px;
+            margin: 15px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .telegram-support-badge i {
+            font-size: 24px;
+        }
+        .telegram-support-badge:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
+        }
     </style>
 </head>
 <body>
+
+    <!-- MAINTENANCE MODE -->
+    <div id="maintenance-mode">
+        <div class="maintenance-content">
+            <i class="fas fa-tools"></i>
+            <h1>Under Maintenance</h1>
+            <p>We're currently performing scheduled maintenance to improve your experience. We'll be back shortly.</p>
+            <div class="maintenance-timer">
+                <i class="fas fa-clock"></i> Expected completion: <span id="maintenance-time">Approximately 30 minutes</span>
+            </div>
+        </div>
+    </div>
 
     <!-- TOAST -->
     <div id="toast">Message Here</div>
@@ -279,11 +371,11 @@
             <h2 class="promo-title">Try Premium Now</h2>
             <p class="promo-sub" style="max-width:280px;">Get unlimited access, PDF exports, and ad-free experience.</p>
             
-            <div class="big-price">₹5</div>
-            <div style="font-size:14px; color:white; font-weight:bold;">For 1 Month</div>
-            <div style="font-size:12px; color:#666; margin-top:5px;">Or $0.055 USD</div>
+            <div class="big-price" id="promo-price">₹5</div>
+            <div style="font-size:14px; color:white; font-weight:bold;" id="promo-duration">For 1 Month</div>
+            <div style="font-size:12px; color:#666; margin-top:5px;" id="promo-usd">Or $0.055 USD</div>
 
-            <button class="btn btn-promo" onclick="event.stopPropagation(); pay.buy(5, 30)">
+            <button class="btn btn-promo" onclick="event.stopPropagation(); pay.buy(parseInt(document.getElementById('promo-price').innerText.replace('₹','')), 30)">
                 START TRIAL <i class="fas fa-arrow-right"></i>
             </button>
             
@@ -363,6 +455,13 @@
                 <div id="prof-exp" style="color:var(--text-sub); font-size:12px;">Valid Till: Checking...</div>
             </div>
         </div>
+
+        <!-- Telegram Support Badge (শুধুমাত্র Profile পৃষ্ঠায়) -->
+        <a href="https://telegram.me/DutyTrackerPro" target="_blank" class="telegram-support-badge">
+            <i class="fab fa-telegram"></i>
+            <div style="flex:1;">Telegram Support</div>
+            <i class="fas fa-external-link-alt"></i>
+        </a>
 
         <!-- REFER & EARN (BANNER STYLE) -->
         <div class="ref-banner" onclick="ui.openPage('page-refer')">
@@ -668,10 +767,10 @@
             <h2>Premium Expired</h2>
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Renew subscription to continue usage.</p>
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <b>1 Month</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(5, 30)">₹5</button>
+                <b>1 Month</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(parseInt(document.getElementById('dynamic-month-price').innerText || 5), 30)">₹<span id="dynamic-month-price">5</span></button>
             </div>
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <b>1 Year</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(40, 365)">₹40</button>
+                <b>1 Year</b> <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.buy(parseInt(document.getElementById('dynamic-year-price').innerText || 40), 365)">₹<span id="dynamic-year-price">40</span></button>
             </div>
         </div>
     </div>
@@ -694,6 +793,7 @@
         const db = firebase.database();
         const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
         const IMG_API_KEY = "c762b5315ee9263c36ed04156b0ff758"; 
+        const ONESIGNAL_APP_ID = "757c2d8a-b121-4498-bc66-5d71d68a9009";
 
         let s = { uid: null, data: {}, adv: {}, sub: 0, conf: {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0}, profile: {name:'', img:''}, profBase64: null, refCode: '', history: {} };
         let curDate = new Date();
@@ -735,14 +835,43 @@
             const vid = document.getElementById('promo-vid');
             if(vid) vid.pause();
 
-            setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash').style.display='none';
-                    const id = localStorage.getItem('dt_id');
-                    if(id) app.start(id); else document.getElementById('auth-screen').style.display='flex';
-                }, 800);
-            }, 2500);
+            // Initialize OneSignal
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+                await OneSignal.init({
+                    appId: ONESIGNAL_APP_ID,
+                });
+            });
+
+            // Check Maintenance Mode
+            db.ref('config/maintenance').on('value', (snap) => {
+                const isMaintenance = snap.val() || false;
+                if (isMaintenance) {
+                    document.getElementById('maintenance-mode').style.display = 'flex';
+                    document.getElementById('main-app').style.display = 'none';
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('splash').style.display = 'none';
+                } else {
+                    document.getElementById('maintenance-mode').style.display = 'none';
+                    // Show splash and then proceed normally
+                    setTimeout(() => {
+                        document.getElementById('splash').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('splash').style.display='none';
+                            const id = localStorage.getItem('dt_id');
+                            if(id) app.start(id); else document.getElementById('auth-screen').style.display='flex';
+                        }, 800);
+                    }, 2500);
+                }
+            });
+
+            // Fetch dynamic subscription prices
+            db.ref('config/prices').on('value', (snap) => {
+                const prices = snap.val() || { monthly: 5, yearly: 40 };
+                document.getElementById('dynamic-month-price').innerText = prices.monthly;
+                document.getElementById('dynamic-year-price').innerText = prices.yearly;
+                document.getElementById('promo-price').innerText = `₹${prices.monthly}`;
+            });
 
             // Populate FAQ
             const faqs = [
@@ -814,6 +943,15 @@
                     if(!v.subExp) db.ref('u/'+id+'/subExp').set(s.sub);
                     if(!v.refCode) ref.gen();
                     else { s.refCode = v.refCode; document.getElementById('my-ref-code').innerText = s.refCode; }
+
+                    // Check for user-specific offer
+                    db.ref('offers/'+id).once('value', (offerSnap) => {
+                        const offer = offerSnap.val();
+                        if (offer && offer.active) {
+                            document.getElementById('promo-price').innerText = `₹${offer.price || 3}`;
+                            document.getElementById('promo-duration').innerText = offer.duration || 'Special Offer';
+                        }
+                    });
 
                     document.getElementById('prof-name-disp').innerText = s.profile.name || "User";
                     document.getElementById('prof-id').innerText = id;
@@ -1097,9 +1235,45 @@
         }};
 
         const reminder = {
-            init: () => { setInterval(() => { const n = new Date(); if(n.getHours()===19 && n.getMinutes()%5===0 && !s.data[n.toISOString().split('T')[0]]) reminder.notify(); }, 60000); },
-            notify: () => { if(Notification.permission==="granted") new Notification("Duty Reminder", {body:"Mark your duty today!"}); },
-            setup: () => { Notification.requestPermission().then(p => ui.toast(p==="granted"?"Reminder Set (7 PM)":"Permission Denied")); }
+            init: () => { 
+                setInterval(() => { 
+                    const n = new Date(); 
+                    // Check if it's 7 PM (19:00) and minutes are 0, 5, 10, etc. for multiple reminders
+                    if(n.getHours() === 19 && n.getMinutes() % 5 === 0 && !s.data[n.toISOString().split('T')[0]]) {
+                        reminder.notify();
+                        // Also send OneSignal notification
+                        if (window.OneSignal) {
+                            OneSignal.Notifications.create({
+                                content: "Mark your duty for today!",
+                                heading: "Duty Reminder (7 PM)",
+                                url: window.location.href
+                            });
+                        }
+                    }
+                }, 60000); 
+            },
+            notify: () => { 
+                if(Notification.permission === "granted") {
+                    new Notification("Duty Reminder", {
+                        body: "Mark your duty today!",
+                        icon: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                        vibrate: [200, 100, 200]
+                    });
+                    
+                    // Play sound
+                    const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                }
+            },
+            setup: () => { 
+                Notification.requestPermission().then(p => {
+                    if(p === "granted") {
+                        ui.toast("Reminder Set (7 PM with sound)");
+                    } else {
+                        ui.toast("Permission Denied");
+                    }
+                });
+            }
         };
 
         const reports = {
@@ -1167,10 +1341,14 @@
                         <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>PF (Fixed)</span><b>-${s.conf.cur}${pf_deduction.toFixed(0)}</b></p>
                         <p style="display:flex; justify-content:space-between; color:var(--danger);"><span>Advance</span><b>-${s.conf.cur}${totAdv}</b></p>
                         
-                        ${s.sub < Date.now() ? '<div onclick="promo.show()" class="premium-banner">Premium Only ₹5/Month</div>' : ''}
+                        ${s.sub < Date.now() ? '<div onclick="promo.show()" class="premium-banner">Premium Only ₹<span id="dynamic-month-price-banner">5</span>/Month</div>' : ''}
                         
                         <button class="btn btn-primary" style="margin-top:20px;" onclick="reports.pdf('${d1.toDateString()}','${d2.toDateString()}',${dy},${bs},${ot},${fd},${pf_deduction},${totAdv},${net})">Download PDF</button>
                     </div>`;
+                    
+                // Update banner price
+                const monthlyPrice = document.getElementById('dynamic-month-price')?.innerText || '5';
+                document.getElementById('dynamic-month-price-banner') && (document.getElementById('dynamic-month-price-banner').innerText = monthlyPrice);
             },
             pdf: (d1,d2,dy,bs,ot,fd,pf,adv,net) => {
                 if(s.sub < Date.now()) { promo.show(); return; } // Check Premium before PDF
@@ -1182,6 +1360,9 @@
                 doc.setFontSize(12); doc.setTextColor(0); doc.text(`Name: ${s.profile.name}`, 15, 50);
                 doc.autoTable({ startY: 65, head: [['Description', 'Amount']], body: [ [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], ['PF Deduction', `- ${s.conf.cur} ${Math.round(pf)}`], ['Advance', `- ${s.conf.cur} ${adv}`], [{content:'NET PAYABLE', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${Math.round(net)}`] ] });
                 doc.save(`Salary_${Date.now()}.pdf`);
+                
+                // Track PDF download
+                db.ref('stats/pdf_downloads').transaction(current => (current || 0) + 1);
             }
         };
 
@@ -1231,3 +1412,4 @@
     </script>
 </body>
 </html>
+<!-- END OF FILE index.html -->
