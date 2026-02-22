@@ -159,17 +159,124 @@
         .confirm-actions { display: flex; gap: 10px; }
 
         /* PROMO SCREEN */
-        #promo-screen { position: fixed; inset: 0; background: #000; z-index: 6000; display: none; flex-direction: column; overflow-y: auto; }
-        .promo-video-container { width: 100%; height: 55vh; position: relative; background: #000; overflow: hidden; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
-        .promo-video-container video { width: 100%; height: 100%; object-fit: cover; opacity: 1; }
-        .promo-content { flex: 1; padding: 25px; display: flex; flex-direction: column; align-items: center; text-align: center; background: linear-gradient(180deg, #101010 0%, #000 100%); margin-top: -35px; padding-top: 45px; z-index: 2; border-radius: 40px 40px 0 0; }
-        .promo-title { font-size: 28px; font-weight: 800; color: white; margin-bottom: 5px; }
-        .promo-sub { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
-        .big-price { font-size: 70px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #a06cd5, #e24e97, #4361ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; letter-spacing: -2px; }
-        .btn-promo { background: linear-gradient(90deg, #4361ee, #f72585); color: white; font-size: 18px; text-transform: uppercase; padding: 18px; border-radius: 50px; box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4); width: 100%; border: none; font-weight: 800; cursor: pointer; animation: pulse 2s infinite; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-promo-year { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #ccc; padding: 12px 25px; border-radius: 30px; margin-top: 15px; font-size: 13px; cursor: pointer; transition: 0.3s; }
-        .skip-btn { background: none; border: none; color: #666; font-weight: 600; margin-top: auto; padding-top: 20px; font-size: 14px; cursor: pointer; transition: 0.3s; }
-        .sound-icon { position: absolute; bottom: 50px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: white; padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; z-index: 5; pointer-events: none; }
+        #promo-screen { 
+            position: fixed; 
+            inset: 0; 
+            background: #000; 
+            z-index: 6000; 
+            display: none; 
+            flex-direction: column; 
+            overflow-y: auto; 
+        }
+        .promo-video-container { 
+            width: 100%; 
+            height: 55vh; 
+            position: relative; 
+            background: #000; 
+            overflow: hidden; 
+            border-bottom-left-radius: 40px; 
+            border-bottom-right-radius: 40px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9); 
+        }
+        .promo-video-container video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            opacity: 1; 
+        }
+        .promo-content { 
+            flex: 1; 
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            text-align: center; 
+            background: linear-gradient(180deg, #101010 0%, #000 100%); 
+            margin-top: -35px; 
+            padding-top: 45px; 
+            z-index: 2; 
+            border-radius: 40px 40px 0 0; 
+        }
+        .promo-title { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: white; 
+            margin-bottom: 5px; 
+        }
+        .promo-sub { 
+            font-size: 14px; 
+            color: #aaa; 
+            margin-bottom: 20px; 
+            line-height: 1.5; 
+            max-width: 280px; 
+        }
+        .big-price { 
+            font-size: 70px; 
+            font-weight: 900; 
+            line-height: 1; 
+            background: linear-gradient(135deg, #a06cd5, #e24e97, #4361ee); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            margin: 10px 0; 
+            letter-spacing: -2px; 
+        }
+        .btn-promo { 
+            background: linear-gradient(90deg, #4361ee, #f72585); 
+            color: white; 
+            font-size: 18px; 
+            text-transform: uppercase; 
+            padding: 18px; 
+            border-radius: 50px; 
+            box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4); 
+            width: 100%; 
+            border: none; 
+            font-weight: 800; 
+            cursor: pointer; 
+            animation: pulse 2s infinite; 
+            margin-top: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+        }
+        .btn-promo-year { 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: #ccc; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            margin-top: 15px; 
+            font-size: 13px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+        .skip-btn { 
+            background: none; 
+            border: none; 
+            color: #666; 
+            font-weight: 600; 
+            margin-top: auto; 
+            padding-top: 20px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+        .sound-icon { 
+            position: absolute; 
+            bottom: 50px; 
+            left: 20px; 
+            background: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(5px); 
+            color: white; 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            z-index: 5; 
+            pointer-events: none; 
+        }
 
         /* MAIN APP */
         #main-app { display:none; flex-direction:column; flex:1; }
@@ -483,7 +590,7 @@
         </div>
     </div>
 
-    <!-- PROMO / VIDEO SCREEN -->
+    <!-- PROMO / VIDEO SCREEN (FIXED) -->
     <div id="promo-screen" onclick="promo.unmute()">
         <div class="promo-video-container">
             <video id="promo-vid" playsinline loop muted>
@@ -498,7 +605,7 @@
         <div class="promo-content">
             <div style="color:#f72585; font-weight:800; letter-spacing:1px; margin-bottom:5px; font-size:12px;">UNLOCK ALL FEATURES</div>
             <h2 class="promo-title">Try Premium Now</h2>
-            <p class="promo-sub" style="max-width:280px;">Get unlimited access, PDF exports, and ad-free experience.</p>
+            <p class="promo-sub">Get unlimited access, PDF exports, and ad-free experience.</p>
             
             <div class="big-price" id="promo-price">₹5</div>
             <div style="font-size:14px; color:white; font-weight:bold;" id="promo-duration">For 1 Month</div>
@@ -778,7 +885,7 @@
             
             <h3 style="margin:20px 0 15px; color:var(--primary);">Common Questions</h3>
             <div class="settings-card" id="faq-list">
-                <!-- FAQs will be injected by JS -->
+                <!-- FAQs injected by JS -->
             </div>
         </div>
     </div>
@@ -876,7 +983,7 @@
     </div>
 
     <!-- ATTENDANCE MODAL -->
-    <div id="att-modal" class="modal">
+    <div id="att-modal" class="modal" style="z-index:5000;">
         <h3 id="modal-date" style="text-align:center; margin-bottom:15px; font-weight:800; font-size:22px;">...</h3>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:15px;">
             <button class="btn btn-sec" onclick="data.set('Present', this)">Present</button>
@@ -1112,6 +1219,7 @@
             const vid = document.getElementById('promo-vid');
             if(vid) vid.pause();
 
+            // Initialize OneSignal
             window.OneSignalDeferred = window.OneSignalDeferred || [];
             OneSignalDeferred.push(async function(OneSignal) {
                 await OneSignal.init({
@@ -1121,8 +1229,10 @@
                 });
             });
 
+            // Load reward config
             reward.loadConfig();
 
+            // Check Maintenance Mode
             db.ref('config/maintenance').on('value', (snap) => {
                 const isMaintenance = snap.val() || false;
                 if (isMaintenance) {
@@ -1143,6 +1253,7 @@
                 }
             });
 
+            // Fetch dynamic subscription prices
             db.ref('config/prices').on('value', (snap) => {
                 const prices = snap.val() || { monthly: 5, yearly: 40 };
                 document.getElementById('dynamic-month-price').innerText = prices.monthly;
@@ -1150,6 +1261,7 @@
                 document.getElementById('promo-price').innerText = `₹${prices.monthly}`;
             });
 
+            // Populate FAQ
             const faqs = [
                 {q:"How to add a duty?", a:"Tap on 'Add Today's Duty' on the home screen, or tap any date on the calendar. Select 'Present' or other status, enter OT hours if any, and click Save."},
                 {q:"How to delete an entry?", a:"Tap on the date you want to delete. In the modal that appears, click the Red 'Delete' button."},
@@ -1167,18 +1279,21 @@
             reminder.init();
         });
         
+        // --- HISTORY & BACK BUTTON HANDLER ---
         window.onpopstate = function(event) {
+            // Close all modals
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             document.getElementById('legal-modal').style.display = 'none';
             document.getElementById('promo-screen').style.display = 'none';
             document.getElementById('pay-wall').style.display = 'none';
             document.getElementById('reward-popup').style.display = 'none';
             
+            // If state is home or null, show home view
             if (!event.state || event.state.page === 'home') {
                 document.querySelectorAll('.page').forEach(p => p.style.display='none');
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[2].classList.add('active');
-            }
+                document.querySelectorAll('.nav-btn')[2].classList.add('active'); // Activate Home icon
+            } 
         };
 
         const app = {
@@ -1219,6 +1334,7 @@
                     if(!v.refCode) ref.gen();
                     else { s.refCode = v.refCode; document.getElementById('my-ref-code').innerText = s.refCode; }
 
+                    // Check for user-specific offer
                     db.ref('offers/'+id).once('value', (offerSnap) => {
                         const offer = offerSnap.val();
                         if (offer && offer.active) {
@@ -1243,12 +1359,14 @@
                         document.getElementById('prof-badge').innerText="EXPIRED"; 
                         document.getElementById('prof-badge').style.background="red"; 
                         document.getElementById('prof-exp').innerText = "Expired: "+exD.toLocaleDateString();
-                        promo.show();
+                        // Auto show promo if expired - but only if not in promo screen already
+                        if(document.getElementById('promo-screen').style.display !== 'flex') {
+                            promo.show();
+                        }
                     } else {
                         document.getElementById('prof-badge').innerText="PREMIUM"; 
                         document.getElementById('prof-badge').style.background="var(--accent)";
                         document.getElementById('prof-exp').innerText = `Valid till: ${exD.toLocaleDateString()} (${daysLeft} Days)`;
-                        promo.stop();
                     }
                     
                     document.getElementById('set-cur').value = s.conf.cur || '₹';
@@ -1263,6 +1381,7 @@
                     advance.renderList();
                     graph.updateTodayText();
                     
+                    // Render History
                     const hl = document.getElementById('hist-list'); hl.innerHTML = '';
                     const hArr = []; for(let k in s.history) hArr.push(s.history[k]);
                     hArr.reverse();
@@ -1273,31 +1392,62 @@
 
                     document.getElementById('main-app').style.display = 'flex';
                     
-                    reward.checkAndShow();
+                    // Check and show reward popup (only if not expired and not in promo)
+                    if(!isExp) {
+                        reward.checkAndShow();
+                    }
                 });
             }
         };
 
         const promo = {
             show: () => {
-                history.pushState({page:'promo'}, null, '');
-                document.getElementById('promo-screen').style.display = 'flex';
+                // প্রথমে সব মোডাল বন্ধ করুন
+                document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+                document.getElementById('att-modal').style.display = 'none';
+                
+                // মেইন অ্যাপ লুকান
                 document.getElementById('main-app').style.display = 'none';
+                
+                // প্রমো স্ক্রিন দেখান
+                document.getElementById('promo-screen').style.display = 'flex';
+                
+                // ভিডিও প্লে করার চেষ্টা করুন
                 const vid = document.getElementById('promo-vid');
-                if(vid) { vid.currentTime = 0; vid.muted = false; vid.volume = 1.0; vid.play().catch(e=>console.log(e)); }
+                if(vid) { 
+                    vid.currentTime = 0; 
+                    vid.muted = false; 
+                    vid.volume = 1.0; 
+                    vid.play().catch(e => {
+                        console.log('Video play failed:', e);
+                        // ভিডিও না চাইলেও প্রমো স্ক্রিন থাকবে
+                    });
+                }
+                
+                // হিস্টোরি স্টেট আপডেট করুন
+                history.pushState({page:'promo'}, null, '');
             },
             unmute: () => {
                 const vid = document.getElementById('promo-vid');
-                if(vid) { vid.muted = false; vid.play(); document.getElementById('snd-msg').innerHTML = '<i class="fas fa-volume-up"></i> Sound On'; }
+                if(vid) { 
+                    vid.muted = false; 
+                    vid.play(); 
+                    document.getElementById('snd-msg').innerHTML = '<i class="fas fa-volume-up"></i> Sound On'; 
+                }
             },
             stop: () => {
                 const vid = document.getElementById('promo-vid');
                 document.getElementById('promo-screen').style.display = 'none';
-                if(vid) { vid.pause(); vid.currentTime = 0; vid.muted = true; }
+                if(vid) { 
+                    vid.pause(); 
+                    vid.currentTime = 0; 
+                    vid.muted = true; 
+                }
             },
             close: () => {
                 promo.stop();
                 document.getElementById('main-app').style.display = 'flex';
+                history.back();
             }
         };
 
@@ -1329,7 +1479,7 @@
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
-                history.pushState({page: 'modal'}, null, '');
+                history.pushState({page: 'modal'}, null, ''); // PUSH HISTORY FOR MODAL
                 
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 const en = s.data[d];
@@ -1349,12 +1499,26 @@
             },
             set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
             save: () => {
-                if(s.sub < Date.now()) { history.back(); promo.show(); return; }
+                // চেক করুন প্রিমিয়াম আছে কিনা
+                if(s.sub < Date.now()) { 
+                    // মোডাল বন্ধ করুন
+                    document.getElementById('att-modal').style.display = 'none';
+                    history.back();
+                    
+                    // একটু delay দিয়ে প্রমো স্ক্রিন দেখান
+                    setTimeout(() => {
+                        promo.show();
+                    }, 300);
+                    
+                    return; // থামুন, আর ডিউটি সেভ হবে না
+                }
+                
+                // প্রিমিয়াম থাকলে ডিউটি সেভ করুন
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
-                history.back();
+                history.back(); // CLOSE MODAL WITH BACK
                 ui.toast("Saved Successfully");
             },
             clear: () => {
