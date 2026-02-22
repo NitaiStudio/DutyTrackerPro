@@ -52,6 +52,8 @@
             --glass: rgba(30, 30, 30, 0.85);
             --nav-height: 80px;
             --play-green: #3ddc84;
+            --razor-blue: #4361ee;
+            --razor-pink: #f72585;
         }
 
         [data-theme="light"] {
@@ -226,11 +228,17 @@
             -webkit-text-fill-color: transparent; 
             margin: 10px 0; 
             letter-spacing: -2px; 
+            transition: all 0.3s ease;
         }
         .big-price.play-price {
-            background: linear-gradient(135deg, #3ddc84, #0f9d58);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: linear-gradient(135deg, #3ddc84, #0f9d58) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        .big-price.razor-price {
+            background: linear-gradient(135deg, #4361ee, #f72585) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
         }
         .btn-promo { 
             background: linear-gradient(90deg, #4361ee, #f72585); 
@@ -239,7 +247,6 @@
             text-transform: uppercase; 
             padding: 18px; 
             border-radius: 50px; 
-            box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4); 
             width: 100%; 
             border: none; 
             font-weight: 800; 
@@ -250,10 +257,15 @@
             align-items: center; 
             justify-content: center; 
             gap: 10px; 
+            transition: all 0.3s ease;
         }
         .btn-promo.play-button {
-            background: linear-gradient(90deg, #3ddc84, #0f9d58);
-            box-shadow: 0 10px 40px rgba(61, 220, 132, 0.4);
+            background: linear-gradient(90deg, #3ddc84, #0f9d58) !important;
+            box-shadow: 0 10px 40px rgba(61, 220, 132, 0.4) !important;
+        }
+        .btn-promo.razor-button {
+            background: linear-gradient(90deg, #4361ee, #f72585) !important;
+            box-shadow: 0 10px 40px rgba(247, 37, 133, 0.4) !important;
         }
         .btn-promo-year { 
             background: rgba(255,255,255,0.08); 
@@ -538,7 +550,7 @@
         <div class="maintenance-content">
             <i class="fas fa-tools"></i>
             <h1>Under Maintenance</h1>
-            <p>We're currently performing scheduled maintenance to improve your experience. We'll be back shortly.</p>
+            <p id="maintenance-message">We're currently performing scheduled maintenance to improve your experience. We'll be back shortly.</p>
             <div class="maintenance-timer">
                 <i class="fas fa-clock"></i> Expected completion: <span id="maintenance-time">Approximately 30 minutes</span>
             </div>
@@ -647,7 +659,7 @@
             </button>
             
             <button class="btn-promo-year" id="promo-year-btn">
-                Get 1 Year for ₹40 ($0.44)
+                Get 1 Year for ₹40 ($0.44 USD)
             </button>
 
             <!-- Play Store Badge (Visible only in Play Store version) -->
@@ -1055,11 +1067,11 @@
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Renew subscription to continue usage.</p>
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <b>1 Month</b> 
-                <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.razorpay(5, 30)">₹<span class="dynamic-price">5</span></button>
+                <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.razorpay()">₹<span id="razor-monthly-price">5</span></button>
             </div>
             <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
                 <b>1 Year</b> 
-                <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.razorpay(40, 365)">₹<span class="dynamic-price">40</span></button>
+                <button class="btn btn-primary" style="width:auto; padding:8px 20px;" onclick="pay.razorpayYearly()">₹<span id="razor-yearly-price">40</span></button>
             </div>
         </div>
     </div>
@@ -1076,11 +1088,11 @@
             <div id="play-products">
                 <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                     <b>1 Month Subscription</b>
-                    <button class="btn btn-play" style="width:auto; padding:8px 20px;" onclick="pay.googlePlay('monthly')">₹<span class="dynamic-price">5</span> / month</button>
+                    <button class="btn btn-play" style="width:auto; padding:8px 20px;" onclick="pay.googlePlay('monthly')">₹<span id="play-monthly-price">5</span> / month</button>
                 </div>
                 <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
                     <b>1 Year Subscription</b>
-                    <button class="btn btn-play" style="width:auto; padding:8px 20px;" onclick="pay.googlePlay('yearly')">₹<span class="dynamic-price">40</span> / year</button>
+                    <button class="btn btn-play" style="width:auto; padding:8px 20px;" onclick="pay.googlePlay('yearly')">₹<span id="play-yearly-price">40</span> / year</button>
                 </div>
             </div>
             
@@ -1149,96 +1161,158 @@
         let selType = null;
         let chartInstance = null;
         let deferredPrompt;
-        let currentPaymentSystem = 'razorpay'; // default
         
-        let rewardConfig = {
-            status: false,
-            title: "Unlock 7 Days Free Premium!",
-            message: "Join BOTH our official channels to activate your reward.",
-            reward_days: 7,
-            telegram_link: "https://telegram.me/DutyTrackerProapp",
-            whatsapp_link: "https://whatsapp.com/channel/0029Vb6SlL01dAw9flibc12I"
+        // ============================================
+        // ADMIN CONFIG LOADING
+        // ============================================
+        let appConfig = {
+            maintenance: false,
+            maintenanceMessage: "We're currently performing scheduled maintenance to improve your experience. We'll be back shortly.",
+            maintenanceTime: "Approximately 30 minutes",
+            prices: { monthly: 5, yearly: 40 },
+            payment: { 
+                system: 'playstore',
+                playstore: {
+                    monthly: 'monthly_premium',
+                    yearly: 'yearly_premium'
+                },
+                razorpay: {
+                    key: 'rzp_live_Rz7kQ4RAloCWGp',
+                    monthly: 5,
+                    yearly: 40
+                }
+            },
+            reward: {
+                status: false,
+                title: "Unlock 7 Days Free Premium!",
+                message: "Join BOTH our official channels to activate your reward.",
+                reward_days: 7,
+                telegram_link: "https://telegram.me/DutyTrackerProapp",
+                whatsapp_link: "https://whatsapp.com/channel/0029Vb6SlL01dAw9flibc12I"
+            }
         };
 
-        // --- FULL A-Z COUNTRY LIST ---
-        const countries = [
-            {n:"India",c:"+91"},{n:"Afghanistan",c:"+93"},{n:"Albania",c:"+355"},{n:"Algeria",c:"+213"},{n:"Andorra",c:"+376"},{n:"Angola",c:"+244"},{n:"Argentina",c:"+54"},{n:"Armenia",c:"+374"},{n:"Australia",c:"+61"},{n:"Austria",c:"+43"},{n:"Azerbaijan",c:"+994"},
-            {n:"Bahrain",c:"+973"},{n:"Bangladesh",c:"+880"},{n:"Belarus",c:"+375"},{n:"Belgium",c:"+32"},{n:"Belize",c:"+501"},{n:"Benin",c:"+229"},{n:"Bhutan",c:"+975"},{n:"Bolivia",c:"+591"},{n:"Bosnia",c:"+387"},{n:"Botswana",c:"+267"},{n:"Brazil",c:"+55"},{n:"Brunei",c:"+673"},{n:"Bulgaria",c:"+359"},
-            {n:"Cambodia",c:"+855"},{n:"Cameroon",c:"+237"},{n:"Canada",c:"+1"},{n:"Chile",c:"+56"},{n:"China",c:"+86"},{n:"Colombia",c:"+57"},{n:"Comoros",c:"+269"},{n:"Congo",c:"+242"},{n:"Costa Rica",c:"+506"},{n:"Croatia",c:"+385"},{n:"Cuba",c:"+53"},{n:"Cyprus",c:"+357"},{n:"Czech Republic",c:"+420"},
-            {n:"Denmark",c:"+45"},{n:"Djibouti",c:"+253"},{n:"Dominica",c:"+1767"},{n:"Dominican Republic",c:"+1809"},{n:"Ecuador",c:"+593"},{n:"Egypt",c:"+20"},{n:"El Salvador",c:"+503"},{n:"Estonia",c:"+372"},{n:"Ethiopia",c:"+251"},
-            {n:"Fiji",c:"+679"},{n:"Finland",c:"+358"},{n:"France",c:"+33"},{n:"Gabon",c:"+241"},{n:"Gambia",c:"+220"},{n:"Georgia",c:"+995"},{n:"Germany",c:"+49"},{n:"Ghana",c:"+233"},{n:"Greece",c:"+30"},{n:"Grenada",c:"+1473"},{n:"Guatemala",c:"+502"},{n:"Guinea",c:"+224"},{n:"Guyana",c:"+592"},
-            {n:"Haiti",c:"+509"},{n:"Honduras",c:"+504"},{n:"Hong Kong",c:"+852"},{n:"Hungary",c:"+36"},{n:"Iceland",c:"+354"},{n:"Indonesia",c:"+62"},{n:"Iran",c:"+98"},{n:"Iraq",c:"+964"},{n:"Ireland",c:"+353"},{n:"Israel",c:"+972"},{n:"Italy",c:"+39"},
-            {n:"Jamaica",c:"+1876"},{n:"Japan",c:"+81"},{n:"Jordan",c:"+962"},{n:"Kazakhstan",c:"+7"},{n:"Kenya",c:"+254"},{n:"Kiribati",c:"+686"},{n:"Kuwait",c:"+965"},{n:"Kyrgyzstan",c:"+996"},{n:"Laos",c:"+856"},{n:"Latvia",c:"+371"},{n:"Lebanon",c:"+961"},{n:"Lesotho",c:"+266"},{n:"Liberia",c:"+231"},{n:"Libya",c:"+218"},{n:"Liechtenstein",c:"+423"},{n:"Lithuania",c:"+370"},{n:"Luxembourg",c:"+352"},
-            {n:"Macedonia",c:"+389"},{n:"Madagascar",c:"+261"},{n:"Malawi",c:"+265"},{n:"Malaysia",c:"+60"},{n:"Maldives",c:"+960"},{n:"Mali",c:"+223"},{n:"Malta",c:"+356"},{n:"Mauritania",c:"+222"},{n:"Mauritius",c:"+230"},{n:"Mexico",c:"+52"},{n:"Moldova",c:"+373"},{n:"Monaco",c:"+377"},{n:"Mongolia",c:"+976"},{n:"Montenegro",c:"+382"},{n:"Morocco",c:"+212"},{n:"Mozambique",c:"+258"},{n:"Myanmar",c:"+95"},
-            {n:"Namibia",c:"+264"},{n:"Nauru",c:"+674"},{n:"Nepal",c:"+977"},{n:"Netherlands",c:"+31"},{n:"New Zealand",c:"+64"},{n:"Nicaragua",c:"+505"},{n:"Niger",c:"+227"},{n:"Nigeria",c:"+234"},{n:"North Korea",c:"+850"},{n:"Norway",c:"+47"},{n:"Oman",c:"+968"},
-            {n:"Pakistan",c:"+92"},{n:"Palau",c:"+680"},{n:"Panama",c:"+507"},{n:"Papua New Guinea",c:"+675"},{n:"Paraguay",c:"+595"},{n:"Peru",c:"+51"},{n:"Philippines",c:"+63"},{n:"Poland",c:"+48"},{n:"Portugal",c:"+351"},{n:"Qatar",c:"+974"},
-            {n:"Romania",c:"+40"},{n:"Russia",c:"+7"},{n:"Rwanda",c:"+250"},{n:"Samoa",c:"+685"},{n:"San Marino",c:"+378"},{n:"Saudi Arabia",c:"+966"},{n:"Senegal",c:"+221"},{n:"Serbia",c:"+381"},{n:"Seychelles",c:"+248"},{n:"Sierra Leone",c:"+232"},{n:"Singapore",c:"+65"},{n:"Slovakia",c:"+421"},{n:"Slovenia",c:"+386"},{n:"Solomon Islands",c:"+677"},{n:"Somalia",c:"+252"},{n:"South Africa",c:"+27"},{n:"South Korea",c:"+82"},{n:"Spain",c:"+34"},{n:"Sri Lanka",c:"+94"},{n:"Sudan",c:"+249"},{n:"Suriname",c:"+597"},{n:"Sweden",c:"+46"},{n:"Switzerland",c:"+41"},{n:"Syria",c:"+963"},
-            {n:"Taiwan",c:"+886"},{n:"Tajikistan",c:"+992"},{n:"Tanzania",c:"+255"},{n:"Thailand",c:"+66"},{n:"Togo",c:"+228"},{n:"Tonga",c:"+676"},{n:"Trinidad & Tobago",c:"+1868"},{n:"Tunisia",c:"+216"},{n:"Turkey",c:"+90"},{n:"Turkmenistan",c:"+993"},{n:"Tuvalu",c:"+688"},
-            {n:"Uganda",c:"+256"},{n:"Ukraine",c:"+380"},{n:"UAE",c:"+971"},{n:"UK",c:"+44"},{n:"USA",c:"+1"},{n:"Uruguay",c:"+598"},{n:"Uzbekistan",c:"+998"},{n:"Vanuatu",c:"+678"},{n:"Venezuela",c:"+58"},{n:"Vietnam",c:"+84"},{n:"Yemen",c:"+967"},{n:"Zambia",c:"+260"},{n:"Zimbabwe",c:"+263"}
-        ];
+        // ============================================
+        // PAYMENT SYSTEM FUNCTIONS
+        // ============================================
+        
+        // Load all config from Firebase
+        function loadAppConfig() {
+            // Load maintenance config
+            db.ref('config/maintenance').on('value', (snap) => {
+                appConfig.maintenance = snap.val() || false;
+                updateMaintenanceUI();
+            });
+            
+            db.ref('config/maintenanceMessage').on('value', (snap) => {
+                appConfig.maintenanceMessage = snap.val() || "We're currently performing scheduled maintenance to improve your experience. We'll be back shortly.";
+                document.getElementById('maintenance-message').innerText = appConfig.maintenanceMessage;
+            });
+            
+            db.ref('config/maintenanceTime').on('value', (snap) => {
+                appConfig.maintenanceTime = snap.val() || "Approximately 30 minutes";
+                document.getElementById('maintenance-time').innerText = appConfig.maintenanceTime;
+            });
+            
+            // Load prices
+            db.ref('config/prices').on('value', (snap) => {
+                appConfig.prices = snap.val() || { monthly: 5, yearly: 40 };
+                updatePricesUI();
+            });
+            
+            // Load payment config
+            db.ref('config/payment').on('value', (snap) => {
+                const config = snap.val() || { system: 'playstore' };
+                appConfig.payment = { ...appConfig.payment, ...config };
+                
+                // Update price displays
+                if (appConfig.payment.razorpay) {
+                    document.getElementById('razor-monthly-price').innerText = appConfig.payment.razorpay.monthly || 5;
+                    document.getElementById('razor-yearly-price').innerText = appConfig.payment.razorpay.yearly || 40;
+                }
+                
+                // Update UI based on payment system
+                updatePaymentUI();
+                
+                console.log('পেমেন্ট সিস্টেম আপডেট:', appConfig.payment.system);
+            });
+            
+            // Load reward config
+            db.ref('config/reward').on('value', (snap) => {
+                appConfig.reward = snap.val() || {
+                    status: false,
+                    title: "Unlock 7 Days Free Premium!",
+                    message: "Join BOTH our official channels to activate your reward.",
+                    reward_days: 7,
+                    telegram_link: "https://telegram.me/DutyTrackerProapp",
+                    whatsapp_link: "https://whatsapp.com/channel/0029Vb6SlL01dAw9flibc12I"
+                };
+                
+                document.getElementById('reward-title').innerText = appConfig.reward.title;
+                document.getElementById('reward-message').innerText = appConfig.reward.message;
+            });
+        }
 
-        // ============================================
-        // PAYMENT SYSTEM DETECTION
-        // ============================================
-        function detectPaymentSystem() {
+        // Update maintenance UI
+        function updateMaintenanceUI() {
+            if (appConfig.maintenance) {
+                document.getElementById('maintenance-mode').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('splash').style.display = 'none';
+            } else {
+                document.getElementById('maintenance-mode').style.display = 'none';
+            }
+        }
+
+        // Update prices UI
+        function updatePricesUI() {
+            document.getElementById('promo-price').innerText = `₹${appConfig.prices.monthly}`;
+            document.getElementById('promo-duration').innerText = `For 1 Month`;
+            document.getElementById('promo-usd').innerText = `Or $${(appConfig.prices.monthly * 0.011).toFixed(3)} USD`;
+        }
+
+        // Get current payment system
+        function getPaymentSystem() {
             // Check if forced via localStorage (for testing)
             const forced = localStorage.getItem('force_payment');
             if (forced === 'playstore' || forced === 'razorpay') {
                 return forced;
             }
             
-            // Check User Agent for Android WebView
-            const ua = navigator.userAgent;
-            const isAndroid = ua.includes('Android');
-            const isWebView = ua.includes('wv') || ua.includes('WebView');
-            
-            // Check if running in TWA (Trusted Web Activity)
-            const isTWA = document.referrer.includes('android-app://') || 
-                          window.location.href.includes('?source=twa') ||
-                          (isAndroid && isWebView);
-            
-            // Check for Play Store specific markers
-            const isPlayStore = ua.includes(PLAY_STORE_PACKAGE) || 
-                                localStorage.getItem('install_source') === 'playstore' ||
-                                window.location.href.includes('?source=playstore');
-            
-            // Check for Android interface (from native app)
-            if (window.Android && window.Android.getPackageName) {
-                const packageName = window.Android.getPackageName();
-                if (packageName === PLAY_STORE_PACKAGE) {
-                    localStorage.setItem('install_source', 'playstore');
-                    return 'playstore';
-                }
-            }
-            
-            // Final decision
-            if (isPlayStore || (isTWA && !window.location.href.includes('localhost'))) {
-                return 'playstore';
-            }
-            
-            return 'razorpay';
+            // Use admin setting
+            return appConfig.payment.system || 'playstore';
         }
 
-        // Initialize payment system
-        currentPaymentSystem = detectPaymentSystem();
-        console.log('Payment System Detected:', currentPaymentSystem);
-
-        // Update UI based on payment system
+        // Update payment UI based on current system
         function updatePaymentUI() {
+            const system = getPaymentSystem();
             const promoMainBtn = document.getElementById('promo-main-btn');
             const promoYearBtn = document.getElementById('promo-year-btn');
             const promoPrice = document.getElementById('promo-price');
             const playBadge = document.getElementById('play-store-badge');
             
-            if (currentPaymentSystem === 'playstore') {
-                // Play Store UI
+            console.log('UI আপডেট হচ্ছে:', system);
+            
+            if (system === 'playstore') {
+                // ========== গুগল প্লে স্টোর ভার্সন ==========
+                
+                // প্রাইস স্টাইল
                 promoPrice.classList.add('play-price');
+                promoPrice.classList.remove('razor-price');
+                
+                // বাটন স্টাইল
                 promoMainBtn.classList.add('play-button');
+                promoMainBtn.classList.remove('razor-button');
+                
+                // বাটন টেক্সট
                 promoMainBtn.innerHTML = 'SUBSCRIBE ON PLAY STORE <i class="fab fa-google-play"></i>';
                 promoYearBtn.innerHTML = 'Yearly Subscription on Play Store';
+                
+                // ব্যাজ দেখান
                 if (playBadge) playBadge.style.display = 'inline-flex';
                 
-                // Update button click handlers
+                // বাটন ক্লিক ইভেন্ট
                 promoMainBtn.onclick = (e) => {
                     e.stopPropagation();
                     pay.googlePlay('monthly');
@@ -1247,40 +1321,55 @@
                     e.stopPropagation();
                     pay.googlePlay('yearly');
                 };
+                
+                console.log('✅ পেমেন্ট সিস্টেম: গুগল প্লে বিলিং');
+                
             } else {
-                // Razorpay UI
+                // ========== রাজর পেমেন্ট ভার্সন ==========
+                
+                // প্রাইস স্টাইল
                 promoPrice.classList.remove('play-price');
+                promoPrice.classList.add('razor-price');
+                
+                // বাটন স্টাইল
                 promoMainBtn.classList.remove('play-button');
+                promoMainBtn.classList.add('razor-button');
+                
+                // বাটন টেক্সট
                 promoMainBtn.innerHTML = 'START TRIAL <i class="fas fa-arrow-right"></i>';
-                promoYearBtn.innerHTML = 'Get 1 Year for ₹40 ($0.44)';
+                promoYearBtn.innerHTML = `Get 1 Year for ₹${appConfig.prices.yearly} ($${(appConfig.prices.yearly * 0.011).toFixed(2)} USD)`;
+                
+                // ব্যাজ লুকান
                 if (playBadge) playBadge.style.display = 'none';
                 
-                // Update button click handlers
+                // বাটন ক্লিক ইভেন্ট
                 promoMainBtn.onclick = (e) => {
                     e.stopPropagation();
-                    pay.razorpay(parseInt(promoPrice.innerText.replace('₹','')), 30);
+                    pay.razorpay();
                 };
                 promoYearBtn.onclick = (e) => {
                     e.stopPropagation();
-                    pay.razorpay(40, 365);
+                    pay.razorpayYearly();
                 };
+                
+                console.log('✅ পেমেন্ট সিস্টেম: রাজর পেমেন্ট');
             }
         }
 
-        // ============================================
-        // PAYMENT OBJECT
-        // ============================================
+        // Pay object
         const pay = {
-            razorpay: (amt, days) => {
+            razorpay: () => {
+                if (!s.uid) return;
                 promo.stop();
+                const amt = appConfig.payment.razorpay?.monthly || 5;
                 const options = { 
-                    "key": RZP_KEY, 
+                    "key": appConfig.payment.razorpay?.key || RZP_KEY, 
                     "amount": amt * 100, 
                     "currency": "INR", 
                     "name": "Duty Tracker Pro", 
                     "handler": function (r) { 
                         const now = Date.now();
-                        db.ref(`u/${s.uid}/subExp`).set(now + (days * 86400000)); 
+                        db.ref(`u/${s.uid}/subExp`).set(now + (30 * 86400000)); 
                         db.ref(`u/${s.uid}/history`).push({
                             amount: amt, 
                             date: now, 
@@ -1288,6 +1377,32 @@
                             orderId: r.razorpay_payment_id
                         });
                         ui.toast("✅ Subscription Activated!");
+                        setTimeout(() => location.reload(), 1500); 
+                    }, 
+                    "theme": { "color": "#4361ee" } 
+                };
+                new Razorpay(options).open();
+            },
+            
+            razorpayYearly: () => {
+                if (!s.uid) return;
+                promo.stop();
+                const amt = appConfig.payment.razorpay?.yearly || 40;
+                const options = { 
+                    "key": appConfig.payment.razorpay?.key || RZP_KEY, 
+                    "amount": amt * 100, 
+                    "currency": "INR", 
+                    "name": "Duty Tracker Pro", 
+                    "handler": function (r) { 
+                        const now = Date.now();
+                        db.ref(`u/${s.uid}/subExp`).set(now + (365 * 86400000)); 
+                        db.ref(`u/${s.uid}/history`).push({
+                            amount: amt, 
+                            date: now, 
+                            method: 'Razorpay', 
+                            orderId: r.razorpay_payment_id
+                        });
+                        ui.toast("✅ Yearly Subscription Activated!");
                         setTimeout(() => location.reload(), 1500); 
                     }, 
                     "theme": { "color": "#4361ee" } 
@@ -1303,7 +1418,6 @@
                     window.Android.startPurchase(productId);
                 } else {
                     ui.toast("Opening Google Play Store...");
-                    // Fallback - open Play Store app
                     window.open(`https://play.google.com/store/apps/details?id=${PLAY_STORE_PACKAGE}`, '_blank');
                 }
             },
@@ -1317,7 +1431,7 @@
             },
             
             show: () => {
-                if (currentPaymentSystem === 'playstore') {
+                if (getPaymentSystem() === 'playstore') {
                     document.getElementById('pay-wall-playstore').style.display = 'flex';
                 } else {
                     document.getElementById('pay-wall-razor').style.display = 'flex';
@@ -1360,23 +1474,6 @@
         // REWARD SYSTEM
         // ============================================
         const reward = {
-            loadConfig: () => {
-                db.ref('config/reward').on('value', (snap) => {
-                    const config = snap.val() || {};
-                    rewardConfig = {
-                        status: config.status || false,
-                        title: config.title || "Unlock 7 Days Free Premium!",
-                        message: config.message || "Join BOTH our official channels to activate your reward.",
-                        reward_days: config.reward_days || 7,
-                        telegram_link: config.telegram_link || "https://telegram.me/DutyTrackerProapp",
-                        whatsapp_link: config.whatsapp_link || "https://whatsapp.com/channel/0029Vb6SlL01dAw9flibc12I"
-                    };
-                    
-                    document.getElementById('reward-title').innerText = rewardConfig.title;
-                    document.getElementById('reward-message').innerText = rewardConfig.message;
-                });
-            },
-            
             checkAndShow: () => {
                 if (!s.uid) return;
                 
@@ -1390,7 +1487,7 @@
                     
                     s.reward = userReward;
                     
-                    if (rewardConfig.status && userReward.reward_claimed === 0) {
+                    if (appConfig.reward.status && userReward.reward_claimed === 0) {
                         setTimeout(() => {
                             document.getElementById('reward-popup').style.display = 'flex';
                         }, 2000);
@@ -1399,12 +1496,12 @@
             },
             
             joinTelegram: () => {
-                window.open(rewardConfig.telegram_link, '_blank');
+                window.open(appConfig.reward.telegram_link, '_blank');
                 ui.toast("✅ Please join and click 'I Joined'");
             },
             
             joinWhatsApp: () => {
-                window.open(rewardConfig.whatsapp_link, '_blank');
+                window.open(appConfig.reward.whatsapp_link, '_blank');
                 ui.toast("✅ Please join and click 'I Joined'");
             },
             
@@ -1416,14 +1513,14 @@
                 }
                 
                 const expiryDate = new Date();
-                expiryDate.setDate(expiryDate.getDate() + rewardConfig.reward_days);
+                expiryDate.setDate(expiryDate.getDate() + appConfig.reward.reward_days);
                 const expiryTimestamp = expiryDate.getTime();
                 
                 db.ref(`u/${s.uid}/subExp`).once('value', (subSnap) => {
                     let currentExp = subSnap.val() || Date.now();
                     if (currentExp < Date.now()) currentExp = Date.now();
                     
-                    const newExp = currentExp + (rewardConfig.reward_days * 24 * 60 * 60 * 1000);
+                    const newExp = currentExp + (appConfig.reward.reward_days * 24 * 60 * 60 * 1000);
                     
                     const updates = {};
                     updates[`u/${s.uid}/subExp`] = newExp;
@@ -1443,7 +1540,7 @@
                         
                         reward.closePopup();
                         s.reward.reward_claimed = 1;
-                        ui.toast(`🎉 ${rewardConfig.reward_days} Days Premium Activated!`);
+                        ui.toast(`🎉 ${appConfig.reward.reward_days} Days Premium Activated!`);
                     });
                 });
             },
@@ -1479,13 +1576,13 @@
                 });
             });
 
-            // Load reward config
-            reward.loadConfig();
+            // Load all config from Firebase
+            loadAppConfig();
 
             // Check Maintenance Mode
             db.ref('config/maintenance').on('value', (snap) => {
-                const isMaintenance = snap.val() || false;
-                if (isMaintenance) {
+                appConfig.maintenance = snap.val() || false;
+                if (appConfig.maintenance) {
                     document.getElementById('maintenance-mode').style.display = 'flex';
                     document.getElementById('main-app').style.display = 'none';
                     document.getElementById('auth-screen').style.display = 'none';
@@ -1501,14 +1598,6 @@
                         }, 800);
                     }, 2500);
                 }
-            });
-
-            // Fetch dynamic subscription prices
-            db.ref('config/prices').on('value', (snap) => {
-                const prices = snap.val() || { monthly: 5, yearly: 40 };
-                document.getElementById('dynamic-month-price').innerText = prices.monthly;
-                document.getElementById('dynamic-year-price').innerText = prices.yearly;
-                document.getElementById('promo-price').innerText = `₹${prices.monthly}`;
             });
 
             // Populate FAQ
@@ -1527,9 +1616,6 @@
 
             document.getElementById('adv-date').value = new Date().toISOString().split('T')[0];
             reminder.init();
-            
-            // Update payment UI
-            updatePaymentUI();
         });
         
         // --- HISTORY & BACK BUTTON HANDLER ---
@@ -1546,7 +1632,7 @@
             if (!event.state || event.state.page === 'home') {
                 document.querySelectorAll('.page').forEach(p => p.style.display='none');
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[2].classList.add('active'); // Activate Home icon
+                document.querySelectorAll('.nav-btn')[2].classList.add('active');
             } 
         };
 
@@ -1588,15 +1674,6 @@
                     if(!v.refCode) ref.gen();
                     else { s.refCode = v.refCode; document.getElementById('my-ref-code').innerText = s.refCode; }
 
-                    // Check for user-specific offer
-                    db.ref('offers/'+id).once('value', (offerSnap) => {
-                        const offer = offerSnap.val();
-                        if (offer && offer.active) {
-                            document.getElementById('promo-price').innerText = `₹${offer.price || 3}`;
-                            document.getElementById('promo-duration').innerText = offer.duration || 'Special Offer';
-                        }
-                    });
-
                     document.getElementById('prof-name-disp').innerText = s.profile.name || "User";
                     document.getElementById('prof-id').innerText = id;
                     if(s.profile.img) {
@@ -1613,7 +1690,6 @@
                         document.getElementById('prof-badge').innerText="EXPIRED"; 
                         document.getElementById('prof-badge').style.background="red"; 
                         document.getElementById('prof-exp').innerText = "Expired: "+exD.toLocaleDateString();
-                        // Auto show promo if expired
                         if(document.getElementById('promo-screen').style.display !== 'flex') {
                             promo.show();
                         }
@@ -1646,7 +1722,6 @@
 
                     document.getElementById('main-app').style.display = 'flex';
                     
-                    // Check and show reward popup (only if not expired)
                     if(!isExp) {
                         reward.checkAndShow();
                     }
@@ -1656,20 +1731,14 @@
 
         const promo = {
             show: () => {
-                // Close all modals first
                 document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
                 document.getElementById('att-modal').style.display = 'none';
-                
-                // Hide main app
                 document.getElementById('main-app').style.display = 'none';
-                
-                // Show promo screen
                 document.getElementById('promo-screen').style.display = 'flex';
                 
-                // Update UI based on payment system
+                // UI আপডেট করুন
                 updatePaymentUI();
                 
-                // Try to play video
                 const vid = document.getElementById('promo-vid');
                 if(vid) { 
                     vid.currentTime = 0; 
@@ -1680,7 +1749,6 @@
                     });
                 }
                 
-                // Update history
                 history.pushState({page:'promo'}, null, '');
             },
             unmute: () => {
@@ -1735,7 +1803,7 @@
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
-                history.pushState({page: 'modal'}, null, ''); // PUSH HISTORY FOR MODAL
+                history.pushState({page: 'modal'}, null, '');
                 
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 const en = s.data[d];
@@ -1755,26 +1823,20 @@
             },
             set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
             save: () => {
-                // Check if premium expired
                 if(s.sub < Date.now()) { 
-                    // Close modal
                     document.getElementById('att-modal').style.display = 'none';
                     history.back();
-                    
-                    // Show promo screen after delay
                     setTimeout(() => {
                         promo.show();
                     }, 300);
-                    
-                    return; // Stop, don't save duty
+                    return;
                 }
                 
-                // Premium active, save duty
                 if(!selType && s.data[selDate]) selType = s.data[selDate].t;
                 if(!selType) selType = 'Present';
                 const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
-                history.back(); // CLOSE MODAL WITH BACK
+                history.back();
                 ui.toast("Saved Successfully");
             },
             clear: () => {
@@ -2042,6 +2104,23 @@
                 db.ref('stats/pdf_downloads').transaction(current => (current || 0) + 1);
             }
         };
+
+        // --- FULL A-Z COUNTRY LIST ---
+        const countries = [
+            {n:"India",c:"+91"},{n:"Afghanistan",c:"+93"},{n:"Albania",c:"+355"},{n:"Algeria",c:"+213"},{n:"Andorra",c:"+376"},{n:"Angola",c:"+244"},{n:"Argentina",c:"+54"},{n:"Armenia",c:"+374"},{n:"Australia",c:"+61"},{n:"Austria",c:"+43"},{n:"Azerbaijan",c:"+994"},
+            {n:"Bahrain",c:"+973"},{n:"Bangladesh",c:"+880"},{n:"Belarus",c:"+375"},{n:"Belgium",c:"+32"},{n:"Belize",c:"+501"},{n:"Benin",c:"+229"},{n:"Bhutan",c:"+975"},{n:"Bolivia",c:"+591"},{n:"Bosnia",c:"+387"},{n:"Botswana",c:"+267"},{n:"Brazil",c:"+55"},{n:"Brunei",c:"+673"},{n:"Bulgaria",c:"+359"},
+            {n:"Cambodia",c:"+855"},{n:"Cameroon",c:"+237"},{n:"Canada",c:"+1"},{n:"Chile",c:"+56"},{n:"China",c:"+86"},{n:"Colombia",c:"+57"},{n:"Comoros",c:"+269"},{n:"Congo",c:"+242"},{n:"Costa Rica",c:"+506"},{n:"Croatia",c:"+385"},{n:"Cuba",c:"+53"},{n:"Cyprus",c:"+357"},{n:"Czech Republic",c:"+420"},
+            {n:"Denmark",c:"+45"},{n:"Djibouti",c:"+253"},{n:"Dominica",c:"+1767"},{n:"Dominican Republic",c:"+1809"},{n:"Ecuador",c:"+593"},{n:"Egypt",c:"+20"},{n:"El Salvador",c:"+503"},{n:"Estonia",c:"+372"},{n:"Ethiopia",c:"+251"},
+            {n:"Fiji",c:"+679"},{n:"Finland",c:"+358"},{n:"France",c:"+33"},{n:"Gabon",c:"+241"},{n:"Gambia",c:"+220"},{n:"Georgia",c:"+995"},{n:"Germany",c:"+49"},{n:"Ghana",c:"+233"},{n:"Greece",c:"+30"},{n:"Grenada",c:"+1473"},{n:"Guatemala",c:"+502"},{n:"Guinea",c:"+224"},{n:"Guyana",c:"+592"},
+            {n:"Haiti",c:"+509"},{n:"Honduras",c:"+504"},{n:"Hong Kong",c:"+852"},{n:"Hungary",c:"+36"},{n:"Iceland",c:"+354"},{n:"Indonesia",c:"+62"},{n:"Iran",c:"+98"},{n:"Iraq",c:"+964"},{n:"Ireland",c:"+353"},{n:"Israel",c:"+972"},{n:"Italy",c:"+39"},
+            {n:"Jamaica",c:"+1876"},{n:"Japan",c:"+81"},{n:"Jordan",c:"+962"},{n:"Kazakhstan",c:"+7"},{n:"Kenya",c:"+254"},{n:"Kiribati",c:"+686"},{n:"Kuwait",c:"+965"},{n:"Kyrgyzstan",c:"+996"},{n:"Laos",c:"+856"},{n:"Latvia",c:"+371"},{n:"Lebanon",c:"+961"},{n:"Lesotho",c:"+266"},{n:"Liberia",c:"+231"},{n:"Libya",c:"+218"},{n:"Liechtenstein",c:"+423"},{n:"Lithuania",c:"+370"},{n:"Luxembourg",c:"+352"},
+            {n:"Macedonia",c:"+389"},{n:"Madagascar",c:"+261"},{n:"Malawi",c:"+265"},{n:"Malaysia",c:"+60"},{n:"Maldives",c:"+960"},{n:"Mali",c:"+223"},{n:"Malta",c:"+356"},{n:"Mauritania",c:"+222"},{n:"Mauritius",c:"+230"},{n:"Mexico",c:"+52"},{n:"Moldova",c:"+373"},{n:"Monaco",c:"+377"},{n:"Mongolia",c:"+976"},{n:"Montenegro",c:"+382"},{n:"Morocco",c:"+212"},{n:"Mozambique",c:"+258"},{n:"Myanmar",c:"+95"},
+            {n:"Namibia",c:"+264"},{n:"Nauru",c:"+674"},{n:"Nepal",c:"+977"},{n:"Netherlands",c:"+31"},{n:"New Zealand",c:"+64"},{n:"Nicaragua",c:"+505"},{n:"Niger",c:"+227"},{n:"Nigeria",c:"+234"},{n:"North Korea",c:"+850"},{n:"Norway",c:"+47"},{n:"Oman",c:"+968"},
+            {n:"Pakistan",c:"+92"},{n:"Palau",c:"+680"},{n:"Panama",c:"+507"},{n:"Papua New Guinea",c:"+675"},{n:"Paraguay",c:"+595"},{n:"Peru",c:"+51"},{n:"Philippines",c:"+63"},{n:"Poland",c:"+48"},{n:"Portugal",c:"+351"},{n:"Qatar",c:"+974"},
+            {n:"Romania",c:"+40"},{n:"Russia",c:"+7"},{n:"Rwanda",c:"+250"},{n:"Samoa",c:"+685"},{n:"San Marino",c:"+378"},{n:"Saudi Arabia",c:"+966"},{n:"Senegal",c:"+221"},{n:"Serbia",c:"+381"},{n:"Seychelles",c:"+248"},{n:"Sierra Leone",c:"+232"},{n:"Singapore",c:"+65"},{n:"Slovakia",c:"+421"},{n:"Slovenia",c:"+386"},{n:"Solomon Islands",c:"+677"},{n:"Somalia",c:"+252"},{n:"South Africa",c:"+27"},{n:"South Korea",c:"+82"},{n:"Spain",c:"+34"},{n:"Sri Lanka",c:"+94"},{n:"Sudan",c:"+249"},{n:"Suriname",c:"+597"},{n:"Sweden",c:"+46"},{n:"Switzerland",c:"+41"},{n:"Syria",c:"+963"},
+            {n:"Taiwan",c:"+886"},{n:"Tajikistan",c:"+992"},{n:"Tanzania",c:"+255"},{n:"Thailand",c:"+66"},{n:"Togo",c:"+228"},{n:"Tonga",c:"+676"},{n:"Trinidad & Tobago",c:"+1868"},{n:"Tunisia",c:"+216"},{n:"Turkey",c:"+90"},{n:"Turkmenistan",c:"+993"},{n:"Tuvalu",c:"+688"},
+            {n:"Uganda",c:"+256"},{n:"Ukraine",c:"+380"},{n:"UAE",c:"+971"},{n:"UK",c:"+44"},{n:"USA",c:"+1"},{n:"Uruguay",c:"+598"},{n:"Uzbekistan",c:"+998"},{n:"Vanuatu",c:"+678"},{n:"Venezuela",c:"+58"},{n:"Vietnam",c:"+84"},{n:"Yemen",c:"+967"},{n:"Zambia",c:"+260"},{n:"Zimbabwe",c:"+263"}
+        ];
 
         function toDataURL(url, callback) { var xhr = new XMLHttpRequest(); xhr.onload = function() { var reader = new FileReader(); reader.onloadend = function() { callback(reader.result); }; reader.readAsDataURL(xhr.response); }; xhr.open('GET', url); xhr.responseType = 'blob'; xhr.send(); }
         
