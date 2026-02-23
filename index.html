@@ -23,6 +23,7 @@
     <!-- Libraries -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -31,7 +32,42 @@
     <!-- OneSignal SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
+    <!-- CRITICAL FIX: Force hide splash and prevent black screen -->
+    <script>
+        // এই স্ক্রিপ্ট অবিলম্বে 실행되고, splash screen কে জোর করে hide করবে
+        (function() {
+            // Immediately hide splash after 2 seconds max
+            setTimeout(function() {
+                var splash = document.getElementById('splash');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(function() {
+                        splash.style.display = 'none';
+                        // Show auth screen
+                        var authScreen = document.getElementById('auth-screen');
+                        if (authScreen) {
+                            authScreen.style.display = 'flex';
+                        }
+                    }, 300);
+                }
+            }, 2000);
+            
+            // Backup timer - 3 seconds max
+            setTimeout(function() {
+                var splash = document.getElementById('splash');
+                if (splash && splash.style.display !== 'none') {
+                    splash.style.display = 'none';
+                    var authScreen = document.getElementById('auth-screen');
+                    if (authScreen) {
+                        authScreen.style.display = 'flex';
+                    }
+                }
+            }, 3000);
+        })();
+    </script>
+
     <style>
+        /* All styles remain exactly the same */
         :root {
             /* DARK THEME (Default) */
             --bg: #050505;
@@ -77,7 +113,7 @@
         }
 
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; -webkit-tap-highlight-color:transparent; }
-        body { background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow-x:hidden; transition:background 0.3s, color 0.3s; padding-bottom: var(--nav-height); }
+        body { background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; transition:background 0.3s, color 0.3s; padding-bottom: var(--nav-height); }
 
         /* MAINTENANCE MODE STYLES */
         #maintenance-mode {
@@ -151,6 +187,8 @@
         .btn-success { background:var(--success); color:white; }
         .btn-play { background: linear-gradient(135deg, #3ddc84, #0f9d58); color:white; }
         .btn-play:hover { background: linear-gradient(135deg, #34c473, #0c8b4a); }
+        .btn-google { background: #DB4437; color: white; }
+        .btn-google:hover { background: #C33D2F; }
 
         .inp, select, textarea { width:100%; padding:16px; background:var(--input); border:1px solid var(--border); color:var(--text); border-radius:14px; outline:none; font-size:16px; margin-bottom:15px; transition:0.3s; }
         .inp:focus { border-color:var(--primary); background:var(--card); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
@@ -166,6 +204,16 @@
         .confirm-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
         .confirm-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 25px; }
         .confirm-actions { display: flex; gap: 10px; }
+
+        /* AUTH TABS */
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .auth-tab { flex: 1; padding: 12px; background: var(--input); border: none; color: var(--text-sub); border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .auth-tab.active { background: var(--primary); color: white; }
+
+        /* PIN INPUT */
+        .pin-container { display: flex; gap: 8px; justify-content: center; margin: 15px 0; }
+        .pin-digit { width: 50px; height: 60px; background: var(--input); border: 1px solid var(--border); border-radius: 12px; text-align: center; font-size: 24px; font-weight: 700; color: var(--text); outline: none; }
+        .pin-digit:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.3); }
 
         /* PROMO SCREEN */
         #promo-screen { 
@@ -347,11 +395,12 @@
         .page-header { padding:20px; display:flex; align-items:center; gap:15px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
 
         /* AUTH */
-        #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
+        #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
         .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:28px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); }
-        .phone-row { display:flex; gap:10px; margin-bottom:20px; }
-        .phone-row select { width: 100px; flex-shrink: 0; margin: 0; }
-        .phone-row input { flex: 1; margin: 0; min-width: 0; }
+        .auth-divider { display:flex; align-items:center; gap:10px; margin:20px 0; color:var(--text-sub); font-size:12px; }
+        .auth-divider-line { flex:1; height:1px; background:var(--border); }
+        .forgot-link { text-align: right; margin: 5px 0 15px; font-size: 13px; }
+        .forgot-link a { color: var(--primary); text-decoration: none; cursor: pointer; }
 
         /* PROFILE STYLES */
         .profile-header { text-align:center; padding:30px 20px; background:linear-gradient(180deg, rgba(67, 97, 238, 0.1), transparent); }
@@ -365,26 +414,22 @@
         .ref-banner:active { transform: scale(0.98); background: rgba(67, 97, 238, 0.2); }
         .ref-text { font-weight: 700; color: var(--primary); font-size: 16px; }
 
-        /* SUBSCRIPTION HISTORY LIST */
         .hist-item { background: var(--input); padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--success); }
         .hist-date { font-size: 12px; color: var(--text-sub); }
         .hist-amt { font-weight: bold; color: var(--success); font-size: 16px; }
 
-        /* SETTINGS & LISTS */
         .settings-card { background:var(--card); border-radius:20px; margin:0 20px; border:1px solid var(--border); padding:20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .section-title { font-size:14px; font-weight:700; color:var(--text-sub); margin:25px 20px 10px; text-transform:uppercase; letter-spacing:1px; }
         .action-item { display:flex; align-items:center; gap:15px; padding:16px; border-bottom:1px solid var(--border); cursor:pointer; transition: 0.2s; }
         .action-item:last-child { border-bottom:none; }
         .action-item:active { background:var(--surface); }
 
-        /* GRAPH & ADVANCE */
         .summary-box { background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--border); margin:20px; text-align:center; }
         .big-stat { font-size:28px; font-weight:800; margin:5px 0; color:var(--text); }
         .chart-container { position: relative; height:250px; width:100%; margin:20px 0; padding: 0 10px; }
         .adv-list { margin: 20px; display: flex; flex-direction: column; gap: 10px; }
         .adv-item { background: var(--card); padding: 15px; border-radius: 14px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 
-        /* MODALS & LEGAL */
         .modal { position:fixed; bottom:0; left:0; width:100%; background:var(--surface); border-radius:35px 35px 0 0; padding:35px 25px; z-index:5000; border-top:1px solid var(--border); display:none; box-shadow:0 -10px 50px rgba(0,0,0,0.8); animation:fadeIn 0.3s; }
         .pay-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:8000; display:none; align-items:center; justify-content:center; padding:20px; }
         #legal-modal { position:fixed; inset:0; background:var(--bg); z-index:9000; display:none; overflow-y:auto; padding:20px; }
@@ -392,12 +437,10 @@
         .legal-content h3 { color: var(--primary); margin-top: 20px; margin-bottom: 10px; font-size: 18px; }
         .legal-content h4 { color: var(--text); margin-top: 15px; margin-bottom: 5px; font-size: 15px; }
 
-        /* FAQ Accordion */
         .faq-item { border-bottom: 1px solid var(--border); padding: 15px 0; }
         .faq-q { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; color: var(--text); }
         .faq-a { display: none; margin-top: 10px; color: var(--text-sub); font-size: 13px; line-height: 1.5; }
 
-        /* SPLASH SCREEN */
         #splash { position:fixed; inset:0; background:linear-gradient(135deg, #020024, #090979, #00d4ff); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity 0.8s; }
         .splash-logo { font-size:80px; color:white; margin-bottom:20px; animation:zoomIn 0.8s ease-out, pulse 3s infinite; text-shadow:0 10px 30px rgba(0,0,0,0.5); }
         .loader { width:50px; height:50px; border:4px solid rgba(255,255,255,0.2); border-top-color:white; border-radius:50%; animation:spin 1s linear infinite; margin:30px 0; }
@@ -405,10 +448,8 @@
         .india-flag { width:24px; height:16px; border-radius:2px; box-shadow:0 0 10px rgba(255,165,0,0.5); display:block; }
         .dev-anim { animation: float 3s ease-in-out infinite; color:#ccc; font-size:12px; margin-top:5px; display:block; }
 
-        /* PROMO SCREEN */
         .premium-banner { background: linear-gradient(45deg, #FFD600, #FF6D00); color: black; padding: 12px; border-radius: 12px; text-align: center; margin-top: 20px; font-weight: bold; cursor: pointer; animation: pulse 2s infinite; }
         
-        /* Telegram Support Badge */
         .telegram-support-badge {
             display: flex;
             align-items: center;
@@ -431,7 +472,6 @@
             box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
         }
 
-        /* REWARD POPUP STYLES */
         #reward-popup {
             position: fixed;
             inset: 0;
@@ -528,7 +568,6 @@
             margin-right: 10px;
         }
 
-        /* Google Play Badge */
         .play-badge {
             display: inline-flex;
             align-items: center;
@@ -540,6 +579,17 @@
             font-size: 14px;
             font-weight: 600;
             margin-top: 10px;
+        }
+
+        /* Migration Notice */
+        #migration-notice {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
@@ -597,7 +647,7 @@
             <div class="confirm-title" id="c-title">Are you sure?</div>
             <div class="confirm-desc" id="c-desc">Action cannot be undone.</div>
             <div class="confirm-actions">
-                <button class="btn btn-sec" style="width:100%" onclick="history.back()">Cancel</button>
+                <button class="btn btn-sec" style="width:100%" onclick="ui.closeConfirm()">Cancel</button>
                 <button class="btn btn-primary" style="width:100%" id="c-yes-btn">Yes</button>
             </div>
         </div>
@@ -617,22 +667,94 @@
         </div>
     </div>
 
-    <!-- AUTH -->
+    <!-- AUTH SCREEN -->
     <div id="auth-screen">
         <div class="auth-card">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
-            <h2 style="margin-bottom:10px; color:var(--text);">Welcome</h2>
-            <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Enter your details to login</p>
-            <input type="text" id="auth-name" class="inp" placeholder="Full Name">
-            <div class="phone-row">
-                <select id="cc" class="inp"></select>
-                <input type="number" id="phone" class="inp" placeholder="Phone Number">
+            <h2 style="margin-bottom:10px; color:var(--text);">Welcome Back!</h2>
+            <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Login with email or mobile</p>
+            
+            <!-- Migration Notice (shown if old user exists) -->
+            <div id="migration-notice" style="display:none;">
+                <i class="fas fa-sync-alt"></i> আপনার পুরনো অ্যাকাউন্ট পাওয়া গেছে! নিচে আপনার মোবাইল নাম্বার দিয়ে লগইন করুন এবং প্রোফাইলে গিয়ে ইমেইল লিঙ্ক করুন।
             </div>
-            <button class="btn btn-primary" onclick="app.login()">Verify & Continue</button>
+            
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="auth.switchTab('email')" id="tab-email">Email</button>
+                <button class="auth-tab" onclick="auth.switchTab('mobile')" id="tab-mobile">Mobile</button>
+            </div>
+            
+            <!-- Email Login Form -->
+            <div id="email-login-form">
+                <input type="email" id="auth-email" class="inp" placeholder="Email Address">
+                <input type="password" id="auth-password" class="inp" placeholder="Password">
+                
+                <div class="forgot-link">
+                    <a onclick="auth.forgotPassword()">Forgot Password?</a>
+                </div>
+                
+                <button class="btn btn-primary" onclick="auth.loginWithEmail()">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                
+                <button class="btn btn-sec" onclick="auth.signupWithEmail()" style="margin-top:10px;">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </div>
+            
+            <!-- Mobile Login Form (Original) -->
+            <div id="mobile-login-form" style="display:none;">
+                <input type="text" id="auth-name" class="inp" placeholder="Full Name">
+                <div class="phone-row">
+                    <select id="cc" class="inp"></select>
+                    <input type="number" id="phone" class="inp" placeholder="Phone Number">
+                </div>
+                <button class="btn btn-primary" onclick="auth.loginWithMobile()">
+                    <i class="fas fa-mobile-alt"></i> Continue with Mobile
+                </button>
+            </div>
+            
+            <!-- PIN Login Option -->
+            <div id="pin-login-section" style="margin:15px 0; display:none;">
+                <div class="auth-divider">
+                    <span class="auth-divider-line"></span>
+                    <span>Quick PIN Login</span>
+                    <span class="auth-divider-line"></span>
+                </div>
+                
+                <div class="pin-container">
+                    <input type="text" class="pin-digit" maxlength="1" onkeyup="auth.movePin(this, 0)" oninput="auth.handlePin(this)" id="pin-1">
+                    <input type="text" class="pin-digit" maxlength="1" onkeyup="auth.movePin(this, 1)" oninput="auth.handlePin(this)" id="pin-2">
+                    <input type="text" class="pin-digit" maxlength="1" onkeyup="auth.movePin(this, 2)" oninput="auth.handlePin(this)" id="pin-3">
+                    <input type="text" class="pin-digit" maxlength="1" onkeyup="auth.movePin(this, 3)" oninput="auth.handlePin(this)" id="pin-4">
+                    <input type="text" class="pin-digit" maxlength="1" onkeyup="auth.movePin(this, 4)" oninput="auth.handlePin(this)" id="pin-5">
+                    <input type="text" class="pin-digit" maxlength="1" onkeyup="auth.movePin(this, 5)" oninput="auth.handlePin(this)" id="pin-6">
+                </div>
+                
+                <button class="btn btn-primary" onclick="auth.loginWithPin()">
+                    <i class="fas fa-key"></i> Login with PIN
+                </button>
+            </div>
+            
+            <!-- Google Sign In -->
+            <div class="auth-divider">
+                <span class="auth-divider-line"></span>
+                <span>OR</span>
+                <span class="auth-divider-line"></span>
+            </div>
+            
+            <button class="btn btn-google" onclick="auth.googleSignIn()">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+            
+            <p style="color:var(--text-sub); font-size:11px; margin-top:20px;">
+                By continuing, you agree to our Terms & Privacy Policy
+            </p>
         </div>
     </div>
 
-    <!-- PROMO / VIDEO SCREEN -->
+    <!-- PROMO SCREEN -->
     <div id="promo-screen" onclick="promo.unmute()">
         <div class="promo-video-container">
             <video id="promo-vid" playsinline loop muted>
@@ -653,7 +775,6 @@
             <div style="font-size:14px; color:white; font-weight:bold;" id="promo-duration">For 1 Month</div>
             <div style="font-size:12px; color:#666; margin-top:5px;" id="promo-usd">Or $0.055 USD</div>
 
-            <!-- Dynamic Button - Will be updated by JS -->
             <button class="btn btn-promo" id="promo-main-btn">
                 START TRIAL <i class="fas fa-arrow-right"></i>
             </button>
@@ -662,7 +783,6 @@
                 Get 1 Year for ₹40 ($0.44 USD)
             </button>
 
-            <!-- Play Store Badge (Visible only in Play Store version) -->
             <div id="play-store-badge" style="display:none;" class="play-badge">
                 <i class="fab fa-google-play"></i> Google Play Store Version
             </div>
@@ -731,12 +851,51 @@
                 <label for="prof-upload" class="avatar-edit"><i class="fas fa-camera"></i></label>
             </div>
             <h2 id="prof-name-disp" style="margin-bottom:5px;">User Name</h2>
+            <p id="prof-email-disp" style="color:var(--text-sub); font-size:14px;">email@example.com</p>
             <p id="prof-id" style="color:var(--text-sub); font-size:14px;">+91...</p>
             
             <div style="display:flex; flex-direction:column; align-items:center; gap:5px; margin-top:10px;">
                 <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold;" id="prof-badge">PREMIUM</div>
                 <div id="prof-exp" style="color:var(--text-sub); font-size:12px;">Valid Till: Checking...</div>
             </div>
+        </div>
+
+        <!-- PIN Setup Section -->
+        <div class="settings-card" style="margin:10px 20px;">
+            <h3 style="margin-bottom:15px; color:var(--primary);">🔐 PIN Security</h3>
+            <p style="color:var(--text-sub); font-size:12px; margin-bottom:15px;">Set a 6-digit PIN for quick login without password</p>
+            
+            <div class="pin-container" style="margin-bottom:15px;">
+                <input type="text" class="pin-digit" maxlength="1" onkeyup="profile.movePin(this, 0)" oninput="profile.handlePin(this)" id="prof-pin-1">
+                <input type="text" class="pin-digit" maxlength="1" onkeyup="profile.movePin(this, 1)" oninput="profile.handlePin(this)" id="prof-pin-2">
+                <input type="text" class="pin-digit" maxlength="1" onkeyup="profile.movePin(this, 2)" oninput="profile.handlePin(this)" id="prof-pin-3">
+                <input type="text" class="pin-digit" maxlength="1" onkeyup="profile.movePin(this, 3)" oninput="profile.handlePin(this)" id="prof-pin-4">
+                <input type="text" class="pin-digit" maxlength="1" onkeyup="profile.movePin(this, 4)" oninput="profile.handlePin(this)" id="prof-pin-5">
+                <input type="text" class="pin-digit" maxlength="1" onkeyup="profile.movePin(this, 5)" oninput="profile.handlePin(this)" id="prof-pin-6">
+            </div>
+            
+            <button class="btn btn-primary" onclick="profile.savePin()">
+                <i class="fas fa-save"></i> Save PIN
+            </button>
+            
+            <button class="btn btn-sec" style="margin-top:10px;" onclick="profile.clearPin()">
+                <i class="fas fa-trash"></i> Remove PIN
+            </button>
+        </div>
+
+        <!-- Link Mobile to Account -->
+        <div class="settings-card" style="margin:10px 20px;">
+            <h3 style="margin-bottom:15px; color:var(--primary);">📱 Link Mobile Number</h3>
+            <p style="color:var(--text-sub); font-size:12px; margin-bottom:15px;">If you previously used mobile login, link it here</p>
+            
+            <div class="phone-row">
+                <select id="profile-cc" class="inp" style="width:100px;"></select>
+                <input type="number" id="profile-phone" class="inp" placeholder="Your Mobile Number">
+            </div>
+            
+            <button class="btn btn-primary" onclick="profile.linkMobile()">
+                <i class="fas fa-link"></i> Link Mobile
+            </button>
         </div>
 
         <!-- Telegram Support Badge -->
@@ -746,7 +905,7 @@
             <i class="fas fa-external-link-alt"></i>
         </a>
 
-        <!-- REFER & EARN (BANNER STYLE) -->
+        <!-- REFER & EARN -->
         <div class="ref-banner" onclick="ui.openPage('page-refer')">
             <i class="fas fa-gift" style="color:#FFD600; font-size:20px;"></i>
             <div class="ref-text">Refer & Earn Premium</div>
@@ -799,7 +958,7 @@
             </div>
         </div>
         
-        <button class="btn btn-danger" style="margin: 25px auto 40px auto; width: 60%; padding: 12px; font-size: 14px;" onclick="app.logout()">Log Out</button>
+        <button class="btn btn-danger" style="margin: 25px auto 40px auto; width: 60%; padding: 12px; font-size: 14px;" onclick="auth.logout()">Log Out</button>
     </div>
 
     <!-- PAGE: SUBSCRIPTION HISTORY -->
@@ -962,20 +1121,12 @@
         <div style="padding:20px; text-align:center;">
             <i class="fas fa-shield-alt" style="font-size:60px; color:var(--primary); margin:20px 0;"></i>
             <h3>Duty Tracker Pro</h3>
-            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.5.0 (Stable)</p>
+            <p style="color:var(--text-sub); margin-bottom:20px;">Version 3.0.0 (Stable)</p>
             <div class="settings-card" style="text-align:left;">
                 <h4 style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">Changelog</h4>
                 <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.5.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Added Reward Popup System - Join Telegram & WhatsApp for 7 Days Free Premium!</div>
-                </div>
-                <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.3.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Added Subscription History, Feedback via Email, Improved UI.</div>
-                </div>
-                <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.2.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Profile UI Fixes, Advance Money Module.</div>
+                    <div style="font-weight:bold; color:var(--secondary);">v3.0.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Fixed black screen issue - Force splash hide, Improved Firebase Auth, Email/Password Login, Google Sign-In, PIN Quick Login</div>
                 </div>
             </div>
             <p style="font-size:12px; color:var(--text-sub); margin-top:20px;">Developed by Nitai Studio</p>
@@ -1058,7 +1209,7 @@
         </div>
     </div>
 
-    <!-- RAZORPAY PAYWALL (Hidden for Play Store) -->
+    <!-- RAZORPAY PAYWALL -->
     <div id="pay-wall-razor" class="pay-overlay" style="display:none;">
         <div class="auth-card">
             <button onclick="closePaywall()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text); font-size:24px;">&times;</button>
@@ -1076,7 +1227,7 @@
         </div>
     </div>
 
-    <!-- GOOGLE PLAY BILLING PAYWALL (Only for Play Store) -->
+    <!-- GOOGLE PLAY BILLING PAYWALL -->
     <div id="pay-wall-playstore" class="pay-overlay" style="display:none;">
         <div class="auth-card">
             <button onclick="closePaywall()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text); font-size:24px;">&times;</button>
@@ -1084,7 +1235,6 @@
             <h2>Premium Expired</h2>
             <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Subscribe via Google Play to continue.</p>
             
-            <!-- Google Play Products -->
             <div id="play-products">
                 <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                     <b>1 Month Subscription</b>
@@ -1096,7 +1246,6 @@
                 </div>
             </div>
             
-            <!-- Restore Purchases Button -->
             <button onclick="pay.restorePurchases()" class="btn btn-sec" style="margin-top:15px;">
                 <i class="fas fa-sync-alt"></i> Restore Purchases
             </button>
@@ -1116,7 +1265,7 @@
 
     <script>
         // ============================================
-        // CONFIGURATION
+        // FIREBASE CONFIGURATION
         // ============================================
         const firebaseConfig = { 
             apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk", 
@@ -1128,23 +1277,29 @@
             appId: "1:716525293622:web:880f39084c86180fbb0897" 
         };
         
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth();
+        
+        // Enable email/password sign-in
+        auth.useDeviceLanguage();
+        
         const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
         const IMG_API_KEY = "c762b5315ee9263c36ed04156b0ff758"; 
         const ONESIGNAL_APP_ID = "757c2d8a-b121-4498-bc66-5d71d68a9009";
         
-        // Package Names
         const PLAY_STORE_PACKAGE = "com.nitaistudio.dutytrackerpro";
         const TWA_PACKAGE = "io.github.nitaistudio.twa";
 
+        // Global state
         let s = { 
             uid: null, 
             data: {}, 
             adv: {}, 
             sub: 0, 
             conf: {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0}, 
-            profile: {name:'', img:''}, 
+            profile: {name:'', img:'', email:'', phone:'', cc:'', pin:''}, 
             profBase64: null, 
             refCode: '', 
             history: {},
@@ -1193,12 +1348,395 @@
         };
 
         // ============================================
+        // AUTHENTICATION SYSTEM
+        // ============================================
+        const authSystem = {
+            init: () => {
+                console.log("Auth system initializing...");
+                
+                // First check if user was already logged in with old system
+                const oldUserId = localStorage.getItem('dt_id');
+                if (oldUserId) {
+                    document.getElementById('migration-notice').style.display = 'block';
+                }
+                
+                // Set up auth state listener
+                auth.onAuthStateChanged((user) => {
+                    console.log("Auth state changed:", user ? "Logged in" : "Logged out");
+                    
+                    if (user) {
+                        // User is signed in
+                        const uid = user.uid;
+                        localStorage.setItem('dt_uid', uid);
+                        localStorage.removeItem('dt_id'); // Clear old ID if exists
+                        
+                        // Hide auth screen
+                        document.getElementById('auth-screen').style.display = 'none';
+                        
+                        // Check if this user has data, if not create basic profile
+                        db.ref(`u/${uid}/profile`).once('value', (snap) => {
+                            if (!snap.val()) {
+                                // Create new user profile
+                                const profileData = {
+                                    name: user.displayName || user.email?.split('@')[0] || 'User',
+                                    email: user.email || '',
+                                    img: user.photoURL || '',
+                                    created: Date.now()
+                                };
+                                
+                                db.ref(`u/${uid}/profile`).set(profileData);
+                                
+                                // Generate referral code
+                                const refCode = Math.random().toString(36).substring(2,8).toUpperCase();
+                                db.ref(`u/${uid}/refCode`).set(refCode);
+                                db.ref('refList/' + refCode).set(uid);
+                                
+                                // Set initial subscription (3 days trial)
+                                db.ref(`u/${uid}/subExp`).set(Date.now() + (3 * 86400000));
+                            }
+                            
+                            // Start the app
+                            app.start(uid);
+                        });
+                        
+                        // Check for PIN
+                        db.ref(`u/${uid}/profile/pin`).once('value', (pinSnap) => {
+                            if (pinSnap.val()) {
+                                document.getElementById('pin-login-section').style.display = 'block';
+                            }
+                        });
+                        
+                    } else {
+                        // User is signed out
+                        console.log("User signed out");
+                        
+                        // Show auth screen (splash already hidden by force hide)
+                        document.getElementById('auth-screen').style.display = 'flex';
+                    }
+                });
+            },
+            
+            switchTab: (tab) => {
+                if (tab === 'email') {
+                    document.getElementById('tab-email').classList.add('active');
+                    document.getElementById('tab-mobile').classList.remove('active');
+                    document.getElementById('email-login-form').style.display = 'block';
+                    document.getElementById('mobile-login-form').style.display = 'none';
+                } else {
+                    document.getElementById('tab-mobile').classList.add('active');
+                    document.getElementById('tab-email').classList.remove('active');
+                    document.getElementById('email-login-form').style.display = 'none';
+                    document.getElementById('mobile-login-form').style.display = 'block';
+                }
+            },
+            
+            loginWithEmail: async () => {
+                const email = document.getElementById('auth-email').value.trim();
+                const password = document.getElementById('auth-password').value;
+                
+                if (!email || !password) {
+                    ui.toast("Please enter email and password");
+                    return;
+                }
+                
+                try {
+                    ui.toast("Logging in...");
+                    await auth.signInWithEmailAndPassword(email, password);
+                    ui.toast("Login successful!");
+                } catch (error) {
+                    console.error(error);
+                    if (error.code === 'auth/user-not-found') {
+                        ui.toast("No account found. Please sign up first.");
+                    } else if (error.code === 'auth/wrong-password') {
+                        ui.toast("Wrong password. Try again or reset password.");
+                    } else if (error.code === 'auth/too-many-requests') {
+                        ui.toast("Too many failed attempts. Try again later.");
+                    } else {
+                        ui.toast("Login failed: " + error.message);
+                    }
+                }
+            },
+            
+            signupWithEmail: async () => {
+                const email = document.getElementById('auth-email').value.trim();
+                const password = document.getElementById('auth-password').value;
+                
+                if (!email || !password) {
+                    ui.toast("Please enter email and password");
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    ui.toast("Password must be at least 6 characters");
+                    return;
+                }
+                
+                try {
+                    ui.toast("Creating account...");
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    ui.toast("Account created successfully!");
+                } catch (error) {
+                    console.error(error);
+                    if (error.code === 'auth/email-already-in-use') {
+                        ui.toast("Email already in use. Please login instead.");
+                    } else {
+                        ui.toast("Signup failed: " + error.message);
+                    }
+                }
+            },
+            
+            loginWithMobile: () => {
+                // Original mobile login - kept for backward compatibility
+                const name = document.getElementById('auth-name').value.trim();
+                const phone = document.getElementById('phone').value;
+                const cc = document.getElementById('cc').value;
+                const id = cc + phone;
+                
+                if (name.length < 2) {
+                    ui.toast("Enter Valid Name");
+                    return;
+                }
+                
+                if (phone.length > 5) {
+                    localStorage.setItem('dt_id', id);
+                    
+                    // Check if this mobile is already linked to an auth user
+                    db.ref('phoneToUid/' + id).once('value', async (snap) => {
+                        const uid = snap.val();
+                        
+                        if (uid) {
+                            // This phone is linked to an auth user
+                            document.getElementById('auth-screen').style.display = 'none';
+                            app.start(uid);
+                        } else {
+                            // No auth link, use existing system
+                            db.ref('u/' + id + '/profile/name').set(name);
+                            document.getElementById('auth-screen').style.display = 'none';
+                            app.start(id);
+                        }
+                    });
+                } else {
+                    ui.toast("Invalid Number");
+                }
+            },
+            
+            googleSignIn: async () => {
+                try {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    await auth.signInWithPopup(provider);
+                    ui.toast("Google Sign-In successful!");
+                } catch (error) {
+                    console.error(error);
+                    ui.toast("Google Sign-In failed: " + error.message);
+                }
+            },
+            
+            forgotPassword: async () => {
+                const email = document.getElementById('auth-email').value.trim();
+                
+                if (!email) {
+                    ui.toast("Please enter your email address");
+                    return;
+                }
+                
+                try {
+                    await auth.sendPasswordResetEmail(email);
+                    ui.toast("Password reset email sent! Check your inbox.");
+                } catch (error) {
+                    console.error(error);
+                    ui.toast("Error: " + error.message);
+                }
+            },
+            
+            loginWithPin: () => {
+                const pin = 
+                    document.getElementById('pin-1').value +
+                    document.getElementById('pin-2').value +
+                    document.getElementById('pin-3').value +
+                    document.getElementById('pin-4').value +
+                    document.getElementById('pin-5').value +
+                    document.getElementById('pin-6').value;
+                
+                if (pin.length !== 6) {
+                    ui.toast("Please enter 6-digit PIN");
+                    return;
+                }
+                
+                // Get last logged in user
+                const lastUid = localStorage.getItem('dt_uid');
+                if (!lastUid) {
+                    ui.toast("No saved user found. Please login normally.");
+                    return;
+                }
+                
+                db.ref(`u/${lastUid}/profile/pin`).once('value', (snap) => {
+                    const savedPin = snap.val();
+                    if (savedPin === pin) {
+                        ui.toast("PIN login successful!");
+                        document.getElementById('auth-screen').style.display = 'none';
+                        app.start(lastUid);
+                    } else {
+                        ui.toast("Wrong PIN");
+                        // Clear PIN fields
+                        for (let i = 1; i <= 6; i++) {
+                            document.getElementById(`pin-${i}`).value = '';
+                        }
+                        document.getElementById('pin-1').focus();
+                    }
+                });
+            },
+            
+            movePin: (input, index) => {
+                if (input.value.length === 1 && index < 5) {
+                    document.getElementById(`pin-${index + 2}`).focus();
+                }
+            },
+            
+            handlePin: (input) => {
+                // Only allow numbers
+                input.value = input.value.replace(/[^0-9]/g, '');
+            },
+            
+            logout: async () => {
+                ui.confirm("Log Out", "Are you sure you want to logout?", async () => {
+                    try {
+                        await auth.signOut();
+                        localStorage.removeItem('dt_id');
+                        localStorage.removeItem('dt_uid');
+                        location.reload();
+                    } catch (error) {
+                        console.error(error);
+                        ui.toast("Logout failed");
+                    }
+                });
+            }
+        };
+
+        // ============================================
+        // PROFILE MANAGEMENT
+        // ============================================
+        const profileSystem = {
+            movePin: (input, index) => {
+                if (input.value.length === 1 && index < 5) {
+                    document.getElementById(`prof-pin-${index + 2}`).focus();
+                }
+            },
+            
+            handlePin: (input) => {
+                input.value = input.value.replace(/[^0-9]/g, '');
+            },
+            
+            savePin: () => {
+                const pin = 
+                    document.getElementById('prof-pin-1').value +
+                    document.getElementById('prof-pin-2').value +
+                    document.getElementById('prof-pin-3').value +
+                    document.getElementById('prof-pin-4').value +
+                    document.getElementById('prof-pin-5').value +
+                    document.getElementById('prof-pin-6').value;
+                
+                if (pin.length !== 6) {
+                    ui.toast("Please enter 6-digit PIN");
+                    return;
+                }
+                
+                db.ref(`u/${s.uid}/profile/pin`).set(pin);
+                ui.toast("PIN saved successfully!");
+                
+                // Clear PIN fields
+                for (let i = 1; i <= 6; i++) {
+                    document.getElementById(`prof-pin-${i}`).value = '';
+                }
+            },
+            
+            clearPin: () => {
+                ui.confirm("Remove PIN", "Are you sure you want to remove PIN login?", () => {
+                    db.ref(`u/${s.uid}/profile/pin`).remove();
+                    ui.toast("PIN removed");
+                });
+            },
+            
+            linkMobile: async () => {
+                const cc = document.getElementById('profile-cc').value;
+                const phone = document.getElementById('profile-phone').value;
+                const mobileId = cc + phone;
+                
+                if (!phone || phone.length < 5) {
+                    ui.toast("Enter valid mobile number");
+                    return;
+                }
+                
+                // Check if this mobile is already linked to another account
+                const snapshot = await db.ref('phoneToUid/' + mobileId).once('value');
+                const existingUid = snapshot.val();
+                
+                if (existingUid && existingUid !== s.uid) {
+                    ui.toast("This mobile is already linked to another account");
+                    return;
+                }
+                
+                // Save mobile to profile
+                await db.ref(`u/${s.uid}/profile/cc`).set(cc);
+                await db.ref(`u/${s.uid}/profile/phone`).set(phone);
+                
+                // Create mapping
+                await db.ref('phoneToUid/' + mobileId).set(s.uid);
+                
+                // If there was old data under mobile ID, migrate it
+                const oldData = await db.ref('u/' + mobileId).once('value');
+                if (oldData.exists()) {
+                    const data = oldData.val();
+                    // Merge old data into new user
+                    if (data.att) {
+                        for (let key in data.att) {
+                            await db.ref(`u/${s.uid}/att/${key}`).set(data.att[key]);
+                        }
+                    }
+                    if (data.adv) {
+                        for (let key in data.adv) {
+                            await db.ref(`u/${s.uid}/adv/${key}`).set(data.adv[key]);
+                        }
+                    }
+                    if (data.conf) {
+                        await db.ref(`u/${s.uid}/conf`).set(data.conf);
+                    }
+                    if (data.subExp && (!s.sub || s.sub < data.subExp)) {
+                        await db.ref(`u/${s.uid}/subExp`).set(data.subExp);
+                    }
+                    
+                    // Delete old data
+                    await db.ref('u/' + mobileId).remove();
+                }
+                
+                ui.toast("Mobile linked successfully!");
+                document.getElementById('profile-phone').value = '';
+            },
+            
+            upload: async (input) => {
+                if (input.files && input.files[0]) {
+                    ui.toast("Uploading...");
+                    const fd = new FormData(); 
+                    fd.append('key', IMG_API_KEY); 
+                    fd.append('image', input.files[0]);
+                    try {
+                        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd });
+                        const json = await res.json();
+                        if(json.success) { 
+                            db.ref('u/'+s.uid+'/profile/img').set(json.data.url); 
+                            ui.toast("Upload Successful"); 
+                        }
+                    } catch(e) { 
+                        ui.toast("Error Uploading"); 
+                    }
+                }
+            }
+        };
+
+        // ============================================
         // PAYMENT SYSTEM FUNCTIONS
         // ============================================
         
-        // Load all config from Firebase
         function loadAppConfig() {
-            // Load maintenance config
             db.ref('config/maintenance').on('value', (snap) => {
                 appConfig.maintenance = snap.val() || false;
                 updateMaintenanceUI();
@@ -1214,30 +1752,23 @@
                 document.getElementById('maintenance-time').innerText = appConfig.maintenanceTime;
             });
             
-            // Load prices
             db.ref('config/prices').on('value', (snap) => {
                 appConfig.prices = snap.val() || { monthly: 5, yearly: 40 };
                 updatePricesUI();
             });
             
-            // Load payment config
             db.ref('config/payment').on('value', (snap) => {
                 const config = snap.val() || { system: 'playstore' };
                 appConfig.payment = { ...appConfig.payment, ...config };
                 
-                // Update price displays
                 if (appConfig.payment.razorpay) {
                     document.getElementById('razor-monthly-price').innerText = appConfig.payment.razorpay.monthly || 5;
                     document.getElementById('razor-yearly-price').innerText = appConfig.payment.razorpay.yearly || 40;
                 }
                 
-                // Update UI based on payment system
                 updatePaymentUI();
-                
-                console.log('পেমেন্ট সিস্টেম আপডেট:', appConfig.payment.system);
             });
             
-            // Load reward config
             db.ref('config/reward').on('value', (snap) => {
                 appConfig.reward = snap.val() || {
                     status: false,
@@ -1253,7 +1784,6 @@
             });
         }
 
-        // Update maintenance UI
         function updateMaintenanceUI() {
             if (appConfig.maintenance) {
                 document.getElementById('maintenance-mode').style.display = 'flex';
@@ -1265,26 +1795,20 @@
             }
         }
 
-        // Update prices UI
         function updatePricesUI() {
             document.getElementById('promo-price').innerText = `₹${appConfig.prices.monthly}`;
             document.getElementById('promo-duration').innerText = `For 1 Month`;
             document.getElementById('promo-usd').innerText = `Or $${(appConfig.prices.monthly * 0.011).toFixed(3)} USD`;
         }
 
-        // Get current payment system
         function getPaymentSystem() {
-            // Check if forced via localStorage (for testing)
             const forced = localStorage.getItem('force_payment');
             if (forced === 'playstore' || forced === 'razorpay') {
                 return forced;
             }
-            
-            // Use admin setting
             return appConfig.payment.system || 'playstore';
         }
 
-        // Update payment UI based on current system
         function updatePaymentUI() {
             const system = getPaymentSystem();
             const promoMainBtn = document.getElementById('promo-main-btn');
@@ -1292,27 +1816,14 @@
             const promoPrice = document.getElementById('promo-price');
             const playBadge = document.getElementById('play-store-badge');
             
-            console.log('UI আপডেট হচ্ছে:', system);
-            
             if (system === 'playstore') {
-                // ========== গুগল প্লে স্টোর ভার্সন ==========
-                
-                // প্রাইস স্টাইল
                 promoPrice.classList.add('play-price');
                 promoPrice.classList.remove('razor-price');
-                
-                // বাটন স্টাইল
                 promoMainBtn.classList.add('play-button');
                 promoMainBtn.classList.remove('razor-button');
-                
-                // বাটন টেক্সট
                 promoMainBtn.innerHTML = 'SUBSCRIBE ON PLAY STORE <i class="fab fa-google-play"></i>';
                 promoYearBtn.innerHTML = 'Yearly Subscription on Play Store';
-                
-                // ব্যাজ দেখান
                 if (playBadge) playBadge.style.display = 'inline-flex';
-                
-                // বাটন ক্লিক ইভেন্ট
                 promoMainBtn.onclick = (e) => {
                     e.stopPropagation();
                     pay.googlePlay('monthly');
@@ -1321,28 +1832,14 @@
                     e.stopPropagation();
                     pay.googlePlay('yearly');
                 };
-                
-                console.log('✅ পেমেন্ট সিস্টেম: গুগল প্লে বিলিং');
-                
             } else {
-                // ========== রাজর পেমেন্ট ভার্সন ==========
-                
-                // প্রাইস স্টাইল
                 promoPrice.classList.remove('play-price');
                 promoPrice.classList.add('razor-price');
-                
-                // বাটন স্টাইল
                 promoMainBtn.classList.remove('play-button');
                 promoMainBtn.classList.add('razor-button');
-                
-                // বাটন টেক্সট
                 promoMainBtn.innerHTML = 'START TRIAL <i class="fas fa-arrow-right"></i>';
                 promoYearBtn.innerHTML = `Get 1 Year for ₹${appConfig.prices.yearly} ($${(appConfig.prices.yearly * 0.011).toFixed(2)} USD)`;
-                
-                // ব্যাজ লুকান
                 if (playBadge) playBadge.style.display = 'none';
-                
-                // বাটন ক্লিক ইভেন্ট
                 promoMainBtn.onclick = (e) => {
                     e.stopPropagation();
                     pay.razorpay();
@@ -1351,12 +1848,9 @@
                     e.stopPropagation();
                     pay.razorpayYearly();
                 };
-                
-                console.log('✅ পেমেন্ট সিস্টেম: রাজর পেমেন্ট');
             }
         }
 
-        // Pay object
         const pay = {
             razorpay: () => {
                 if (!s.uid) return;
@@ -1412,8 +1906,6 @@
             
             googlePlay: (productId) => {
                 promo.stop();
-                
-                // Send message to Android app
                 if (window.Android && window.Android.startPurchase) {
                     window.Android.startPurchase(productId);
                 } else {
@@ -1439,15 +1931,12 @@
             }
         };
 
-        // Close paywall
         function closePaywall() {
             document.getElementById('pay-wall-razor').style.display = 'none';
             document.getElementById('pay-wall-playstore').style.display = 'none';
         }
 
-        // Android interface for Play Store billing
         window.onPlayPurchaseComplete = function(productId, purchaseToken) {
-            console.log('Play Purchase Complete:', productId, purchaseToken);
             const days = productId.includes('month') ? 30 : 365;
             const now = Date.now();
             
@@ -1551,117 +2040,21 @@
         };
 
         // ============================================
-        // INIT
+        // MAIN APP FUNCTIONS
         // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            const ccSelect = document.getElementById('cc');
-            countries.forEach(c => {
-                let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
-                if(c.n === "India") o.selected = true; 
-                ccSelect.appendChild(o);
-            });
-            
-            history.replaceState({page: 'home'}, null, '');
-            document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
-            const vid = document.getElementById('promo-vid');
-            if(vid) vid.pause();
-
-            // Initialize OneSignal
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.init({
-                    appId: ONESIGNAL_APP_ID,
-                    allowLocalhostAsSecureOrigin: true,
-                    welcomeNotification: { disable: true }
-                });
-            });
-
-            // Load all config from Firebase
-            loadAppConfig();
-
-            // Check Maintenance Mode
-            db.ref('config/maintenance').on('value', (snap) => {
-                appConfig.maintenance = snap.val() || false;
-                if (appConfig.maintenance) {
-                    document.getElementById('maintenance-mode').style.display = 'flex';
-                    document.getElementById('main-app').style.display = 'none';
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('splash').style.display = 'none';
-                } else {
-                    document.getElementById('maintenance-mode').style.display = 'none';
-                    setTimeout(() => {
-                        document.getElementById('splash').style.opacity = '0';
-                        setTimeout(() => {
-                            document.getElementById('splash').style.display='none';
-                            const id = localStorage.getItem('dt_id');
-                            if(id) app.start(id); else document.getElementById('auth-screen').style.display='flex';
-                        }, 800);
-                    }, 2500);
-                }
-            });
-
-            // Populate FAQ
-            const faqs = [
-                {q:"How to add a duty?", a:"Tap on 'Add Today's Duty' on the home screen, or tap any date on the calendar. Select 'Present' or other status, enter OT hours if any, and click Save."},
-                {q:"How to delete an entry?", a:"Tap on the date you want to delete. In the modal that appears, click the Red 'Delete' button."},
-                {q:"How does Advance work?", a:"Go to 'Advance' tab. Enter amount and date. This amount will be automatically deducted from your final Net Payable in the Reports section."},
-                {q:"Is my data safe?", a:"Yes, your data is stored securely on Google Firebase servers. We do not sell your personal data."},
-                {q:"How to change currency?", a:"Go to Utility/Settings tab, select your currency symbol and save configuration."},
-                {q:"How to get free premium?", a:"Join our Telegram and WhatsApp channels from the popup after login to get 7 days free premium!"}
-            ];
-            const fl = document.getElementById('faq-list');
-            faqs.forEach(f => {
-                fl.innerHTML += `<div class="faq-item"><div class="faq-q" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display=='block'?'none':'block'">${f.q} <i class="fas fa-chevron-down"></i></div><div class="faq-a">${f.a}</div></div>`;
-            });
-
-            document.getElementById('adv-date').value = new Date().toISOString().split('T')[0];
-            reminder.init();
-        });
-        
-        // --- HISTORY & BACK BUTTON HANDLER ---
-        window.onpopstate = function(event) {
-            // Close all modals
-            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-            document.getElementById('legal-modal').style.display = 'none';
-            document.getElementById('promo-screen').style.display = 'none';
-            document.getElementById('pay-wall-razor').style.display = 'none';
-            document.getElementById('pay-wall-playstore').style.display = 'none';
-            document.getElementById('reward-popup').style.display = 'none';
-            
-            // If state is home or null, show home view
-            if (!event.state || event.state.page === 'home') {
-                document.querySelectorAll('.page').forEach(p => p.style.display='none');
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.nav-btn')[2].classList.add('active');
-            } 
-        };
-
         const app = {
-            login: () => {
-                const name = document.getElementById('auth-name').value.trim();
-                const phone = document.getElementById('phone').value;
-                const cc = document.getElementById('cc').value;
-                const id = cc + phone;
-                if(name.length < 2) return ui.toast("Enter Valid Name");
-                if(phone.length > 5) {
-                    localStorage.setItem('dt_id', id);
-                    db.ref('u/'+id+'/profile/name').set(name);
-                    document.getElementById('auth-screen').style.display='none';
-                    app.start(id);
-                } else ui.toast("Invalid Number");
-            },
-            logout: () => {
-                ui.confirm("Log Out", "Are you sure?", () => { localStorage.removeItem('dt_id'); location.reload(); });
-            },
-            start: (id) => {
-                s.uid = id;
-                db.ref('u/'+id).on('value', sn => {
+            start: (uid) => {
+                s.uid = uid;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                
+                db.ref('u/' + uid).on('value', sn => {
                     const v = sn.val() || {};
                     s.data = v.att || {};
                     s.adv = v.adv || {};
                     s.conf = v.conf || {cur:'₹', sal:0, otr:0, food:0, pf:0, target: 0};
                     s.profile = v.profile || {name: 'User', img: ''};
-                    s.sub = v.subExp || Date.now() + (3*86400000); 
+                    s.sub = v.subExp || Date.now() + (3 * 86400000); 
                     s.history = v.history || {};
                     s.reward = v.reward || {
                         telegram_joined: 0,
@@ -1670,13 +2063,19 @@
                         reward_expiry_date: null
                     };
                     
-                    if(!v.subExp) db.ref('u/'+id+'/subExp').set(s.sub);
-                    if(!v.refCode) ref.gen();
-                    else { s.refCode = v.refCode; document.getElementById('my-ref-code').innerText = s.refCode; }
+                    if (!v.subExp) db.ref('u/' + uid + '/subExp').set(s.sub);
+                    if (!v.refCode) ref.gen();
+                    else { 
+                        s.refCode = v.refCode; 
+                        document.getElementById('my-ref-code').innerText = s.refCode; 
+                    }
 
+                    // Update profile display
                     document.getElementById('prof-name-disp').innerText = s.profile.name || "User";
-                    document.getElementById('prof-id').innerText = id;
-                    if(s.profile.img) {
+                    document.getElementById('prof-email-disp').innerText = s.profile.email || "No email";
+                    document.getElementById('prof-id').innerText = s.profile.phone ? (s.profile.cc || '+91') + s.profile.phone : "No mobile";
+                    
+                    if (s.profile.img) {
                         document.getElementById('prof-img-el').src = s.profile.img;
                         document.getElementById('mini-prof-img').src = s.profile.img;
                         toDataURL(s.profile.img, (res) => { s.profBase64 = res; });
@@ -1686,16 +2085,16 @@
                     const daysLeft = Math.ceil((s.sub - Date.now()) / (1000 * 60 * 60 * 24));
                     const isExp = s.sub < Date.now();
 
-                    if(isExp) { 
-                        document.getElementById('prof-badge').innerText="EXPIRED"; 
-                        document.getElementById('prof-badge').style.background="red"; 
-                        document.getElementById('prof-exp').innerText = "Expired: "+exD.toLocaleDateString();
-                        if(document.getElementById('promo-screen').style.display !== 'flex') {
+                    if (isExp) { 
+                        document.getElementById('prof-badge').innerText = "EXPIRED"; 
+                        document.getElementById('prof-badge').style.background = "red"; 
+                        document.getElementById('prof-exp').innerText = "Expired: " + exD.toLocaleDateString();
+                        if (document.getElementById('promo-screen').style.display !== 'flex') {
                             promo.show();
                         }
                     } else {
-                        document.getElementById('prof-badge').innerText="PREMIUM"; 
-                        document.getElementById('prof-badge').style.background="var(--accent)";
+                        document.getElementById('prof-badge').innerText = "PREMIUM"; 
+                        document.getElementById('prof-badge').style.background = "var(--accent)";
                         document.getElementById('prof-exp').innerText = `Valid till: ${exD.toLocaleDateString()} (${daysLeft} Days)`;
                     }
                     
@@ -1713,16 +2112,15 @@
                     
                     // Render History
                     const hl = document.getElementById('hist-list'); hl.innerHTML = '';
-                    const hArr = []; for(let k in s.history) hArr.push(s.history[k]);
+                    const hArr = []; 
+                    for (let k in s.history) hArr.push(s.history[k]);
                     hArr.reverse();
-                    if(hArr.length === 0) hl.innerHTML = '<div style="text-align:center;color:var(--text-sub);">No payment history found.</div>';
+                    if (hArr.length === 0) hl.innerHTML = '<div style="text-align:center;color:var(--text-sub);">No payment history found.</div>';
                     hArr.forEach(h => {
                         hl.innerHTML += `<div class="hist-item"><div><div style="font-weight:bold;">Premium Subscription</div><div class="hist-date">${new Date(h.date).toLocaleString()}</div><div class="hist-date">Via ${h.method}</div></div><div class="hist-amt">₹${h.amount}</div></div>`;
                     });
-
-                    document.getElementById('main-app').style.display = 'flex';
                     
-                    if(!isExp) {
+                    if (!isExp) {
                         reward.checkAndShow();
                     }
                 });
@@ -1736,11 +2134,10 @@
                 document.getElementById('main-app').style.display = 'none';
                 document.getElementById('promo-screen').style.display = 'flex';
                 
-                // UI আপডেট করুন
                 updatePaymentUI();
                 
                 const vid = document.getElementById('promo-vid');
-                if(vid) { 
+                if (vid) { 
                     vid.currentTime = 0; 
                     vid.muted = false; 
                     vid.volume = 1.0; 
@@ -1753,7 +2150,7 @@
             },
             unmute: () => {
                 const vid = document.getElementById('promo-vid');
-                if(vid) { 
+                if (vid) { 
                     vid.muted = false; 
                     vid.play(); 
                     document.getElementById('snd-msg').innerHTML = '<i class="fas fa-volume-up"></i> Sound On'; 
@@ -1762,7 +2159,7 @@
             stop: () => {
                 const vid = document.getElementById('promo-vid');
                 document.getElementById('promo-screen').style.display = 'none';
-                if(vid) { 
+                if (vid) { 
                     vid.pause(); 
                     vid.currentTime = 0; 
                     vid.muted = true; 
@@ -1777,43 +2174,50 @@
 
         const cal = {
             render: () => {
-                const y=curDate.getFullYear(), m=curDate.getMonth();
-                document.getElementById('month-display').innerText = new Date(y,m).toLocaleString('default',{month:'long',year:'numeric'});
-                const g = document.getElementById('calendar-grid'); g.innerHTML='';
-                const fd = new Date(y,m,1).getDay(), ld = new Date(y,m+1,0).getDate();
+                const y = curDate.getFullYear(), m = curDate.getMonth();
+                document.getElementById('month-display').innerText = new Date(y, m).toLocaleString('default', {month:'long', year:'numeric'});
+                const g = document.getElementById('calendar-grid'); 
+                g.innerHTML = '';
+                const fd = new Date(y, m, 1).getDay(), ld = new Date(y, m + 1, 0).getDate();
                 const today = new Date().toISOString().split('T')[0];
-                for(let i=0; i<fd; i++) g.innerHTML += '<div></div>';
-                for(let i=1; i<=ld; i++) {
-                    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                for (let i = 0; i < fd; i++) g.innerHTML += '<div></div>';
+                for (let i = 1; i <= ld; i++) {
+                    const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                     const d = s.data[iso];
-                    const cls = d ? 'bg-'+d.t.replace(' ','') : '';
+                    const cls = d ? 'bg-' + d.t.replace(' ', '') : '';
                     const el = document.createElement('div');
-                    el.className = `day ${cls} ${iso===today?'today':''}`;
+                    el.className = `day ${cls} ${iso === today ? 'today' : ''}`;
                     el.innerHTML = `<span class="day-num">${i}</span>`;
-                    if(d) { el.innerHTML += `<span class="day-tag">${d.t}</span>`; if(d.ot) el.innerHTML += `<div class="ot-badge">${d.ot}h</div>`; }
+                    if (d) { 
+                        el.innerHTML += `<span class="day-tag">${d.t}</span>`; 
+                        if (d.ot) el.innerHTML += `<div class="ot-badge">${d.ot}h</div>`; 
+                    }
                     el.onclick = () => data.open(iso);
                     g.appendChild(el);
                 }
             },
-            move: (n) => { curDate.setMonth(curDate.getMonth()+n); cal.render(); }
+            move: (n) => { 
+                curDate.setMonth(curDate.getMonth() + n); 
+                cal.render(); 
+            }
         };
 
         const data = {
             open: (d) => {
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
-                document.getElementById('att-modal').style.display='block';
+                document.getElementById('att-modal').style.display = 'block';
                 history.pushState({page: 'modal'}, null, '');
                 
                 document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active'));
                 const en = s.data[d];
-                if(en) {
-                    document.getElementById('inp-ot').value = en.ot||'';
-                    document.getElementById('inp-late').value = en.lt||'';
+                if (en) {
+                    document.getElementById('inp-ot').value = en.ot || '';
+                    document.getElementById('inp-late').value = en.lt || '';
                     document.getElementById('inp-shift').value = en.shift || 'Morning';
                     selType = en.t;
                     const btns = document.querySelectorAll('#att-modal .btn-sec');
-                    btns.forEach(btn => { if(btn.innerText === en.t) btn.classList.add('active'); });
+                    btns.forEach(btn => { if (btn.innerText === en.t) btn.classList.add('active'); });
                 } else {
                     document.getElementById('inp-ot').value = '';
                     document.getElementById('inp-late').value = '';
@@ -1821,9 +2225,13 @@
                     selType = null;
                 }
             },
-            set: (t, el) => { selType = t; document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); if(el) el.classList.add('active'); },
+            set: (t, el) => { 
+                selType = t; 
+                document.querySelectorAll('.btn-sec').forEach(b => b.classList.remove('active')); 
+                if (el) el.classList.add('active'); 
+            },
             save: () => {
-                if(s.sub < Date.now()) { 
+                if (s.sub < Date.now()) { 
                     document.getElementById('att-modal').style.display = 'none';
                     history.back();
                     setTimeout(() => {
@@ -1832,15 +2240,23 @@
                     return;
                 }
                 
-                if(!selType && s.data[selDate]) selType = s.data[selDate].t;
-                if(!selType) selType = 'Present';
-                const p = { t: selType, ot: document.getElementById('inp-ot').value, lt: document.getElementById('inp-late').value, shift: document.getElementById('inp-shift').value };
+                if (!selType && s.data[selDate]) selType = s.data[selDate].t;
+                if (!selType) selType = 'Present';
+                const p = { 
+                    t: selType, 
+                    ot: document.getElementById('inp-ot').value, 
+                    lt: document.getElementById('inp-late').value, 
+                    shift: document.getElementById('inp-shift').value 
+                };
                 db.ref(`u/${s.uid}/att/${selDate}`).set(p);
                 history.back();
                 ui.toast("Saved Successfully");
             },
             clear: () => {
-                ui.confirm("Delete Entry", "Delete this record?", () => { db.ref(`u/${s.uid}/att/${selDate}`).remove(); history.back(); });
+                ui.confirm("Delete Entry", "Delete this record?", () => { 
+                    db.ref(`u/${s.uid}/att/${selDate}`).remove(); 
+                    history.back(); 
+                });
             }
         };
 
@@ -1848,20 +2264,31 @@
             add: () => {
                 const amt = parseFloat(document.getElementById('adv-amt').value);
                 const dt = document.getElementById('adv-date').value;
-                if(!amt || !dt) return ui.toast("Enter Amount & Date");
-                db.ref(`u/${s.uid}/adv`).push({ amt: amt, date: dt, by: document.getElementById('adv-by').value, note: document.getElementById('adv-note').value });
+                if (!amt || !dt) return ui.toast("Enter Amount & Date");
+                db.ref(`u/${s.uid}/adv`).push({ 
+                    amt: amt, 
+                    date: dt, 
+                    by: document.getElementById('adv-by').value, 
+                    note: document.getElementById('adv-note').value 
+                });
                 ui.toast("Advance Added");
                 document.getElementById('adv-amt').value = '';
             },
-            delete: (key) => { ui.confirm("Delete Advance", "Sure?", () => db.ref(`u/${s.uid}/adv/${key}`).remove()); },
+            delete: (key) => { 
+                ui.confirm("Delete Advance", "Sure?", () => db.ref(`u/${s.uid}/adv/${key}`).remove()); 
+            },
             renderList: () => {
-                const list = document.getElementById('adv-list-container'); list.innerHTML = '';
+                const list = document.getElementById('adv-list-container'); 
+                list.innerHTML = '';
                 let total = 0;
-                const arr = []; for(let k in s.adv) { arr.push({...s.adv[k], key: k}); }
-                arr.sort((a,b) => new Date(b.date) - new Date(a.date));
+                const arr = []; 
+                for (let k in s.adv) { 
+                    arr.push({...s.adv[k], key: k}); 
+                }
+                arr.sort((a, b) => new Date(b.date) - new Date(a.date));
                 arr.forEach(a => {
                     total += parseFloat(a.amt);
-                    list.innerHTML += `<div class="adv-item"><div><div style="font-weight:bold;">${s.conf.cur}${a.amt}</div><div style="font-size:12px; color:var(--text-sub);">${a.date} ${a.by?'• '+a.by:''}</div></div><button style="background:none;border:none;color:var(--danger);" onclick="advance.delete('${a.key}')"><i class="fas fa-trash"></i></button></div>`;
+                    list.innerHTML += `<div class="adv-item"><div><div style="font-weight:bold;">${s.conf.cur}${a.amt}</div><div style="font-size:12px; color:var(--text-sub);">${a.date} ${a.by ? '• ' + a.by : ''}</div></div><button style="background:none;border:none;color:var(--danger);" onclick="advance.delete('${a.key}')"><i class="fas fa-trash"></i></button></div>`;
                 });
                 document.getElementById('total-adv-disp').innerText = `Total: ${s.conf.cur}${total}`;
             }
@@ -1869,60 +2296,91 @@
 
         const graph = {
             render: () => {
-                const ctx = document.getElementById('dutyChart'); if(!ctx) return;
+                const ctx = document.getElementById('dutyChart'); 
+                if (!ctx) return;
                 const labels = [], dataPoints = [];
-                for(let i=29; i>=0; i--) {
-                    const d = new Date(); d.setDate(new Date().getDate() - i);
+                for (let i = 29; i >= 0; i--) {
+                    const d = new Date(); 
+                    d.setDate(new Date().getDate() - i);
                     const iso = d.toISOString().split('T')[0];
                     labels.push(d.getDate());
                     const entry = s.data[iso];
                     let h = 0;
-                    if(entry) { if(entry.t === 'Present') h = 8; else if(entry.t === 'Half Day') h = 4; if(entry.ot) h += parseFloat(entry.ot); }
+                    if (entry) { 
+                        if (entry.t === 'Present') h = 8; 
+                        else if (entry.t === 'Half Day') h = 4; 
+                        if (entry.ot) h += parseFloat(entry.ot); 
+                    }
                     dataPoints.push(h);
                 }
-                if(chartInstance) chartInstance.destroy();
+                if (chartInstance) chartInstance.destroy();
                 chartInstance = new Chart(ctx, {
-                    type: 'line', data: { labels: labels, datasets: [{ label: 'Hours', data: dataPoints, borderColor: '#4361ee', backgroundColor: 'rgba(67, 97, 238, 0.1)', fill: true, tension: 0.4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display:false }, y: { beginAtZero: true } } }
+                    type: 'line', 
+                    data: { 
+                        labels: labels, 
+                        datasets: [{ 
+                            label: 'Hours', 
+                            data: dataPoints, 
+                            borderColor: '#4361ee', 
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)', 
+                            fill: true, 
+                            tension: 0.4 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } }, 
+                        scales: { 
+                            x: { display: false }, 
+                            y: { beginAtZero: true } 
+                        } 
+                    }
                 });
                 const target = parseFloat(s.conf.target) || 1;
-                let earned = 0, SAL = parseFloat(s.conf.sal)||0;
+                let earned = 0, SAL = parseFloat(s.conf.sal) || 0;
                 const m = new Date().getMonth();
-                for(let k in s.data) { if(new Date(k).getMonth()===m && ['Present','Holiday','Sick'].includes(s.data[k].t)) earned += SAL; }
+                for (let k in s.data) { 
+                    if (new Date(k).getMonth() === m && ['Present', 'Holiday', 'Sick'].includes(s.data[k].t)) 
+                        earned += SAL; 
+                }
                 const pct = Math.min(100, (earned / target) * 100).toFixed(1);
                 document.getElementById('target-pct').innerText = pct + '%';
                 document.getElementById('target-bar').style.width = pct + '%';
             },
-            setTarget: () => { db.ref(`u/${s.uid}/conf/target`).set(parseFloat(document.getElementById('set-target').value)); ui.toast("Goal Updated"); },
+            setTarget: () => { 
+                db.ref(`u/${s.uid}/conf/target`).set(parseFloat(document.getElementById('set-target').value)); 
+                ui.toast("Goal Updated"); 
+            },
             updateTodayText: () => {
                 const t = s.data[new Date().toISOString().split('T')[0]];
-                document.getElementById('graph-today-hours').innerText = t ? (t.t==='Present'?8:4) + (parseFloat(t.ot)||0) + " Hours" : "0 Hours";
+                document.getElementById('graph-today-hours').innerText = t ? (t.t === 'Present' ? 8 : 4) + (parseFloat(t.ot) || 0) + " Hours" : "0 Hours";
                 document.getElementById('today-status').innerText = t ? `Marked: ${t.t}` : "No Entry Today";
             }
         };
 
         const ref = {
             gen: () => {
-                const c = Math.random().toString(36).substring(2,8).toUpperCase();
-                db.ref('refList/'+c).set(s.uid);
+                const c = Math.random().toString(36).substring(2, 8).toUpperCase();
+                db.ref('refList/' + c).set(s.uid);
                 db.ref(`u/${s.uid}/refCode`).set(c);
             },
             share: () => {
                 const t = `Use code ${s.refCode} on Duty Tracker Pro. Get +10 Days Free! Download: https://dutytrackerpro.blogspot.com`;
-                if(navigator.share) navigator.share({title:'Referral', text:t}); else prompt("Copy", s.refCode);
+                if (navigator.share) navigator.share({title:'Referral', text:t}); else prompt("Copy", s.refCode);
             },
             redeem: () => {
                 const c = document.getElementById('friend-code').value.toUpperCase().trim();
-                if(c===s.refCode) return ui.toast("Own code not allowed");
+                if (c === s.refCode) return ui.toast("Own code not allowed");
                 db.ref(`u/${s.uid}/redeemed`).once('value', sn => {
-                    if(sn.exists()) return ui.toast("Already Redeemed");
-                    db.ref('refList/'+c).once('value', rsn => {
-                        if(!rsn.val()) return ui.toast("Invalid Code");
+                    if (sn.exists()) return ui.toast("Already Redeemed");
+                    db.ref('refList/' + c).once('value', rsn => {
+                        if (!rsn.val()) return ui.toast("Invalid Code");
                         const rid = rsn.val();
-                        db.ref(`u/${s.uid}/subExp`).set(Math.max(s.sub, Date.now()) + (10*86400000));
+                        db.ref(`u/${s.uid}/subExp`).set(Math.max(s.sub, Date.now()) + (10 * 86400000));
                         db.ref(`u/${s.uid}/redeemed`).set(true);
                         db.ref(`u/${rid}/subExp`).once('value', os => {
-                            db.ref(`u/${rid}/subExp`).set(Math.max(os.val()||Date.now(), Date.now()) + (10*86400000));
+                            db.ref(`u/${rid}/subExp`).set(Math.max(os.val() || Date.now(), Date.now()) + (10 * 86400000));
                         });
                         ui.toast("Success! +10 Days Added");
                     });
@@ -1933,65 +2391,101 @@
         const ui = {
             toggleTheme: () => {
                 const b = document.body;
-                const n = b.getAttribute('data-theme')==='light'?'dark':'light';
-                b.setAttribute('data-theme', n); localStorage.setItem('theme', n);
+                const n = b.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                b.setAttribute('data-theme', n); 
+                localStorage.setItem('theme', n);
             },
-            closeAll: () => { document.querySelectorAll('.page').forEach(p=>p.style.display='none'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.nav-btn')[2].classList.add('active'); },
+            closeAll: () => { 
+                document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); 
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); 
+                const homeBtn = document.querySelectorAll('.nav-btn')[2];
+                if (homeBtn) homeBtn.classList.add('active'); 
+            },
             openPage: (id) => { 
-                document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-                document.getElementById(id).style.display='flex'; 
+                document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+                document.getElementById(id).style.display = 'flex'; 
                 history.pushState({page: id}, null, ''); 
             },
-            openProfile: () => { ui.openPage('page-profile'); },
-            openSettings: () => { ui.openPage('page-settings'); document.querySelectorAll('.nav-btn')[4].classList.add('active'); },
-            openReport: () => { ui.openPage('page-reports'); document.querySelectorAll('.nav-btn')[0].classList.add('active'); },
-            openAdvance: () => { ui.openPage('page-advance'); document.querySelectorAll('.nav-btn')[3].classList.add('active'); },
-            openGraph: () => { ui.openPage('page-graph'); graph.render(); document.querySelectorAll('.nav-btn')[1].classList.add('active'); },
-            toast: (msg) => { const x = document.getElementById("toast"); x.innerText = msg; x.className = "show"; setTimeout(()=>x.className="", 3000); },
-            confirm: (title, desc, cb) => {
-                document.getElementById('c-title').innerText = title; document.getElementById('c-desc').innerText = desc;
-                const m = document.getElementById('confirm-modal'); m.style.display="flex";
-                document.getElementById('c-yes-btn').onclick = () => { cb(); m.style.display="none"; };
+            openProfile: () => { 
+                ui.openPage('page-profile'); 
+                // Populate country codes in profile
+                const ccSelect = document.getElementById('profile-cc');
+                if (ccSelect && ccSelect.options.length === 0) {
+                    countries.forEach(c => {
+                        let o = document.createElement('option'); 
+                        o.value = c.c; 
+                        o.innerText = `${c.n} (${c.c})`;
+                        if (c.n === "India") o.selected = true; 
+                        ccSelect.appendChild(o);
+                    });
+                }
             },
-            closeConfirm: () => { document.getElementById('confirm-modal').style.display="none"; },
+            openSettings: () => { 
+                ui.openPage('page-settings'); 
+                const navBtns = document.querySelectorAll('.nav-btn');
+                if (navBtns[4]) navBtns[4].classList.add('active'); 
+            },
+            openReport: () => { 
+                ui.openPage('page-reports'); 
+                const navBtns = document.querySelectorAll('.nav-btn');
+                if (navBtns[0]) navBtns[0].classList.add('active'); 
+            },
+            openAdvance: () => { 
+                ui.openPage('page-advance'); 
+                const navBtns = document.querySelectorAll('.nav-btn');
+                if (navBtns[3]) navBtns[3].classList.add('active'); 
+            },
+            openGraph: () => { 
+                ui.openPage('page-graph'); 
+                graph.render(); 
+                const navBtns = document.querySelectorAll('.nav-btn');
+                if (navBtns[1]) navBtns[1].classList.add('active'); 
+            },
+            toast: (msg) => { 
+                const x = document.getElementById("toast"); 
+                x.innerText = msg; 
+                x.className = "show"; 
+                setTimeout(() => x.className = "", 3000); 
+            },
+            confirm: (title, desc, cb) => {
+                document.getElementById('c-title').innerText = title; 
+                document.getElementById('c-desc').innerText = desc;
+                const m = document.getElementById('confirm-modal'); 
+                m.style.display = "flex";
+                document.getElementById('c-yes-btn').onclick = () => { 
+                    cb(); 
+                    m.style.display = "none"; 
+                };
+            },
+            closeConfirm: () => { 
+                document.getElementById('confirm-modal').style.display = "none"; 
+            },
             sendFeedback: () => {
                 const txt = document.getElementById('fb-text').value;
-                if(txt.length > 5) {
+                if (txt.length > 5) {
                     window.location.href = `mailto:nitai.grp00@gmail.com?subject=Duty Tracker Pro Feedback&body=${encodeURIComponent(txt)}`;
                 } else ui.toast("Please write more details");
             }
         };
 
-        const profile = {
-            upload: async (input) => {
-                if (input.files && input.files[0]) {
-                    ui.toast("Uploading...");
-                    const fd = new FormData(); fd.append('key', IMG_API_KEY); fd.append('image', input.files[0]);
-                    try {
-                        const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd });
-                        const json = await res.json();
-                        if(json.success) { db.ref('u/'+s.uid+'/profile/img').set(json.data.url); ui.toast("Upload Successful"); }
-                    } catch(e) { ui.toast("Error Uploading"); }
-                }
+        const settings = { 
+            save: () => {
+                db.ref(`u/${s.uid}/conf`).set({
+                    cur: document.getElementById('set-cur').value,
+                    sal: parseFloat(document.getElementById('set-sal').value) || 0,
+                    otr: parseFloat(document.getElementById('set-otr').value) || 0,
+                    food: parseFloat(document.getElementById('set-food').value) || 0,
+                    pf: parseFloat(document.getElementById('set-pf').value) || 0,
+                    target: parseFloat(document.getElementById('set-target').value) || 0
+                }).then(() => ui.toast("Saved"));
             }
         };
-
-        const settings = { save: () => {
-            db.ref(`u/${s.uid}/conf`).set({
-                cur: document.getElementById('set-cur').value,
-                sal: parseFloat(document.getElementById('set-sal').value)||0,
-                otr: parseFloat(document.getElementById('set-otr').value)||0,
-                food: parseFloat(document.getElementById('set-food').value)||0,
-                pf: parseFloat(document.getElementById('set-pf').value)||0,
-                target: parseFloat(document.getElementById('set-target').value)||0
-            }).then(()=>ui.toast("Saved"));
-        }};
 
         const reminder = {
             init: () => { 
                 setInterval(() => { 
                     const n = new Date(); 
-                    if(n.getHours() === 19 && n.getMinutes() % 5 === 0 && !s.data[n.toISOString().split('T')[0]]) {
+                    if (n.getHours() === 19 && n.getMinutes() % 5 === 0 && !s.data[n.toISOString().split('T')[0]]) {
                         reminder.notify();
                         if (window.OneSignal) {
                             OneSignal.Notifications.create({
@@ -2004,7 +2498,7 @@
                 }, 60000); 
             },
             notify: () => { 
-                if(Notification.permission === "granted") {
+                if (Notification.permission === "granted") {
                     new Notification("Duty Reminder", {
                         body: "Mark your duty today!",
                         icon: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
@@ -2017,7 +2511,7 @@
             },
             setup: () => { 
                 Notification.requestPermission().then(p => {
-                    if(p === "granted") {
+                    if (p === "granted") {
                         ui.toast("Reminder Set (7 PM with sound)");
                     } else {
                         ui.toast("Permission Denied");
@@ -2028,31 +2522,34 @@
 
         const reports = {
             gen: () => {
-                const d1 = new Date(document.getElementById('r-start').value); d1.setHours(0,0,0,0);
-                const d2 = new Date(document.getElementById('r-end').value); d2.setHours(23,59,59,999);
+                const d1 = new Date(document.getElementById('r-start').value); 
+                d1.setHours(0, 0, 0, 0);
+                const d2 = new Date(document.getElementById('r-end').value); 
+                d2.setHours(23, 59, 59, 999);
                 
-                if(isNaN(d1)) return ui.toast("Select Dates");
-                if(!s.conf.sal) ui.toast("Warning: Daily Salary is 0 (Check Utility)");
+                if (isNaN(d1)) return ui.toast("Select Dates");
+                if (!s.conf.sal) ui.toast("Warning: Daily Salary is 0 (Check Utility)");
 
-                const SAL_PER_DAY = parseFloat(s.conf.sal)||0;
-                const FOOD_PER_DAY = parseFloat(s.conf.food)||0;
-                const PF_FIXED = parseFloat(s.conf.pf)||0;
-                const OT_RATE = parseFloat(s.conf.otr)||0;
+                const SAL_PER_DAY = parseFloat(s.conf.sal) || 0;
+                const FOOD_PER_DAY = parseFloat(s.conf.food) || 0;
+                const PF_FIXED = parseFloat(s.conf.pf) || 0;
+                const OT_RATE = parseFloat(s.conf.otr) || 0;
 
-                let dy=0, bs=0, ot=0, fd=0, totOt=0, totAdv=0;
+                let dy = 0, bs = 0, ot = 0, fd = 0, totOt = 0, totAdv = 0;
                 
-                for(let k in s.data) {
-                    const dt = new Date(k); dt.setHours(12,0,0,0);
-                    if(dt >= d1 && dt <= d2) {
+                for (let k in s.data) {
+                    const dt = new Date(k); 
+                    dt.setHours(12, 0, 0, 0);
+                    if (dt >= d1 && dt <= d2) {
                         const v = s.data[k]; 
-                        const o = parseFloat(v.ot||0);
+                        const o = parseFloat(v.ot || 0);
                         
-                        if(v.t==='Half Day') { 
-                            dy+=0.5; 
+                        if (v.t === 'Half Day') { 
+                            dy += 0.5; 
                             bs += (SAL_PER_DAY / 2); 
                             fd += (FOOD_PER_DAY / 2); 
                         }
-                        else if(['Present','Holiday','Sick'].includes(v.t)) { 
+                        else if (['Present', 'Holiday', 'Sick'].includes(v.t)) { 
                             dy++; 
                             bs += SAL_PER_DAY; 
                             fd += FOOD_PER_DAY; 
@@ -2062,10 +2559,11 @@
                     }
                 }
 
-                for(let k in s.adv) { 
+                for (let k in s.adv) { 
                     const a = s.adv[k]; 
-                    const adt = new Date(a.date); adt.setHours(12,0,0,0); 
-                    if(adt >= d1 && adt <= d2) {
+                    const adt = new Date(a.date); 
+                    adt.setHours(12, 0, 0, 0); 
+                    if (adt >= d1 && adt <= d2) {
                         totAdv += parseFloat(a.amt);
                     }
                 }
@@ -2088,17 +2586,43 @@
                     </div>`;
                     
                 const monthlyPrice = document.getElementById('dynamic-month-price')?.innerText || '5';
-                document.getElementById('dynamic-month-price-banner') && (document.getElementById('dynamic-month-price-banner').innerText = monthlyPrice);
+                const banner = document.getElementById('dynamic-month-price-banner');
+                if (banner) banner.innerText = monthlyPrice;
             },
-            pdf: (d1,d2,dy,bs,ot,fd,pf,adv,net) => {
-                if(s.sub < Date.now()) { promo.show(); return; }
-                const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                if(s.profBase64) try { doc.addImage(s.profBase64, 'JPEG', 15, 15, 25, 25); } catch(e){}
-                doc.setFontSize(22); doc.setTextColor(67, 97, 238); doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
-                doc.setFontSize(14); doc.setTextColor(0); doc.text("SALARY SLIP", 105, 30, null, null, "center");
-                doc.setFontSize(10); doc.setTextColor(100); doc.text(`Period: ${d1} to ${d2}`, 105, 36, null, null, "center");
-                doc.setFontSize(12); doc.setTextColor(0); doc.text(`Name: ${s.profile.name}`, 15, 50);
-                doc.autoTable({ startY: 65, head: [['Description', 'Amount']], body: [ [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], ['PF Deduction', `- ${s.conf.cur} ${Math.round(pf)}`], ['Advance', `- ${s.conf.cur} ${adv}`], [{content:'NET PAYABLE', styles:{fillColor:[67, 97, 238], textColor:255, fontStyle:'bold'}}, `${s.conf.cur} ${Math.round(net)}`] ] });
+            pdf: (d1, d2, dy, bs, ot, fd, pf, adv, net) => {
+                if (s.sub < Date.now()) { 
+                    promo.show(); 
+                    return; 
+                }
+                const { jsPDF } = window.jspdf; 
+                const doc = new jsPDF();
+                if (s.profBase64) try { 
+                    doc.addImage(s.profBase64, 'JPEG', 15, 15, 25, 25); 
+                } catch(e) {}
+                doc.setFontSize(22); 
+                doc.setTextColor(67, 97, 238); 
+                doc.text("Duty Tracker Pro", 105, 20, null, null, "center");
+                doc.setFontSize(14); 
+                doc.setTextColor(0); 
+                doc.text("SALARY SLIP", 105, 30, null, null, "center");
+                doc.setFontSize(10); 
+                doc.setTextColor(100); 
+                doc.text(`Period: ${d1} to ${d2}`, 105, 36, null, null, "center");
+                doc.setFontSize(12); 
+                doc.setTextColor(0); 
+                doc.text(`Name: ${s.profile.name}`, 15, 50);
+                doc.autoTable({ 
+                    startY: 65, 
+                    head: [['Description', 'Amount']], 
+                    body: [ 
+                        [`Duty Pay (${dy} days)`, `${s.conf.cur} ${Math.round(bs)}`], 
+                        ['Food Allowance', `${s.conf.cur} ${Math.round(fd)}`], 
+                        ['Overtime Pay', `${s.conf.cur} ${Math.round(ot)}`], 
+                        ['PF Deduction', `- ${s.conf.cur} ${Math.round(pf)}`], 
+                        ['Advance', `- ${s.conf.cur} ${adv}`], 
+                        [{content: 'NET PAYABLE', styles: {fillColor: [67, 97, 238], textColor: 255, fontStyle: 'bold'}}, `${s.conf.cur} ${Math.round(net)}`] 
+                    ] 
+                });
                 doc.save(`Salary_${Date.now()}.pdf`);
                 
                 db.ref('stats/pdf_downloads').transaction(current => (current || 0) + 1);
@@ -2122,26 +2646,148 @@
             {n:"Uganda",c:"+256"},{n:"Ukraine",c:"+380"},{n:"UAE",c:"+971"},{n:"UK",c:"+44"},{n:"USA",c:"+1"},{n:"Uruguay",c:"+598"},{n:"Uzbekistan",c:"+998"},{n:"Vanuatu",c:"+678"},{n:"Venezuela",c:"+58"},{n:"Vietnam",c:"+84"},{n:"Yemen",c:"+967"},{n:"Zambia",c:"+260"},{n:"Zimbabwe",c:"+263"}
         ];
 
-        function toDataURL(url, callback) { var xhr = new XMLHttpRequest(); xhr.onload = function() { var reader = new FileReader(); reader.onloadend = function() { callback(reader.result); }; reader.readAsDataURL(xhr.response); }; xhr.open('GET', url); xhr.responseType = 'blob'; xhr.send(); }
+        function toDataURL(url, callback) { 
+            var xhr = new XMLHttpRequest(); 
+            xhr.onload = function() { 
+                var reader = new FileReader(); 
+                reader.onloadend = function() { 
+                    callback(reader.result); 
+                }; 
+                reader.readAsDataURL(xhr.response); 
+            }; 
+            xhr.open('GET', url); 
+            xhr.responseType = 'blob'; 
+            xhr.send(); 
+        }
         
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install').style.display = 'block'; });
-        const pwa = { install: () => { if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { if(c.outcome==='accepted') document.getElementById('pwa-install').style.display='none'; deferredPrompt = null; }); } } };
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            deferredPrompt = e; 
+            document.getElementById('pwa-install').style.display = 'block'; 
+        });
+        
+        const pwa = { 
+            install: () => { 
+                if (deferredPrompt) { 
+                    deferredPrompt.prompt(); 
+                    deferredPrompt.userChoice.then((c) => { 
+                        if (c.outcome === 'accepted') 
+                            document.getElementById('pwa-install').style.display = 'none'; 
+                        deferredPrompt = null; 
+                    }); 
+                } 
+            } 
+        };
 
         const legal = {
             show: (t) => {
                 const c = {
-                    'privacy': `<h3>Privacy Policy</h3><p><strong>Effective Date:</strong> January 1, 2024</p><p>Duty Tracker Pro ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by Duty Tracker Pro.</p><h4>1. Information We Collect</h4><p>We collect information to provide better services to all our users. The types of information we collect include:</p><ul><li><strong>Personal Information:</strong> When you register, we collect your Name and Phone Number to create a unique user identity.</li><li><strong>Usage Data:</strong> We collect data on how you interact with our services, such as duty hours recorded, attendance types (Present, Leave, etc.), and salary configurations.</li><li><strong>Device Information:</strong> We may collect information about the device you use to access the app, including the hardware model and operating system version, to ensure compatibility.</li><li><strong>Media:</strong> If you upload a profile picture, we store this image to personalize your experience. We require camera/gallery permissions for this purpose.</li></ul><h4>2. How We Use Your Information</h4><p>We use the information we collect in various ways, including to:</p><ul><li>Provide, operate, and maintain our application.</li><li>Improve, personalize, and expand our application features.</li><li>Calculate your estimated salary based on the data you input.</li><li>Send you notifications (reminders) if you opt-in.</li><li>Process payments securely via third-party gateways (Razorpay).</li></ul><h4>3. Third-Party Services</h4><p>We use third-party services for specific functionalities:</p><ul><li><strong>Firebase (Google):</strong> Used for secure authentication and real-time database storage.</li><li><strong>Razorpay:</strong> Used for processing premium subscription payments. We do not store your credit card or bank details on our servers.</li><li><strong>ImgBB:</strong> Used for hosting user profile images.</li></ul><h4>4. Data Security</h4><p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p><h4>5. Children's Privacy</h4><p>Our Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we discover that a child under 13 has provided us with personal information, we immediately delete this from our servers.</p><h4>6. Contact Us</h4><p>If you have any questions about this Privacy Policy, please contact us at: nitai.grp00@gmail.com</p>`,
+                    'privacy': `<h3>Privacy Policy</h3><p><strong>Effective Date:</strong> January 1, 2024</p><p>Duty Tracker Pro ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by Duty Tracker Pro.</p><h4>1. Information We Collect</h4><p>We collect information to provide better services to all our users. The types of information we collect include:</p><ul><li><strong>Personal Information:</strong> When you register, we collect your Name, Email, and Phone Number to create a unique user identity.</li><li><strong>Usage Data:</strong> We collect data on how you interact with our services, such as duty hours recorded, attendance types (Present, Leave, etc.), and salary configurations.</li><li><strong>Device Information:</strong> We may collect information about the device you use to access the app, including the hardware model and operating system version, to ensure compatibility.</li><li><strong>Media:</strong> If you upload a profile picture, we store this image to personalize your experience. We require camera/gallery permissions for this purpose.</li></ul><h4>2. How We Use Your Information</h4><p>We use the information we collect in various ways, including to:</p><ul><li>Provide, operate, and maintain our application.</li><li>Improve, personalize, and expand our application features.</li><li>Calculate your estimated salary based on the data you input.</li><li>Send you notifications (reminders) if you opt-in.</li><li>Process payments securely via third-party gateways (Razorpay).</li></ul><h4>3. Third-Party Services</h4><p>We use third-party services for specific functionalities:</p><ul><li><strong>Firebase (Google):</strong> Used for secure authentication and real-time database storage.</li><li><strong>Razorpay:</strong> Used for processing premium subscription payments. We do not store your credit card or bank details on our servers.</li><li><strong>ImgBB:</strong> Used for hosting user profile images.</li></ul><h4>4. Data Security</h4><p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p><h4>5. Children's Privacy</h4><p>Our Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we discover that a child under 13 has provided us with personal information, we immediately delete this from our servers.</p><h4>6. Contact Us</h4><p>If you have any questions about this Privacy Policy, please contact us at: nitai.grp00@gmail.com</p>`,
                     'terms': `<h3>Terms & Conditions</h3><p><strong>Last Updated:</strong> January 1, 2024</p><p>By downloading or using the app, these terms will automatically apply to you – you should make sure therefore that you read them carefully before using the app.</p><h4>1. Usage License</h4><p>Duty Tracker Pro grants you a personal, non-exclusive, non-transferable, limited privilege to enter and use the app. You are not allowed to copy, or modify the app, any part of the app, or our trademarks in any way.</p><h4>2. User Responsibilities</h4><p>You are responsible for keeping your phone and access to the app secure. You are also responsible for the accuracy of the data (attendance, salary rates) you input into the application. The app calculates salary based solely on your inputs.</p><h4>3. Service Availability</h4><p>The app is provided "as is" and "as available". We do not warrant that the app will be uninterrupted or error-free. We reserve the right to withdraw or amend the service we provide without notice.</p><h4>4. Limitations of Liability</h4><p>In no event shall Duty Tracker Pro or its developers be liable for any direct, indirect, incidental, special, consequential or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data or other intangible losses resulting from the use of or inability to use the service.</p><h4>5. Governing Law</h4><p>These terms and conditions are governed by and construed in accordance with the laws of India and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>`,
                     'refund': `<h3>Refund Policy</h3><p><strong>Last Updated:</strong> January 1, 2024</p><p>Thank you for buying a subscription to Duty Tracker Pro.</p><h4>1. Digital Goods</h4><p>Since the Service offers non-tangible, irrevocable digital goods (Premium Subscription), we generally do not provide refunds after the product is purchased, which you acknowledge prior to purchasing any product on the Website/App.</p><h4>2. Exceptional Circumstances</h4><p>We may honor requests for the refund on the following reasons:</p><ul><li><strong>Non-delivery of the product:</strong> If for some reason the premium features were not unlocked after a successful transaction. In this case, we recommend contacting us for assistance.</li><li><strong>Major defects:</strong> Although all the products are thoroughly tested before release, unexpected errors may occur. You should contact our Support Team for such issues.</li></ul><h4>3. Contact for Refunds</h4><p>If you believe you are eligible for a refund, please contact us within 48 hours of purchase at nitai.grp00@gmail.com with your Transaction ID and Registered Phone Number.</p>`,
                     'subscription': `<h3>Subscription Policy</h3><p>Duty Tracker Pro offers premium features via paid subscriptions.</p><h4>1. Billing Cycle</h4><p>The subscription fee for the Premium Service will be charged as a one-time payment for the specific period selected (e.g., 1 Month or 1 Year). <strong>We do not support auto-debit or automatic renewal.</strong> Your subscription will automatically expire at the end of the term unless you manually choose to renew it.</p><h4>2. Pricing</h4><p>Prices are listed within the application and are subject to change. The current rates are ₹5 for 1 Month and ₹40 for 1 Year (subject to currency conversion).</p><h4>3. Termination</h4><p>Since payments are one-time and non-recurring, there is no need to cancel a subscription. Access to premium features will simply cease once the prepaid period ends.</p>`,
-                    'deletion': `<h3>Data Deletion</h3><p>We respect your right to be forgotten. You have the right to request the deletion of your account and all associated personal data.</p><h4>How to Request Deletion</h4><p>To request data deletion, please follow these steps:</p><ol><li>Send an email to <strong>nitai.grp00@gmail.com</strong>.</li><li>Subject Line: "Request for Account Deletion".</li><li>Include your registered Phone Number in the email body.</li></ol><p>Upon receiving your request, we will verify your identity and delete all your data (Profile, Attendance Records, Images) from our Firebase servers within 30 days. This action is irreversible.</p>`,
+                    'deletion': `<h3>Data Deletion</h3><p>We respect your right to be forgotten. You have the right to request the deletion of your account and all associated personal data.</p><h4>How to Request Deletion</h4><p>To request data deletion, please follow these steps:</p><ol><li>Send an email to <strong>nitai.grp00@gmail.com</strong>.</li><li>Subject Line: "Request for Account Deletion".</li><li>Include your registered Email or Phone Number in the email body.</li></ol><p>Upon receiving your request, we will verify your identity and delete all your data (Profile, Attendance Records, Images) from our Firebase servers within 30 days. This action is irreversible.</p>`,
                     'disclaimer': `<h3>Disclaimer</h3><p>The information provided by Duty Tracker Pro is for general informational purposes only. All calculations (Salary, Overtime, Deductions) are estimates based on the data entered by the user.</p><p>This application is not an official payroll system and should not be used as the sole basis for financial or legal decisions. We do not guarantee the accuracy, relevance, timeliness, or completeness of any information on the app. We are not responsible for any discrepancies between the app's calculations and your actual salary slip provided by your employer.</p>`
                 };
                 document.getElementById('legal-body').innerHTML = c[t] || "Content not found.";
-                document.getElementById('legal-modal').style.display='block';
+                document.getElementById('legal-modal').style.display = 'block';
                 history.pushState({page: 'legal'}, null, '');
             }
         };
+
+        // ============================================
+        // DOCUMENT READY INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Document ready, initializing...");
+            
+            // Initialize country codes for auth
+            const ccSelect = document.getElementById('cc');
+            if (ccSelect) {
+                countries.forEach(c => {
+                    let o = document.createElement('option'); 
+                    o.value = c.c; 
+                    o.innerText = `${c.n} (${c.c})`;
+                    if (c.n === "India") o.selected = true; 
+                    ccSelect.appendChild(o);
+                });
+            }
+            
+            // Initialize auth state listener
+            authSystem.init();
+            
+            history.replaceState({page: 'home'}, null, '');
+            document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+            
+            // Initialize video
+            const vid = document.getElementById('promo-vid');
+            if (vid) {
+                vid.pause();
+            }
+
+            // Initialize OneSignal
+            if (window.OneSignalDeferred) {
+                window.OneSignalDeferred.push(async function(OneSignal) {
+                    await OneSignal.init({
+                        appId: ONESIGNAL_APP_ID,
+                        allowLocalhostAsSecureOrigin: true,
+                        welcomeNotification: { disable: true }
+                    });
+                });
+            }
+
+            // Load all config from Firebase
+            loadAppConfig();
+
+            // Populate FAQ
+            const faqs = [
+                {q: "How to add a duty?", a: "Tap on 'Add Today's Duty' on the home screen, or tap any date on the calendar. Select 'Present' or other status, enter OT hours if any, and click Save."},
+                {q: "How to delete an entry?", a: "Tap on the date you want to delete. In the modal that appears, click the Red 'Delete' button."},
+                {q: "How does Advance work?", a: "Go to 'Advance' tab. Enter amount and date. This amount will be automatically deducted from your final Net Payable in the Reports section."},
+                {q: "Is my data safe?", a: "Yes, your data is stored securely on Google Firebase servers. We do not sell your personal data."},
+                {q: "How to change currency?", a: "Go to Utility/Settings tab, select your currency symbol and save configuration."},
+                {q: "How to get free premium?", a: "Join our Telegram and WhatsApp channels from the popup after login to get 7 days free premium!"},
+                {q: "How to set PIN for quick login?", a: "Go to Profile → PIN Security section, enter 6-digit PIN and save. Next time you can login with PIN without password."}
+            ];
+            const fl = document.getElementById('faq-list');
+            if (fl) {
+                faqs.forEach(f => {
+                    fl.innerHTML += `<div class="faq-item"><div class="faq-q" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display=='block'?'none':'block'">${f.q} <i class="fas fa-chevron-down"></i></div><div class="faq-a">${f.a}</div></div>`;
+                });
+            }
+
+            // Set default date for advance
+            const advDate = document.getElementById('adv-date');
+            if (advDate) {
+                advDate.value = new Date().toISOString().split('T')[0];
+            }
+            
+            // Initialize reminder
+            reminder.init();
+        });
+        
+        // --- HISTORY & BACK BUTTON HANDLER ---
+        window.onpopstate = function(event) {
+            // Close all modals
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            document.getElementById('legal-modal').style.display = 'none';
+            document.getElementById('promo-screen').style.display = 'none';
+            document.getElementById('pay-wall-razor').style.display = 'none';
+            document.getElementById('pay-wall-playstore').style.display = 'none';
+            document.getElementById('reward-popup').style.display = 'none';
+            
+            // If state is home or null, show home view
+            if (!event.state || event.state.page === 'home') {
+                document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                const homeBtn = document.querySelectorAll('.nav-btn')[2];
+                if (homeBtn) homeBtn.classList.add('active');
+            } 
+        };
+
+        // Alias functions for global access
+        const auth = authSystem;
+        const profile = profileSystem;
     </script>
 </body>
 </html>
