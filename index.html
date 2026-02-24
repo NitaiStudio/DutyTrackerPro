@@ -1,4 +1,4 @@
-<!-- START OF FILE index.html (Updated with Google Email Login) -->
+<!-- START OF FILE index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +23,6 @@
     <!-- Libraries -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -33,7 +32,6 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <style>
-        /* (পুরোনো সব CSS ঠিক একই রকম থাকবে) */
         :root {
             /* DARK THEME (Default) */
             --bg: #050505;
@@ -351,15 +349,9 @@
         /* AUTH */
         #auth-screen { position:fixed; inset:0; background:var(--bg); z-index:5000; display:none; align-items:center; justify-content:center; padding:20px; }
         .auth-card { background:var(--card); padding:35px; width:100%; max-width:400px; border-radius:28px; border:1px solid var(--border); text-align:center; box-shadow:var(--shadow); }
-        /* নতুন লগইন UI */
-        .auth-tabs { display:flex; margin-bottom:20px; background:var(--input); border-radius:50px; padding:4px; }
-        .auth-tab { flex:1; padding:10px; border:none; background:none; color:var(--text-sub); font-weight:600; border-radius:50px; cursor:pointer; transition:0.3s; }
-        .auth-tab.active { background:var(--primary); color:white; }
         .phone-row { display:flex; gap:10px; margin-bottom:20px; }
         .phone-row select { width: 100px; flex-shrink: 0; margin: 0; }
         .phone-row input { flex: 1; margin: 0; min-width: 0; }
-        #signup-fields { display:block; }
-        #login-fields { display:none; }
 
         /* PROFILE STYLES */
         .profile-header { text-align:center; padding:30px 20px; background:linear-gradient(180deg, rgba(67, 97, 238, 0.1), transparent); }
@@ -605,7 +597,7 @@
             <div class="confirm-title" id="c-title">Are you sure?</div>
             <div class="confirm-desc" id="c-desc">Action cannot be undone.</div>
             <div class="confirm-actions">
-                <button class="btn btn-sec" style="width:100%" onclick="ui.closeConfirm()">Cancel</button>
+                <button class="btn btn-sec" style="width:100%" onclick="history.back()">Cancel</button>
                 <button class="btn btn-primary" style="width:100%" id="c-yes-btn">Yes</button>
             </div>
         </div>
@@ -625,41 +617,18 @@
         </div>
     </div>
 
-    <!-- AUTH (Updated with Email/Password Login & Signup) -->
+    <!-- AUTH -->
     <div id="auth-screen">
         <div class="auth-card">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
             <h2 style="margin-bottom:10px; color:var(--text);">Welcome</h2>
-            
-            <!-- Tab Buttons -->
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-login" onclick="auth.toggleTab('login')">Log In</button>
-                <button class="auth-tab" id="tab-signup" onclick="auth.toggleTab('signup')">Sign Up</button>
+            <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Enter your details to login</p>
+            <input type="text" id="auth-name" class="inp" placeholder="Full Name">
+            <div class="phone-row">
+                <select id="cc" class="inp"></select>
+                <input type="number" id="phone" class="inp" placeholder="Phone Number">
             </div>
-            
-            <!-- Login Form (Only Email & Password) -->
-            <div id="login-fields">
-                <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Login with your Email & Password</p>
-                <input type="email" id="login-email" class="inp" placeholder="Email Address" required>
-                <input type="password" id="login-password" class="inp" placeholder="Password" required>
-                <button class="btn btn-primary" onclick="auth.loginWithEmail()">Login <i class="fas fa-sign-in-alt"></i></button>
-                <p style="margin-top:15px; font-size:12px;"><a href="#" onclick="auth.resetPassword()">Forgot Password?</a></p>
-            </div>
-            
-            <!-- Signup Form (Name, Email, Password, Phone) -->
-            <div id="signup-fields">
-                <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Create new account</p>
-                <input type="text" id="signup-name" class="inp" placeholder="Full Name" required>
-                <input type="email" id="signup-email" class="inp" placeholder="Email Address" required>
-                <input type="password" id="signup-password" class="inp" placeholder="Password (min 6 chars)" required>
-                <div class="phone-row">
-                    <select id="signup-cc" class="inp"></select>
-                    <input type="number" id="signup-phone" class="inp" placeholder="Phone Number" required>
-                </div>
-                <button class="btn btn-primary" onclick="auth.signupWithEmail()">Sign Up & Continue</button>
-            </div>
-            
-            <p style="margin-top:15px; font-size:10px; color:var(--text-sub);">By continuing, you agree to our Terms & Privacy Policy</p>
+            <button class="btn btn-primary" onclick="app.login()">Verify & Continue</button>
         </div>
     </div>
 
@@ -762,7 +731,7 @@
                 <label for="prof-upload" class="avatar-edit"><i class="fas fa-camera"></i></label>
             </div>
             <h2 id="prof-name-disp" style="margin-bottom:5px;">User Name</h2>
-            <p id="prof-email-disp" style="color:var(--text-sub); font-size:14px;">email@example.com</p>
+            <p id="prof-id" style="color:var(--text-sub); font-size:14px;">+91...</p>
             
             <div style="display:flex; flex-direction:column; align-items:center; gap:5px; margin-top:10px;">
                 <div style="background:var(--accent); color:white; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:bold;" id="prof-badge">PREMIUM</div>
@@ -993,13 +962,9 @@
         <div style="padding:20px; text-align:center;">
             <i class="fas fa-shield-alt" style="font-size:60px; color:var(--primary); margin:20px 0;"></i>
             <h3>Duty Tracker Pro</h3>
-            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.6.0 (Email Login)</p>
+            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.5.0 (Stable)</p>
             <div class="settings-card" style="text-align:left;">
                 <h4 style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">Changelog</h4>
-                <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.6.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Added Email/Password Login. Signup requires Phone Number, Login only Email.</div>
-                </div>
                 <div style="margin-bottom:15px;">
                     <div style="font-weight:bold; color:var(--secondary);">v2.5.0</div>
                     <div style="font-size:13px; color:var(--text-sub);">Added Reward Popup System - Join Telegram & WhatsApp for 7 Days Free Premium!</div>
@@ -1007,6 +972,10 @@
                 <div style="margin-bottom:15px;">
                     <div style="font-weight:bold; color:var(--secondary);">v2.3.0</div>
                     <div style="font-size:13px; color:var(--text-sub);">Added Subscription History, Feedback via Email, Improved UI.</div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <div style="font-weight:bold; color:var(--secondary);">v2.2.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Profile UI Fixes, Advance Money Module.</div>
                 </div>
             </div>
             <p style="font-size:12px; color:var(--text-sub); margin-top:20px;">Developed by Nitai Studio</p>
@@ -1147,7 +1116,7 @@
 
     <script>
         // ============================================
-        // CONFIGURATION (Updated with Firebase Auth)
+        // CONFIGURATION
         // ============================================
         const firebaseConfig = { 
             apiKey: "AIzaSyDxqq2PBqrtkTsygyMcIDOvZyx2_-x4QRk", 
@@ -1160,7 +1129,6 @@
         };
         
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.database();
         const RZP_KEY = "rzp_live_Rz7kQ4RAloCWGp";
         const IMG_API_KEY = "c762b5315ee9263c36ed04156b0ff758"; 
@@ -1224,6 +1192,10 @@
             }
         };
 
+        // ============================================
+        // PAYMENT SYSTEM FUNCTIONS
+        // ============================================
+        
         // Load all config from Firebase
         function loadAppConfig() {
             // Load maintenance config
@@ -1499,123 +1471,6 @@
         };
 
         // ============================================
-        // AUTH OBJECT (Email/Password Login & Signup)
-        // ============================================
-        const authHandler = {
-            toggleTab: (tab) => {
-                if (tab === 'login') {
-                    document.getElementById('login-fields').style.display = 'block';
-                    document.getElementById('signup-fields').style.display = 'none';
-                    document.getElementById('tab-login').classList.add('active');
-                    document.getElementById('tab-signup').classList.remove('active');
-                } else {
-                    document.getElementById('login-fields').style.display = 'none';
-                    document.getElementById('signup-fields').style.display = 'block';
-                    document.getElementById('tab-login').classList.remove('active');
-                    document.getElementById('tab-signup').classList.add('active');
-                }
-            },
-            
-            signupWithEmail: () => {
-                const name = document.getElementById('signup-name').value.trim();
-                const email = document.getElementById('signup-email').value.trim();
-                const password = document.getElementById('signup-password').value;
-                const phone = document.getElementById('signup-phone').value;
-                const cc = document.getElementById('signup-cc').value;
-                
-                if (name.length < 2) return ui.toast("Enter Full Name");
-                if (email.length < 5 || !email.includes('@')) return ui.toast("Enter Valid Email");
-                if (password.length < 6) return ui.toast("Password must be at least 6 characters");
-                if (phone.length < 5) return ui.toast("Enter Valid Phone Number");
-                
-                ui.toast("Creating Account...");
-                
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        const uid = cc + phone; // UID is phone number with country code for backward compatibility
-                        
-                        // Create user profile in database
-                        const updates = {};
-                        updates[`u/${uid}/profile/name`] = name;
-                        updates[`u/${uid}/profile/email`] = email;
-                        updates[`u/${uid}/profile/phone`] = phone;
-                        updates[`u/${uid}/profile/cc`] = cc;
-                        updates[`u/${uid}/auth_uid`] = user.uid; // Store Firebase Auth UID for reference
-                        updates[`u/${uid}/subExp`] = Date.now() + (3 * 86400000); // 3 days trial
-                        
-                        // Link email to UID for lookup
-                        updates[`email_to_uid/${email.replace(/\./g, ',')}`] = uid;
-                        
-                        db.ref().update(updates).then(() => {
-                            localStorage.setItem('dt_id', uid);
-                            document.getElementById('auth-screen').style.display = 'none';
-                            app.start(uid);
-                        });
-                    })
-                    .catch((error) => {
-                        ui.toast("Error: " + error.message);
-                    });
-            },
-            
-            loginWithEmail: () => {
-                const email = document.getElementById('login-email').value.trim();
-                const password = document.getElementById('login-password').value;
-                
-                if (email.length < 5 || !email.includes('@')) return ui.toast("Enter Valid Email");
-                if (password.length < 1) return ui.toast("Enter Password");
-                
-                ui.toast("Logging in...");
-                
-                // First, find UID from email mapping
-                const emailKey = email.replace(/\./g, ',');
-                db.ref(`email_to_uid/${emailKey}`).once('value', (snap) => {
-                    const uid = snap.val();
-                    
-                    if (!uid) {
-                        // If not found in mapping, try to sign in first to get user
-                        auth.signInWithEmailAndPassword(email, password)
-                            .then((userCredential) => {
-                                ui.toast("Account exists but no UID mapping. Please contact support.");
-                            })
-                            .catch((error) => {
-                                ui.toast("Login Failed: " + error.message);
-                            });
-                        return;
-                    }
-                    
-                    // Now authenticate with Firebase Auth
-                    auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            localStorage.setItem('dt_id', uid);
-                            document.getElementById('auth-screen').style.display = 'none';
-                            app.start(uid);
-                        })
-                        .catch((error) => {
-                            ui.toast("Login Failed: " + error.message);
-                        });
-                }).catch(() => {
-                    ui.toast("Account not found. Please sign up.");
-                });
-            },
-            
-            resetPassword: () => {
-                const email = document.getElementById('login-email').value.trim();
-                if (!email || !email.includes('@')) {
-                    return ui.toast("Enter your email in the field first");
-                }
-                
-                auth.sendPasswordResetEmail(email)
-                    .then(() => {
-                        ui.toast("Password reset email sent!");
-                    })
-                    .catch((error) => {
-                        ui.toast("Error: " + error.message);
-                    });
-            }
-        };
-
-        // ============================================
         // REWARD SYSTEM
         // ============================================
         const reward = {
@@ -1699,8 +1554,7 @@
         // INIT
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Populate country codes for signup
-            const ccSelect = document.getElementById('signup-cc');
+            const ccSelect = document.getElementById('cc');
             countries.forEach(c => {
                 let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
                 if(c.n === "India") o.selected = true; 
@@ -1784,19 +1638,20 @@
 
         const app = {
             login: () => {
-                // Old login method - now redirect to new auth
-                ui.toast("Please use Email/Password login");
+                const name = document.getElementById('auth-name').value.trim();
+                const phone = document.getElementById('phone').value;
+                const cc = document.getElementById('cc').value;
+                const id = cc + phone;
+                if(name.length < 2) return ui.toast("Enter Valid Name");
+                if(phone.length > 5) {
+                    localStorage.setItem('dt_id', id);
+                    db.ref('u/'+id+'/profile/name').set(name);
+                    document.getElementById('auth-screen').style.display='none';
+                    app.start(id);
+                } else ui.toast("Invalid Number");
             },
             logout: () => {
-                ui.confirm("Log Out", "Are you sure?", () => { 
-                    auth.signOut().then(() => {
-                        localStorage.removeItem('dt_id'); 
-                        location.reload(); 
-                    }).catch(() => {
-                        localStorage.removeItem('dt_id'); 
-                        location.reload();
-                    });
-                });
+                ui.confirm("Log Out", "Are you sure?", () => { localStorage.removeItem('dt_id'); location.reload(); });
             },
             start: (id) => {
                 s.uid = id;
@@ -1820,7 +1675,7 @@
                     else { s.refCode = v.refCode; document.getElementById('my-ref-code').innerText = s.refCode; }
 
                     document.getElementById('prof-name-disp').innerText = s.profile.name || "User";
-                    document.getElementById('prof-email-disp').innerText = s.profile.email || "No Email";
+                    document.getElementById('prof-id').innerText = id;
                     if(s.profile.img) {
                         document.getElementById('prof-img-el').src = s.profile.img;
                         document.getElementById('mini-prof-img').src = s.profile.img;
@@ -2287,10 +2142,7 @@
                 history.pushState({page: 'legal'}, null, '');
             }
         };
-
-        // Alias for auth
-        const auth = authHandler;
     </script>
 </body>
 </html>
-<!-- END OF FILE index.html (Updated with Google Email Login) -->
+<!-- END OF FILE index.html -->
