@@ -133,6 +133,112 @@
             font-weight: 600;
         }
 
+        /* PIN SCREEN STYLES */
+        #pin-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 7000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .pin-card {
+            background: var(--card);
+            padding: 35px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: zoomIn 0.4s ease-out;
+        }
+        
+        .pin-header {
+            margin-bottom: 20px;
+        }
+        
+        .pin-header i {
+            font-size: 50px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .pin-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+        
+        .pin-subtitle {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+        
+        .pin-display {
+            background: var(--input);
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            font-family: monospace;
+        }
+        
+        .pin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .pin-btn {
+            background: var(--input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 24px;
+            font-weight: 700;
+            padding: 15px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .pin-btn:active {
+            background: var(--primary);
+            color: white;
+            transform: scale(0.95);
+        }
+        
+        .pin-btn.special {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .pin-btn.special:active {
+            background: var(--accent);
+        }
+        
+        .pin-footer {
+            margin-top: 10px;
+        }
+        
+        #pin-error {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
         /* ANIMATIONS */
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
@@ -352,7 +458,32 @@
         .phone-row { display:flex; gap:10px; margin-bottom:20px; }
         .phone-row select { width: 100px; flex-shrink: 0; margin: 0; }
         .phone-row input { flex: 1; margin: 0; min-width: 0; }
-
+        
+        /* Auth Tabs */
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: var(--input);
+            padding: 5px;
+            border-radius: 50px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            color: var(--text-sub);
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .auth-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
         /* PROFILE STYLES */
         .profile-header { text-align:center; padding:30px 20px; background:linear-gradient(180deg, rgba(67, 97, 238, 0.1), transparent); }
         .avatar-container { position: relative; width: 110px; height: 110px; margin: 0 auto 15px; }
@@ -597,9 +728,43 @@
             <div class="confirm-title" id="c-title">Are you sure?</div>
             <div class="confirm-desc" id="c-desc">Action cannot be undone.</div>
             <div class="confirm-actions">
-                <button class="btn btn-sec" style="width:100%" onclick="history.back()">Cancel</button>
+                <button class="btn btn-sec" style="width:100%" onclick="ui.closeConfirm()">Cancel</button>
                 <button class="btn btn-primary" style="width:100%" id="c-yes-btn">Yes</button>
             </div>
+        </div>
+    </div>
+
+    <!-- PIN SCREEN -->
+    <div id="pin-screen">
+        <div class="pin-card">
+            <div class="pin-header">
+                <i class="fas fa-lock"></i>
+                <h2 class="pin-title" id="pin-title">Enter PIN</h2>
+                <p class="pin-subtitle" id="pin-subtitle">Please enter your 4-digit PIN</p>
+            </div>
+            
+            <div id="pin-display" class="pin-display">____</div>
+            
+            <div class="pin-grid">
+                <button class="pin-btn" onclick="pin.add('1')">1</button>
+                <button class="pin-btn" onclick="pin.add('2')">2</button>
+                <button class="pin-btn" onclick="pin.add('3')">3</button>
+                <button class="pin-btn" onclick="pin.add('4')">4</button>
+                <button class="pin-btn" onclick="pin.add('5')">5</button>
+                <button class="pin-btn" onclick="pin.add('6')">6</button>
+                <button class="pin-btn" onclick="pin.add('7')">7</button>
+                <button class="pin-btn" onclick="pin.add('8')">8</button>
+                <button class="pin-btn" onclick="pin.add('9')">9</button>
+                <button class="pin-btn special" onclick="pin.clear()"><i class="fas fa-times"></i></button>
+                <button class="pin-btn" onclick="pin.add('0')">0</button>
+                <button class="pin-btn special" onclick="pin.delete()"><i class="fas fa-backspace"></i></button>
+            </div>
+            
+            <div class="pin-footer">
+                <button class="btn btn-sec" id="pin-cancel-btn" onclick="pin.cancel()">Cancel</button>
+            </div>
+            
+            <div id="pin-error" class="pin-error">Invalid PIN. Please try again.</div>
         </div>
     </div>
 
@@ -622,13 +787,36 @@
         <div class="auth-card">
             <i class="fas fa-fingerprint" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
             <h2 style="margin-bottom:10px; color:var(--text);">Welcome</h2>
-            <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Enter your details to login</p>
-            <input type="text" id="auth-name" class="inp" placeholder="Full Name">
-            <div class="phone-row">
-                <select id="cc" class="inp"></select>
-                <input type="number" id="phone" class="inp" placeholder="Phone Number">
+            
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login" onclick="auth.switchTab('login')">Login</button>
+                <button class="auth-tab" id="tab-signup" onclick="auth.switchTab('signup')">Sign Up</button>
             </div>
-            <button class="btn btn-primary" onclick="app.login()">Verify & Continue</button>
+            
+            <!-- Login Form (Default) -->
+            <div id="login-form">
+                <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Enter your phone & PIN to login</p>
+                <div class="phone-row">
+                    <select id="cc-login" class="inp"></select>
+                    <input type="number" id="phone-login" class="inp" placeholder="Phone Number">
+                </div>
+                <input type="password" id="pin-login" class="inp" placeholder="Enter 4-digit PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+                <button class="btn btn-primary" onclick="auth.login()">Login</button>
+            </div>
+            
+            <!-- Sign Up Form (Hidden by Default) -->
+            <div id="signup-form" style="display:none;">
+                <p style="color:var(--text-sub); font-size:13px; margin-bottom:25px;">Create new account</p>
+                <input type="text" id="auth-name" class="inp" placeholder="Full Name">
+                <div class="phone-row">
+                    <select id="cc-signup" class="inp"></select>
+                    <input type="number" id="phone-signup" class="inp" placeholder="Phone Number">
+                </div>
+                <input type="password" id="pin-signup" class="inp" placeholder="Set 4-digit PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+                <input type="password" id="pin-signup-confirm" class="inp" placeholder="Confirm PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+                <button class="btn btn-primary" onclick="auth.signup()">Create Account</button>
+            </div>
         </div>
     </div>
 
@@ -797,6 +985,13 @@
             <div class="action-item" onclick="location.href='mailto:nitai.grp00@gmail.com'">
                 <i class="fas fa-envelope" style="color:var(--text-sub); font-size:20px;"></i> <span style="flex:1; margin-left:5px;">Contact Support</span>
             </div>
+            
+            <!-- Change PIN Option -->
+            <div class="action-item" onclick="pin.showChangePin()">
+                <i class="fas fa-key" style="color:var(--warning); font-size:20px;"></i> 
+                <div style="flex:1; margin-left:5px;">Change PIN</div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
         </div>
         
         <button class="btn btn-danger" style="margin: 25px auto 40px auto; width: 60%; padding: 12px; font-size: 14px;" onclick="app.logout()">Log Out</button>
@@ -928,6 +1123,7 @@
                     <li><b>Advance:</b> Go to Advance tab to record money taken. It will be deducted in reports.</li>
                     <li><b>PDF:</b> Go to Reports, select dates, and click Download PDF.</li>
                     <li><b>Free Premium:</b> Join our Telegram and WhatsApp channels to get 7 days free premium!</li>
+                    <li><b>PIN Security:</b> Set a 4-digit PIN during signup. Use phone + PIN to login anytime.</li>
                 </ul>
             </div>
             
@@ -962,20 +1158,20 @@
         <div style="padding:20px; text-align:center;">
             <i class="fas fa-shield-alt" style="font-size:60px; color:var(--primary); margin:20px 0;"></i>
             <h3>Duty Tracker Pro</h3>
-            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.5.0 (Stable)</p>
+            <p style="color:var(--text-sub); margin-bottom:20px;">Version 2.9.0 (Stable)</p>
             <div class="settings-card" style="text-align:left;">
                 <h4 style="border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:10px;">Changelog</h4>
                 <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.5.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Added Reward Popup System - Join Telegram & WhatsApp for 7 Days Free Premium!</div>
+                    <div style="font-weight:bold; color:var(--secondary);">v2.9.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Fixed: Razorpay payment cancel black screen issue. All bugs fixed.</div>
                 </div>
                 <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.3.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Added Subscription History, Feedback via Email, Improved UI.</div>
+                    <div style="font-weight:bold; color:var(--secondary);">v2.8.1</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Fixed: Black screen issue after PIN verification</div>
                 </div>
                 <div style="margin-bottom:15px;">
-                    <div style="font-weight:bold; color:var(--secondary);">v2.2.0</div>
-                    <div style="font-size:13px; color:var(--text-sub);">Profile UI Fixes, Advance Money Module.</div>
+                    <div style="font-weight:bold; color:var(--secondary);">v2.8.0</div>
+                    <div style="font-size:13px; color:var(--text-sub);">Fixed: Old users can now login with their existing accounts! No data loss.</div>
                 </div>
             </div>
             <p style="font-size:12px; color:var(--text-sub); margin-top:20px;">Developed by Nitai Studio</p>
@@ -1153,7 +1349,8 @@
                 whatsapp_joined: 0,
                 reward_claimed: 0,
                 reward_expiry_date: null
-            }
+            },
+            pin: '' // Store user's PIN
         };
         
         let curDate = new Date();
@@ -1161,6 +1358,12 @@
         let selType = null;
         let chartInstance = null;
         let deferredPrompt;
+        
+        // PIN System Variables
+        let pinCurrent = ''; // Current PIN being entered
+        let pinMode = 'verify'; // 'verify', 'set', 'change'
+        let pinCallback = null; // Callback after successful PIN entry
+        let pinVerified = false; // Track if PIN verified
         
         // ============================================
         // ADMIN CONFIG LOADING
@@ -1378,7 +1581,16 @@
                         });
                         ui.toast("✅ Subscription Activated!");
                         setTimeout(() => location.reload(), 1500); 
-                    }, 
+                    },
+                    "modal": {
+                        "ondismiss": function() {
+                            // পেমেন্ট ক্যান্সেল করলে এই ফাংশন কল হবে
+                            console.log('Payment cancelled');
+                            // main-app দেখান
+                            document.getElementById('main-app').style.display = 'flex';
+                            ui.toast("Payment cancelled");
+                        }
+                    },
                     "theme": { "color": "#4361ee" } 
                 };
                 new Razorpay(options).open();
@@ -1404,7 +1616,16 @@
                         });
                         ui.toast("✅ Yearly Subscription Activated!");
                         setTimeout(() => location.reload(), 1500); 
-                    }, 
+                    },
+                    "modal": {
+                        "ondismiss": function() {
+                            // পেমেন্ট ক্যান্সেল করলে এই ফাংশন কল হবে
+                            console.log('Payment cancelled');
+                            // main-app দেখান
+                            document.getElementById('main-app').style.display = 'flex';
+                            ui.toast("Payment cancelled");
+                        }
+                    },
                     "theme": { "color": "#4361ee" } 
                 };
                 new Razorpay(options).open();
@@ -1419,6 +1640,10 @@
                 } else {
                     ui.toast("Opening Google Play Store...");
                     window.open(`https://play.google.com/store/apps/details?id=${PLAY_STORE_PACKAGE}`, '_blank');
+                    // main-app দেখান (কারণ নতুন ট্যাব খুলবে)
+                    setTimeout(() => {
+                        document.getElementById('main-app').style.display = 'flex';
+                    }, 1000);
                 }
             },
             
@@ -1443,6 +1668,8 @@
         function closePaywall() {
             document.getElementById('pay-wall-razor').style.display = 'none';
             document.getElementById('pay-wall-playstore').style.display = 'none';
+            // main-app দেখান
+            document.getElementById('main-app').style.display = 'flex';
         }
 
         // Android interface for Play Store billing
@@ -1468,6 +1695,259 @@
         window.onPlayPurchaseFailed = function(error) {
             console.error('Play Purchase Failed:', error);
             ui.toast("❌ Purchase failed: " + error);
+            // main-app দেখান
+            document.getElementById('main-app').style.display = 'flex';
+        };
+
+        // ============================================
+        // AUTH SYSTEM
+        // ============================================
+        const auth = {
+            currentTab: 'login',
+            
+            switchTab: (tab) => {
+                auth.currentTab = tab;
+                
+                // Update tab buttons
+                document.getElementById('tab-login').classList.remove('active');
+                document.getElementById('tab-signup').classList.remove('active');
+                
+                if (tab === 'login') {
+                    document.getElementById('tab-login').classList.add('active');
+                    document.getElementById('login-form').style.display = 'block';
+                    document.getElementById('signup-form').style.display = 'none';
+                } else {
+                    document.getElementById('tab-signup').classList.add('active');
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('signup-form').style.display = 'block';
+                }
+            },
+            
+            login: () => {
+                const phone = document.getElementById('phone-login').value;
+                const cc = document.getElementById('cc-login').value;
+                const pinInput = document.getElementById('pin-login').value.trim();
+                
+                const id = cc + phone;
+                
+                if(phone.length < 5) return ui.toast("Invalid Phone Number");
+                if(pinInput.length !== 4) return ui.toast("Please enter 4-digit PIN");
+                
+                // প্রথমে প্রোফাইল চেক করুন - ইউজার আছে কিনা
+                db.ref('u/'+id+'/profile/name').once('value', (profileSnap) => {
+                    if (!profileSnap.exists()) {
+                        // ইউজার নেই
+                        ui.toast("Account not found! Please sign up first.");
+                        return;
+                    }
+                    
+                    // ইউজার আছে, এখন PIN চেক করুন
+                    db.ref('u/'+id+'/pin').once('value', (pinSnap) => {
+                        const savedPin = pinSnap.val();
+                        
+                        if (!savedPin) {
+                            // পুরনো ইউজার - যাদের PIN সেট করা নেই
+                            // তাদের জন্য আমরা অটোমেটিক PIN সেট করে দিচ্ছি (যাতে পরে লগইন করতে পারে)
+                            db.ref('u/'+id+'/pin').set(pinInput);
+                            localStorage.setItem('dt_id', id);
+                            document.getElementById('auth-screen').style.display='none';
+                            
+                            // ইউজারের ডাটা লোড করুন এবং main-app দেখান
+                            app.start(id);
+                            ui.toast("✅ PIN set successfully! You can now login with this PIN.");
+                            
+                        } else if (savedPin !== pinInput) {
+                            // PIN ভুল
+                            ui.toast("❌ Incorrect PIN");
+                            return;
+                        } else {
+                            // PIN সঠিক
+                            localStorage.setItem('dt_id', id);
+                            document.getElementById('auth-screen').style.display='none';
+                            
+                            // ইউজারের ডাটা লোড করুন এবং main-app দেখান
+                            app.start(id);
+                        }
+                    });
+                });
+            },
+            
+            signup: () => {
+                const name = document.getElementById('auth-name').value.trim();
+                const phone = document.getElementById('phone-signup').value;
+                const cc = document.getElementById('cc-signup').value;
+                const pinInput = document.getElementById('pin-signup').value.trim();
+                const pinConfirm = document.getElementById('pin-signup-confirm').value.trim();
+                
+                const id = cc + phone;
+                
+                if(name.length < 2) return ui.toast("Enter Valid Name");
+                if(phone.length < 5) return ui.toast("Invalid Phone Number");
+                if(pinInput.length !== 4) return ui.toast("PIN must be 4 digits");
+                if(pinInput !== pinConfirm) return ui.toast("PINs do not match");
+                
+                // Check if user already exists
+                db.ref('u/'+id+'/profile/name').once('value', (snap) => {
+                    if (snap.exists()) {
+                        ui.toast("Account already exists! Please login.");
+                        auth.switchTab('login');
+                        return;
+                    }
+                    
+                    // Create new user
+                    db.ref('u/'+id+'/profile/name').set(name);
+                    db.ref('u/'+id+'/pin').set(pinInput);
+                    
+                    localStorage.setItem('dt_id', id);
+                    document.getElementById('auth-screen').style.display='none';
+                    
+                    // ইউজারের ডাটা লোড করুন এবং main-app দেখান
+                    app.start(id);
+                });
+            }
+        };
+
+        // ============================================
+        // PIN SYSTEM
+        // ============================================
+        const pin = {
+            // Initialize PIN screen
+            init: (mode, callback) => {
+                pinMode = mode;
+                pinCallback = callback;
+                pinCurrent = '';
+                pin.updateDisplay();
+                
+                document.getElementById('pin-screen').style.display = 'flex';
+                
+                // Update title based on mode
+                if (mode === 'set') {
+                    document.getElementById('pin-title').innerText = 'Set New PIN';
+                    document.getElementById('pin-subtitle').innerText = 'Enter a 4-digit PIN for security';
+                    document.getElementById('pin-cancel-btn').style.display = 'block';
+                } else if (mode === 'change') {
+                    document.getElementById('pin-title').innerText = 'Change PIN';
+                    document.getElementById('pin-subtitle').innerText = 'Enter your current 4-digit PIN';
+                    document.getElementById('pin-cancel-btn').style.display = 'block';
+                } else {
+                    document.getElementById('pin-title').innerText = 'Enter PIN';
+                    document.getElementById('pin-subtitle').innerText = 'Please enter your 4-digit PIN';
+                    document.getElementById('pin-cancel-btn').style.display = 'block';
+                }
+                
+                document.getElementById('pin-error').style.display = 'none';
+            },
+            
+            // Add digit to PIN
+            add: (digit) => {
+                if (pinCurrent.length < 4) {
+                    pinCurrent += digit;
+                    pin.updateDisplay();
+                    
+                    // If 4 digits entered, auto-submit
+                    if (pinCurrent.length === 4) {
+                        setTimeout(() => pin.submit(), 200);
+                    }
+                }
+            },
+            
+            // Delete last digit
+            delete: () => {
+                pinCurrent = pinCurrent.slice(0, -1);
+                pin.updateDisplay();
+            },
+            
+            // Clear all digits
+            clear: () => {
+                pinCurrent = '';
+                pin.updateDisplay();
+            },
+            
+            // Update display
+            updateDisplay: () => {
+                const display = document.getElementById('pin-display');
+                let text = '';
+                for (let i = 0; i < 4; i++) {
+                    if (i < pinCurrent.length) {
+                        text += '●';
+                    } else {
+                        text += '_';
+                    }
+                }
+                display.innerText = text;
+            },
+            
+            // Submit PIN
+            submit: () => {
+                if (pinCurrent.length !== 4) {
+                    document.getElementById('pin-error').innerText = 'Please enter 4 digits';
+                    document.getElementById('pin-error').style.display = 'block';
+                    return;
+                }
+                
+                if (pinMode === 'set') {
+                    // Setting new PIN for first time
+                    if (pinCallback) {
+                        pinCallback(pinCurrent);
+                    }
+                    pin.close();
+                    
+                } else if (pinMode === 'change') {
+                    // Changing PIN - first verify current, then ask for new
+                    if (pinCurrent === s.pin) {
+                        // Current PIN correct, now ask for new PIN
+                        pin.init('set', (newPin) => {
+                            db.ref(`u/${s.uid}/pin`).set(newPin);
+                            s.pin = newPin;
+                            ui.toast('✅ PIN changed successfully');
+                        });
+                    } else {
+                        document.getElementById('pin-error').innerText = 'Invalid current PIN';
+                        document.getElementById('pin-error').style.display = 'block';
+                        pinCurrent = '';
+                        pin.updateDisplay();
+                    }
+                    
+                } else {
+                    // Verify mode
+                    if (pinCurrent === s.pin) {
+                        // PIN correct
+                        pin.close();
+                        pinVerified = true;
+                        if (pinCallback) pinCallback(true);
+                        
+                        // main-app দেখান (যদি না দেখা যায়)
+                        document.getElementById('main-app').style.display = 'flex';
+                    } else {
+                        document.getElementById('pin-error').innerText = 'Invalid PIN. Please try again.';
+                        document.getElementById('pin-error').style.display = 'block';
+                        pinCurrent = '';
+                        pin.updateDisplay();
+                    }
+                }
+            },
+            
+            // Close PIN screen
+            close: () => {
+                document.getElementById('pin-screen').style.display = 'none';
+                pinCurrent = '';
+            },
+            
+            // Cancel (back to auth)
+            cancel: () => {
+                pin.close();
+                if (pinMode === 'verify') {
+                    // If verifying and user cancels, go back to auth
+                    document.getElementById('main-app').style.display = 'none';
+                    document.getElementById('auth-screen').style.display = 'flex';
+                }
+            },
+            
+            // Show change PIN option from profile
+            showChangePin: () => {
+                if (!s.uid) return;
+                pin.init('change');
+            }
         };
 
         // ============================================
@@ -1554,11 +2034,15 @@
         // INIT
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            const ccSelect = document.getElementById('cc');
-            countries.forEach(c => {
-                let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
-                if(c.n === "India") o.selected = true; 
-                ccSelect.appendChild(o);
+            // Initialize all country selects
+            const ccSelects = ['cc-login', 'cc-signup'];
+            ccSelects.forEach(selectId => {
+                const ccSelect = document.getElementById(selectId);
+                countries.forEach(c => {
+                    let o = document.createElement('option'); o.value = c.c; o.innerText = `${c.n} (${c.c})`;
+                    if(c.n === "India") o.selected = true; 
+                    ccSelect.appendChild(o);
+                });
             });
             
             history.replaceState({page: 'home'}, null, '');
@@ -1607,7 +2091,10 @@
                 {q:"How does Advance work?", a:"Go to 'Advance' tab. Enter amount and date. This amount will be automatically deducted from your final Net Payable in the Reports section."},
                 {q:"Is my data safe?", a:"Yes, your data is stored securely on Google Firebase servers. We do not sell your personal data."},
                 {q:"How to change currency?", a:"Go to Utility/Settings tab, select your currency symbol and save configuration."},
-                {q:"How to get free premium?", a:"Join our Telegram and WhatsApp channels from the popup after login to get 7 days free premium!"}
+                {q:"How to get free premium?", a:"Join our Telegram and WhatsApp channels from the popup after login to get 7 days free premium!"},
+                {q:"How to login?", a:"Go to Login tab, enter your phone number and PIN. If you don't have an account, go to Sign Up tab and create one."},
+                {q:"I'm an old user. How to login?", a:"Enter your phone number and any 4-digit PIN. Your PIN will be saved automatically. From next time, use the same PIN to login."},
+                {q:"Forgot PIN?", a:"Please contact support at nitai.grp00@gmail.com to reset your PIN."}
             ];
             const fl = document.getElementById('faq-list');
             faqs.forEach(f => {
@@ -1627,6 +2114,7 @@
             document.getElementById('pay-wall-razor').style.display = 'none';
             document.getElementById('pay-wall-playstore').style.display = 'none';
             document.getElementById('reward-popup').style.display = 'none';
+            document.getElementById('pin-screen').style.display = 'none';
             
             // If state is home or null, show home view
             if (!event.state || event.state.page === 'home') {
@@ -1637,24 +2125,18 @@
         };
 
         const app = {
-            login: () => {
-                const name = document.getElementById('auth-name').value.trim();
-                const phone = document.getElementById('phone').value;
-                const cc = document.getElementById('cc').value;
-                const id = cc + phone;
-                if(name.length < 2) return ui.toast("Enter Valid Name");
-                if(phone.length > 5) {
-                    localStorage.setItem('dt_id', id);
-                    db.ref('u/'+id+'/profile/name').set(name);
-                    document.getElementById('auth-screen').style.display='none';
-                    app.start(id);
-                } else ui.toast("Invalid Number");
-            },
             logout: () => {
-                ui.confirm("Log Out", "Are you sure?", () => { localStorage.removeItem('dt_id'); location.reload(); });
+                ui.confirm("Log Out", "Are you sure?", () => { 
+                    localStorage.removeItem('dt_id'); 
+                    location.reload(); 
+                });
             },
             start: (id) => {
                 s.uid = id;
+                
+                // প্রথমে main-app লোড করার চেষ্টা করুন
+                document.getElementById('main-app').style.display = 'flex';
+                
                 db.ref('u/'+id).on('value', sn => {
                     const v = sn.val() || {};
                     s.data = v.att || {};
@@ -1663,6 +2145,7 @@
                     s.profile = v.profile || {name: 'User', img: ''};
                     s.sub = v.subExp || Date.now() + (3*86400000); 
                     s.history = v.history || {};
+                    s.pin = v.pin || ''; // Load user's PIN
                     s.reward = v.reward || {
                         telegram_joined: 0,
                         whatsapp_joined: 0,
@@ -1720,7 +2203,22 @@
                         hl.innerHTML += `<div class="hist-item"><div><div style="font-weight:bold;">Premium Subscription</div><div class="hist-date">${new Date(h.date).toLocaleString()}</div><div class="hist-date">Via ${h.method}</div></div><div class="hist-amt">₹${h.amount}</div></div>`;
                     });
 
-                    document.getElementById('main-app').style.display = 'flex';
+                    // After loading data, check if we need to show PIN screen
+                    // But don't show if we're already showing promo or reward or if already verified
+                    if (document.getElementById('promo-screen').style.display !== 'flex' && 
+                        document.getElementById('reward-popup').style.display !== 'flex' &&
+                        s.pin && !pinVerified) {
+                        
+                        // Small delay to ensure everything is loaded
+                        setTimeout(() => {
+                            // main-app লুকান, PIN দেখান
+                            document.getElementById('main-app').style.display = 'none';
+                            pin.init('verify');
+                        }, 500);
+                    } else if (!s.pin) {
+                        // যদি PIN না থাকে, main-app দেখান
+                        document.getElementById('main-app').style.display = 'flex';
+                    }
                     
                     if(!isExp) {
                         reward.checkAndShow();
@@ -1771,6 +2269,12 @@
             close: () => {
                 promo.stop();
                 document.getElementById('main-app').style.display = 'flex';
+                
+                // If user has PIN, show PIN screen after promo closes
+                if (s.pin && !pinVerified) {
+                    pin.init('verify');
+                }
+                
                 history.back();
             }
         };
@@ -1800,6 +2304,10 @@
 
         const data = {
             open: (d) => {
+                if (s.sub < Date.now()) { 
+                    promo.show();
+                    return;
+                }
                 selDate = d;
                 document.getElementById('modal-date').innerText = new Date(d).toDateString();
                 document.getElementById('att-modal').style.display='block';
@@ -2130,7 +2638,7 @@
         const legal = {
             show: (t) => {
                 const c = {
-                    'privacy': `<h3>Privacy Policy</h3><p><strong>Effective Date:</strong> January 1, 2024</p><p>Duty Tracker Pro ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by Duty Tracker Pro.</p><h4>1. Information We Collect</h4><p>We collect information to provide better services to all our users. The types of information we collect include:</p><ul><li><strong>Personal Information:</strong> When you register, we collect your Name and Phone Number to create a unique user identity.</li><li><strong>Usage Data:</strong> We collect data on how you interact with our services, such as duty hours recorded, attendance types (Present, Leave, etc.), and salary configurations.</li><li><strong>Device Information:</strong> We may collect information about the device you use to access the app, including the hardware model and operating system version, to ensure compatibility.</li><li><strong>Media:</strong> If you upload a profile picture, we store this image to personalize your experience. We require camera/gallery permissions for this purpose.</li></ul><h4>2. How We Use Your Information</h4><p>We use the information we collect in various ways, including to:</p><ul><li>Provide, operate, and maintain our application.</li><li>Improve, personalize, and expand our application features.</li><li>Calculate your estimated salary based on the data you input.</li><li>Send you notifications (reminders) if you opt-in.</li><li>Process payments securely via third-party gateways (Razorpay).</li></ul><h4>3. Third-Party Services</h4><p>We use third-party services for specific functionalities:</p><ul><li><strong>Firebase (Google):</strong> Used for secure authentication and real-time database storage.</li><li><strong>Razorpay:</strong> Used for processing premium subscription payments. We do not store your credit card or bank details on our servers.</li><li><strong>ImgBB:</strong> Used for hosting user profile images.</li></ul><h4>4. Data Security</h4><p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p><h4>5. Children's Privacy</h4><p>Our Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we discover that a child under 13 has provided us with personal information, we immediately delete this from our servers.</p><h4>6. Contact Us</h4><p>If you have any questions about this Privacy Policy, please contact us at: nitai.grp00@gmail.com</p>`,
+                    'privacy': `<h3>Privacy Policy</h3><p><strong>Effective Date:</strong> January 1, 2024</p><p>Duty Tracker Pro ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how your personal information is collected, used, and disclosed by Duty Tracker Pro.</p><h4>1. Information We Collect</h4><p>We collect information to provide better services to all our users. The types of information we collect include:</p><ul><li><strong>Personal Information:</strong> When you register, we collect your Name and Phone Number to create a unique user identity.</li><li><strong>PIN (Personal Identification Number):</strong> You set a 4-digit PIN during registration for secure access to your account. This PIN is stored encrypted and used for verification each time you open the app.</li><li><strong>Usage Data:</strong> We collect data on how you interact with our services, such as duty hours recorded, attendance types (Present, Leave, etc.), and salary configurations.</li><li><strong>Device Information:</strong> We may collect information about the device you use to access the app, including the hardware model and operating system version, to ensure compatibility.</li><li><strong>Media:</strong> If you upload a profile picture, we store this image to personalize your experience. We require camera/gallery permissions for this purpose.</li></ul><h4>2. How We Use Your Information</h4><p>We use the information we collect in various ways, including to:</p><ul><li>Provide, operate, and maintain our application.</li><li>Improve, personalize, and expand our application features.</li><li>Calculate your estimated salary based on the data you input.</li><li>Send you notifications (reminders) if you opt-in.</li><li>Process payments securely via third-party gateways (Razorpay).</li><li>Verify your identity using your PIN for secure access.</li></ul><h4>3. Third-Party Services</h4><p>We use third-party services for specific functionalities:</p><ul><li><strong>Firebase (Google):</strong> Used for secure authentication and real-time database storage.</li><li><strong>Razorpay:</strong> Used for processing premium subscription payments. We do not store your credit card or bank details on our servers.</li><li><strong>ImgBB:</strong> Used for hosting user profile images.</li></ul><h4>4. Data Security</h4><p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p><h4>5. Children's Privacy</h4><p>Our Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we discover that a child under 13 has provided us with personal information, we immediately delete this from our servers.</p><h4>6. Contact Us</h4><p>If you have any questions about this Privacy Policy, please contact us at: nitai.grp00@gmail.com</p>`,
                     'terms': `<h3>Terms & Conditions</h3><p><strong>Last Updated:</strong> January 1, 2024</p><p>By downloading or using the app, these terms will automatically apply to you – you should make sure therefore that you read them carefully before using the app.</p><h4>1. Usage License</h4><p>Duty Tracker Pro grants you a personal, non-exclusive, non-transferable, limited privilege to enter and use the app. You are not allowed to copy, or modify the app, any part of the app, or our trademarks in any way.</p><h4>2. User Responsibilities</h4><p>You are responsible for keeping your phone and access to the app secure. You are also responsible for the accuracy of the data (attendance, salary rates) you input into the application. The app calculates salary based solely on your inputs.</p><h4>3. Service Availability</h4><p>The app is provided "as is" and "as available". We do not warrant that the app will be uninterrupted or error-free. We reserve the right to withdraw or amend the service we provide without notice.</p><h4>4. Limitations of Liability</h4><p>In no event shall Duty Tracker Pro or its developers be liable for any direct, indirect, incidental, special, consequential or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data or other intangible losses resulting from the use of or inability to use the service.</p><h4>5. Governing Law</h4><p>These terms and conditions are governed by and construed in accordance with the laws of India and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>`,
                     'refund': `<h3>Refund Policy</h3><p><strong>Last Updated:</strong> January 1, 2024</p><p>Thank you for buying a subscription to Duty Tracker Pro.</p><h4>1. Digital Goods</h4><p>Since the Service offers non-tangible, irrevocable digital goods (Premium Subscription), we generally do not provide refunds after the product is purchased, which you acknowledge prior to purchasing any product on the Website/App.</p><h4>2. Exceptional Circumstances</h4><p>We may honor requests for the refund on the following reasons:</p><ul><li><strong>Non-delivery of the product:</strong> If for some reason the premium features were not unlocked after a successful transaction. In this case, we recommend contacting us for assistance.</li><li><strong>Major defects:</strong> Although all the products are thoroughly tested before release, unexpected errors may occur. You should contact our Support Team for such issues.</li></ul><h4>3. Contact for Refunds</h4><p>If you believe you are eligible for a refund, please contact us within 48 hours of purchase at nitai.grp00@gmail.com with your Transaction ID and Registered Phone Number.</p>`,
                     'subscription': `<h3>Subscription Policy</h3><p>Duty Tracker Pro offers premium features via paid subscriptions.</p><h4>1. Billing Cycle</h4><p>The subscription fee for the Premium Service will be charged as a one-time payment for the specific period selected (e.g., 1 Month or 1 Year). <strong>We do not support auto-debit or automatic renewal.</strong> Your subscription will automatically expire at the end of the term unless you manually choose to renew it.</p><h4>2. Pricing</h4><p>Prices are listed within the application and are subject to change. The current rates are ₹5 for 1 Month and ₹40 for 1 Year (subject to currency conversion).</p><h4>3. Termination</h4><p>Since payments are one-time and non-recurring, there is no need to cancel a subscription. Access to premium features will simply cease once the prepaid period ends.</p>`,
